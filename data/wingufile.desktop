@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Seafile
+Comment=Seafile
+TryExec=wingufile-applet
+Exec=wingufile-applet
+Icon=wingufile
+Type=Application
+Categories=Network;FileTransfer;

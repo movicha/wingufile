@@ -1,0 +1,5 @@
+web/deprecated.py
+web/main.py
+gui/gtk/init-wingufile-window.ui
+gui/gtk/wingufile-trayicon.ui
+web/pygettext.py
