@@ -1,0 +1,9 @@
+[encoding: UTF-8]
+gui/common/applet-common.c
+gui/common/translate-commit-desc.c
+gui/gtk/init-ccnet.c
+gui/gtk/wingufile-applet.c
+gui/gtk/trayicon.c
+gui/win/init-ccnet.c
+gui/win/trayicon.c
+gui/win/wingufile-applet.c

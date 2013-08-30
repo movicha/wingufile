@@ -1,0 +1,1 @@
+SUBDIRS = wingufile seaserv

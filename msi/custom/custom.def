@@ -1,0 +1,4 @@
+LIBRARY wingufile_custom
+EXPORTS
+TerminateSeafile
+RemoveSeafileAutoStart

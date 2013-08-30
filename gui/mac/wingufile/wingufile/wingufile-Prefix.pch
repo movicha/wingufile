@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'wingufile' target in the 'wingufile' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif

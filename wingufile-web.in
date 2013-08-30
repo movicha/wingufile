@@ -1,0 +1,18 @@
+#!/bin/bash
+
+prefix=@prefix@
+pkgdatadir=${prefix}/share/wingufile
+
+export PYTHONPATH=@pythondir@:$PYTHONPATH
+
+if [ $1 == "start" ]; then
+    if [ -f /tmp/wingufile-web.pid ]; then
+        kill -9 `cat /tmp/wingufile-web.pid`
+    fi
+    cd ${pkgdatadir}/web
+    @PYTHON@ main.py 127.0.0.1:13420 &
+    echo $! > /tmp/wingufile-web.pid
+elif [ $1 == "stop" ]; then
+    kill -9 `cat /tmp/wingufile-web.pid`
+    rm -f /tmp/wingufile-web.pid
+fi
