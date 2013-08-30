@@ -1,14 +1,14 @@
 Introduction
 ============
 
-Dropbox is good for file syncing and sharing, but is not an ideal place for collaboration. So we build Seafile, a better place for managing documents together. 
+Dropbox is good for file syncing and sharing, but is not an ideal place for collaboration. So we built Wingufile, a better place for managing documents together. 
 
-In Seafile, you can create groups with file syncing, wiki, discussion and tasks. It enables you to easily collaborate around documents within a team. In addition, it is open source. So you can build a private cloud freely for your organization.
+In Wingufile, you can create groups with file syncing, wiki, discussion and tasks. It enables you to easily collaborate around documents within a team. In addition, it is open source. So you can build a private cloud freely for your organization.
 
 Feature Summary
 ===============
 
-Seafile is a full-fledged document collaboration platform. It has following features:
+Wingufile is a full-fledged document collaboration platform. It has following features:
 
 1. Groups with file syncing, wiki, discussion and tasks.
 2. Managing files into libraries. Each library can be synced separately.
@@ -17,7 +17,7 @@ Seafile is a full-fledged document collaboration platform. It has following feat
 5. Library encryption with a user chosen password.
 
 Compared to other open-source Dropbox-like projects, such as
-<https://github.com/hbons/SparkleShare>, Seafile has several advantages:
+<https://github.com/hbons/SparkleShare>, Wingufile has several advantages:
 
 1. Mature, reliable, production-ready file syncing algorithm.
 2. Doesn't depend on Git.
@@ -26,7 +26,7 @@ Compared to other open-source Dropbox-like projects, such as
 Internal
 ========
 
-Seafile uses GIT's version control model, but simplified for automatic
+Wingufile uses GIT's version control model, but simplified for automatic
 synchronization, and doesn't depend on GIT.
 Every library is like a GIT repository. It has
 its own unique history, which consists of a list of commits.
@@ -48,17 +48,17 @@ Differences to GIT:
 Build and Run
 =============
 
-See <https://github.com/haiwen/wingufile/wiki>
+See <https://github.com/clouidio/wingufile/wiki>
 
 Internationalization (I18n)
 ==========
 
-See [po/i18n.markdown](https://github.com/haiwen/wingufile/blob/master/po/i18n.markdown)
+See [po/i18n.markdown](https://github.com/clouidio/wingufile/blob/master/po/i18n.markdown)
 
 Change Logs
 ===========
 
-See <https://seacloud.cc/group/3/wiki/home/>
+See <https://www.clouidio.com/group/3/wiki/home/>
 
 
 Why Open Source
@@ -66,14 +66,14 @@ Why Open Source
 
 Our primary goal is to build a first-class level production. Since we are only a small team, we think the goal can only be achieved by collaborating with the whole world.
 
-Seafile is an open and extensible system. A library is a collection of files that could be synced. It can be presented to users as a Wiki, a set of notes, a gallery and so on. We have already write the Wiki module as an example. We need your contributions to make Seafile more versatile. Let's build an awesome system together!
+Wingufile is an open and extensible system. A library is a collection of files that could be synced. It can be presented to users as a Wiki, a set of notes, a gallery and so on. We have already write the Wiki module as an example. We need your contributions to make Wingufile more versatile. Let's build an awesome system together!
 
 Licence 
 =======
 
-Seafile and its desktop and mobile clients are published under GPLv3.
+Wingufile and its desktop and mobile clients are published under GPLv3.
 
-The Seafile server's web end, i.e. Seahub, is published under Apache License.
+The Wingufile server's web end, i.e. Winguhub, is published under Apache License.
 
 Contact
 =======
