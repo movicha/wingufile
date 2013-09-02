@@ -14,7 +14,7 @@
 #include "getcs-proc.h"
 
 
-G_DEFINE_TYPE (SeafileGetcsProc, wingufile_getcs_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileGetcsProc, wingufile_getcs_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -29,7 +29,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_getcs_proc_class_init (SeafileGetcsProcClass *klass)
+wingufile_getcs_proc_class_init (WingufileGetcsProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -40,7 +40,7 @@ wingufile_getcs_proc_class_init (SeafileGetcsProcClass *klass)
 }
 
 static void
-wingufile_getcs_proc_init (SeafileGetcsProc *processor)
+wingufile_getcs_proc_init (WingufileGetcsProc *processor)
 {
 }
 
@@ -107,7 +107,7 @@ handle_response (CcnetProcessor *processor,
                  char *code, char *code_msg,
                  char *content, int clen)
 {
-    SeafileGetcsProc *proc = (SeafileGetcsProc *)processor;
+    WingufileGetcsProc *proc = (WingufileGetcsProc *)processor;
     char *cs_str;
 
     if (proc->task->state != TASK_STATE_NORMAL) {

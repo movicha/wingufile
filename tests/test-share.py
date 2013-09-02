@@ -6,7 +6,7 @@ import time
 import shutil
 
 import common
-from common import CcnetDaemon, SeafileDaemon, print_cmsg, db_item_exists
+from common import CcnetDaemon, WingufileDaemon, print_cmsg, db_item_exists
 import ccnet
 from pywingurpc import *
 import wingufile
@@ -35,13 +35,13 @@ if not os.access("basic/worktree", os.F_OK):
         print_cmsg("Failed to create worktree: " + e.strerror)
         cleanup_and_exit()
 
-winguf_daemon1 = SeafileDaemon("basic/conf1")
+winguf_daemon1 = WingufileDaemon("basic/conf1")
 winguf_daemon1.start("-w", "basic/worktree/wt1")
-winguf_daemon2 = SeafileDaemon("basic/conf2")
+winguf_daemon2 = WingufileDaemon("basic/conf2")
 winguf_daemon2.start("-r")
-winguf_daemon3 = SeafileDaemon("basic/conf3")
+winguf_daemon3 = WingufileDaemon("basic/conf3")
 winguf_daemon3.start("-w", "basic/worktree/wt3")
-winguf_daemon4 = SeafileDaemon("basic/conf4")
+winguf_daemon4 = WingufileDaemon("basic/conf4")
 winguf_daemon4.start("-w", "basic/worktree/wt4")
 
 print_cmsg("sleep")

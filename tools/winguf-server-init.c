@@ -174,7 +174,7 @@ int main (int argc, char **argv)
         return 1;
         }
 
-        /* Create database for Seafile server. */
+        /* Create database for Wingufile server. */
         snprintf (sql, sizeof(sql), "CREATE DATABASE IF NOT EXISTS `%s`",
               config.db_name);
         ret = winguf_db_query (db_root, sql);

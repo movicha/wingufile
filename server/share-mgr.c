@@ -9,7 +9,7 @@
 #include "winguf-db.h"
 
 SeafShareManager *
-winguf_share_manager_new (SeafileSession *winguf)
+winguf_share_manager_new (WingufileSession *winguf)
 {
     SeafShareManager *mgr = g_new0 (SeafShareManager, 1);
 
@@ -103,7 +103,7 @@ collect_repos (SeafDBRow *row, void *data)
     const char *repo_id;
     const char *email;
     const char *permission;
-    SeafileSharedRepo *srepo;
+    WingufileSharedRepo *srepo;
     
     repo_id = winguf_db_row_get_column_text (row, 0);
     email = winguf_db_row_get_column_text (row, 1);
@@ -124,7 +124,7 @@ collect_repos (SeafDBRow *row, void *data)
 static void
 fill_in_repo_info (GList *shared_repos)
 {
-    SeafileSharedRepo *srepo;
+    WingufileSharedRepo *srepo;
     GList *ptr;
     SeafRepo *repo = NULL;
     SeafCommit *commit = NULL;

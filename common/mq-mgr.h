@@ -28,11 +28,11 @@ struct _CcnetMessage;
 typedef struct _SeafMqManager SeafMqManager;
 
 struct _SeafMqManager {
-    struct _SeafileSession   *winguf;
+    struct _WingufileSession   *winguf;
     struct _SeafMqManagerPriv *priv;
 };
 
-SeafMqManager *winguf_mq_manager_new (struct _SeafileSession *winguf);   
+SeafMqManager *winguf_mq_manager_new (struct _WingufileSession *winguf);   
 
 void winguf_mq_manager_set_heartbeat_name (SeafMqManager *mgr, const char *app);
 

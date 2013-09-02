@@ -22,7 +22,7 @@
 #import "rpc-wrapper.h"
 
 
-SeafileApplet *applet = NULL;
+WingufileApplet *applet = NULL;
 
 void start_trayicon_rotate_timer (int timeout_ms, void *data);
 
@@ -54,7 +54,7 @@ int msgbox_yes_or_no (char *format, ...)
     va_end (params);
     NSString *msg = [[NSString alloc] initWithUTF8String: buf];
 
-    NSAlert *alert= [NSAlert alertWithMessageText: @"Seafile" defaultButton: @"YES" alternateButton: @"NO" otherButton: nil informativeTextWithFormat: @"%@", msg];
+    NSAlert *alert= [NSAlert alertWithMessageText: @"Wingufile" defaultButton: @"YES" alternateButton: @"NO" otherButton: nil informativeTextWithFormat: @"%@", msg];
 
     ret = [alert runModal];
     if (ret == NSAlertDefaultReturn) {
@@ -317,7 +317,7 @@ void trayicon_notify (char *title, char *buf)
     if (buf == NULL)
         return;
     if (title == NULL)
-        title = "Seafile";
+        title = "Wingufile";
     AppDelegate *delegate = [[NSApplication sharedApplication] delegate];
     [delegate popup_bubble: title message: buf];
 }
@@ -545,14 +545,14 @@ int set_wingufile_auto_start (const int on)
 
 void reset_trayicon_and_tip (void)
 {
-    char *tip = "Seafile";
+    char *tip = "Wingufile";
 
     if (!applet->client->connected) {
         trayicon_set_ccnet_state (CCNET_STATE_DOWN);
     } else {
         if (applet->auto_sync_disabled) {
             trayicon_set_ccnet_state (CCNET_STATE_AUTOSYNC_DISABLED);
-            tip = "Seafile auto sync paused";
+            tip = "Wingufile auto sync paused";
         } else {
             trayicon_set_ccnet_state (CCNET_STATE_UP);
         }

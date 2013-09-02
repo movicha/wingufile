@@ -32,12 +32,12 @@
 #define DEFAULT_THREAD_POOL_SIZE 50
 
 static void
-load_monitor_id (SeafileSession *session);
+load_monitor_id (WingufileSession *session);
 
 static int
-load_thread_pool_config (SeafileSession *session);
+load_thread_pool_config (WingufileSession *session);
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new(const char *wingufile_dir,
                     CcnetClient *ccnet_session)
 {
@@ -47,7 +47,7 @@ wingufile_session_new(const char *wingufile_dir,
     char *db_path;
     sqlite3 *config_db;
     GKeyFile *config;
-    SeafileSession *session = NULL;
+    WingufileSession *session = NULL;
 
     if (!ccnet_session)
         return NULL;
@@ -84,7 +84,7 @@ wingufile_session_new(const char *wingufile_dir,
         goto onerror;
     }
 
-    session = g_new0(SeafileSession, 1);
+    session = g_new0(WingufileSession, 1);
     session->winguf_dir = abs_wingufile_dir;
     session->tmp_file_dir = tmp_file_dir;
     session->session = ccnet_session;
@@ -172,7 +172,7 @@ onerror:
 }
 
 int
-wingufile_session_init (SeafileSession *session)
+wingufile_session_init (WingufileSession *session)
 {
     if (winguf_commit_manager_init (session->commit_mgr) < 0)
         return -1;
@@ -197,7 +197,7 @@ wingufile_session_init (SeafileSession *session)
 }
 
 int
-wingufile_session_start (SeafileSession *session)
+wingufile_session_start (WingufileSession *session)
 {
     if (cevent_manager_start (session->ev_mgr) < 0) {
         g_error ("Failed to start event manager.\n");
@@ -243,7 +243,7 @@ wingufile_session_start (SeafileSession *session)
 }
 
 int
-wingufile_session_set_monitor (SeafileSession *session, const char *peer_id)
+wingufile_session_set_monitor (WingufileSession *session, const char *peer_id)
 {
     if (wingufile_session_config_set_string (session, 
                                            KEY_MONITOR_ID,
@@ -257,7 +257,7 @@ wingufile_session_set_monitor (SeafileSession *session, const char *peer_id)
 }
 
 static void
-load_monitor_id (SeafileSession *session)
+load_monitor_id (WingufileSession *session)
 {
     char *monitor_id;
 
@@ -273,7 +273,7 @@ load_monitor_id (SeafileSession *session)
 }
 
 static int
-load_thread_pool_config (SeafileSession *session)
+load_thread_pool_config (WingufileSession *session)
 {
     int rpc_tp_size, sync_tp_size;
 

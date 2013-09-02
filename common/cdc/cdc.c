@@ -113,7 +113,7 @@ do {                                                         \
 /* content-defined chunking */
 int file_chunk_cdc(int fd_src,
                    CDCFileDescriptor *file_descr,
-                   SeafileCrypt *crypt,
+                   WingufileCrypt *crypt,
                    gboolean write_data)
 {
     char *buf;
@@ -226,7 +226,7 @@ int file_chunk_cdc(int fd_src,
 
 int filename_chunk_cdc(const char *filename,
                        CDCFileDescriptor *file_descr,
-                       SeafileCrypt *crypt,
+                       WingufileCrypt *crypt,
                        gboolean write_data)
 {
     int fd_src = g_open (filename, O_RDONLY | O_BINARY, 0);

@@ -2,7 +2,7 @@
 import ccnet
 from pywingurpc import wingurpc_func, SearpcError
 
-class SeafileRpcClient(ccnet.RpcClientBase):
+class WingufileRpcClient(ccnet.RpcClientBase):
     """RPC used in client"""
 
     def __init__(self, ccnet_client_pool, *args, **kwargs):
@@ -219,7 +219,7 @@ class SeafileRpcClient(ccnet.RpcClientBase):
     get_repo_token = wingufile_get_repo_token
 
 
-class SeafileThreadedRpcClient(ccnet.RpcClientBase):
+class WingufileThreadedRpcClient(ccnet.RpcClientBase):
     """RPC used in client that run in a thread"""
 
     def __init__(self, ccnet_client_pool, *args, **kwargs):

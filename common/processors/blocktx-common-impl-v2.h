@@ -941,9 +941,9 @@ static void
 send_block_list (CcnetProcessor *processor)
 {
 #ifdef SENDBLOCK_PROC
-    SeafileSendblockV2Proc *proc = (SeafileSendblockV2Proc *)processor;
+    WingufileSendblockV2Proc *proc = (WingufileSendblockV2Proc *)processor;
 #else
-    SeafileGetblockV2Proc *proc = (SeafileGetblockV2Proc *)processor;
+    WingufileGetblockV2Proc *proc = (WingufileGetblockV2Proc *)processor;
 #endif
     BlockList *bl = proc->tx_task->block_list;
     int i, n = 0;
@@ -971,9 +971,9 @@ static int
 process_block_bitmap (CcnetProcessor *processor, char *content, int clen)
 {
 #ifdef SENDBLOCK_PROC
-    SeafileSendblockV2Proc *proc = (SeafileSendblockV2Proc *)processor;
+    WingufileSendblockV2Proc *proc = (WingufileSendblockV2Proc *)processor;
 #else
-    SeafileGetblockV2Proc *proc = (SeafileGetblockV2Proc *)processor;
+    WingufileGetblockV2Proc *proc = (WingufileGetblockV2Proc *)processor;
 #endif
     USE_PRIV;
 

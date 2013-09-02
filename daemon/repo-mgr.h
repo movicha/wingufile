@@ -159,7 +159,7 @@ typedef struct _SeafRepoManager SeafRepoManager;
 typedef struct _SeafRepoManagerPriv SeafRepoManagerPriv;
 
 struct _SeafRepoManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     char *index_dir;
 
@@ -167,7 +167,7 @@ struct _SeafRepoManager {
 };
 
 SeafRepoManager* 
-winguf_repo_manager_new (struct _SeafileSession *winguf);
+winguf_repo_manager_new (struct _WingufileSession *winguf);
 
 int
 winguf_repo_manager_init (SeafRepoManager *mgr);

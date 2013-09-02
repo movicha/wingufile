@@ -6,7 +6,7 @@
 #include <wingurpc-client.h>
 
 
-#define APP_NAME "Seafile"
+#define APP_NAME "Wingufile"
 
 enum {
     WEB_NOT_STARTED = 0,
@@ -14,9 +14,9 @@ enum {
     WEB_READY
 };
 
-typedef struct _SeafileApplet SeafileApplet;
+typedef struct _WingufileApplet WingufileApplet;
 
-struct _SeafileApplet {
+struct _WingufileApplet {
     struct _CcnetClient             *client;
     struct _CcnetClient             *sync_client;
     struct _CcnetMqclientProc       *mqclient_proc;
@@ -38,7 +38,7 @@ struct _SeafileApplet {
     gboolean                        auto_sync_disabled;
 
 #ifndef __APPLE__
-    struct _SeafileTrayIcon         *icon;
+    struct _WingufileTrayIcon         *icon;
     int                             client_io_id;
 #endif
 
@@ -49,7 +49,7 @@ struct _SeafileApplet {
 #endif
 };
 
-extern SeafileApplet *applet;
+extern WingufileApplet *applet;
 
 /**
  *  The following functions are platform-dependent stuff needed to implment in

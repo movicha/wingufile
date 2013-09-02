@@ -15,16 +15,16 @@
 #include "applet-log.h"
 #include "utils.h"
 
-SeafileTrayIcon *
+WingufileTrayIcon *
 trayicon_new ()
 {
-    SeafileTrayIcon *icon = g_new0 (SeafileTrayIcon, 1);
+    WingufileTrayIcon *icon = g_new0 (WingufileTrayIcon, 1);
 
     return icon;
 }
 
 static void
-trayicon_set_icon (SeafileTrayIcon *icon, HICON hIcon)
+trayicon_set_icon (WingufileTrayIcon *icon, HICON hIcon)
 {
     int ret;
     unsigned int msg;
@@ -54,7 +54,7 @@ extern int tray_socket_cb(UINT message, WPARAM wParam, LPARAM lParam);
 static LRESULT CALLBACK
 WndProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    SeafileTrayIcon *icon = applet->icon;
+    WingufileTrayIcon *icon = applet->icon;
     if (!icon)
         return DefWindowProc (hWnd, message, wParam, lParam);
 
@@ -118,7 +118,7 @@ create_applet_window ()
 }
 
 static BOOL
-_trayicon_init (SeafileTrayIcon *icon)
+_trayicon_init (WingufileTrayIcon *icon)
 {
     if (!applet->hWnd)
         create_applet_window ();
@@ -135,7 +135,7 @@ _trayicon_init (SeafileTrayIcon *icon)
     icon->nid.hIcon = LoadIcon(applet->hInstance, MAKEINTRESOURCE(icon_id));
     icon->nid.uCallbackMessage = WM_TRAYNOTIFY;
 
-    wchar_t *tip_w = L"Seafile";
+    wchar_t *tip_w = L"Wingufile";
 
     wmemcpy (icon->nid.szTip, tip_w, wcslen(tip_w));
 
@@ -165,7 +165,7 @@ trayicon_init_retry (HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 
 
 void
-trayicon_init (SeafileTrayIcon *icon)
+trayicon_init (WingufileTrayIcon *icon)
 {
     if (!_trayicon_init(icon)) {
         applet_warning ("trayicon init failed, GLE=%lu\n", GetLastError());
@@ -191,7 +191,7 @@ safe_wcsncpy (wchar_t *dst, const wchar_t *src, int n)
 }
 
 void
-trayicon_set_tooltip (SeafileTrayIcon *icon, char *tooltip,
+trayicon_set_tooltip (WingufileTrayIcon *icon, char *tooltip,
                       int balloon, char *title,
                       unsigned int timeout)
 {
@@ -236,7 +236,7 @@ out:
 }
 
 void
-trayicon_set_icon_by_id(SeafileTrayIcon *icon, UINT icon_id)
+trayicon_set_icon_by_id(WingufileTrayIcon *icon, UINT icon_id)
 {
     HICON hIcon = LoadIcon(applet->hInstance, MAKEINTRESOURCE(icon_id));
     if (hIcon) {
@@ -248,7 +248,7 @@ trayicon_set_icon_by_id(SeafileTrayIcon *icon, UINT icon_id)
 
 
 void
-trayicon_delete_icon (SeafileTrayIcon *icon)
+trayicon_delete_icon (WingufileTrayIcon *icon)
 {
     Shell_NotifyIconW(NIM_DELETE, &(icon->nid));
 }

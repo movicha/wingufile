@@ -26,7 +26,7 @@
 
 
 CcnetClient *client;
-SeafileSession *winguf;
+WingufileSession *winguf;
 
 #define TEST_DIR        "../tests/basic/"
 #define CCNET_DIR       TEST_DIR "conf1/"
@@ -153,7 +153,7 @@ static int print_index (SeafRepo *repo)
 
 static int check_wingufile (const char *id)
 {
-    Seafile *wingufile;
+    Wingufile *wingufile;
 
     wingufile = winguf_fs_manager_get_wingufile (winguf->fs_mgr, id);
     if (!wingufile) {

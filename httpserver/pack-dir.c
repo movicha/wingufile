@@ -26,7 +26,7 @@
 
 typedef struct {
     struct archive *a;
-    SeafileCrypt *crypt;
+    WingufileCrypt *crypt;
     const char *top_dir_name;
     gboolean is_windows;
     time_t mtime;
@@ -68,12 +68,12 @@ add_file_to_archive (PackDirData *data,
                      SeafDirent *dent)
 {
     struct archive *a = data->a;
-    struct SeafileCrypt *crypt = data->crypt;
+    struct WingufileCrypt *crypt = data->crypt;
     gboolean is_windows = data->is_windows;
     const char *top_dir_name = data->top_dir_name;
     
     struct archive_entry *entry = NULL;
-    Seafile *file = NULL;
+    Wingufile *file = NULL;
     char *pathname = NULL;
     char buf[64 * 1024];
     int len = 0;
@@ -310,7 +310,7 @@ out:
 
 char *pack_dir (const char *dirname,
                 const char *root_id,
-                SeafileCrypt *crypt,
+                WingufileCrypt *crypt,
                 gboolean is_windows)
 {
     struct archive *a = NULL;

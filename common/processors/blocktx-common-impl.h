@@ -13,9 +13,9 @@ static int
 block_proc_start (CcnetProcessor *processor, int argc, char **argv)
 {
 #ifdef SEND
-    SeafileSendblockProc *proc = (SeafileSendblockProc *)processor;
+    WingufileSendblockProc *proc = (WingufileSendblockProc *)processor;
 #else
-    SeafileGetblockProc *proc = (SeafileGetblockProc *)processor;
+    WingufileGetblockProc *proc = (WingufileGetblockProc *)processor;
 #endif
     GString *buf;
     TransferTask *task = proc->tx_task;
@@ -54,9 +54,9 @@ release_resource (CcnetProcessor *processor)
 {
     USE_PRIV;
 #ifdef SEND
-    SeafileSendblockProc *proc = (SeafileSendblockProc *)processor;
+    WingufileSendblockProc *proc = (WingufileSendblockProc *)processor;
 #else
-    SeafileGetblockProc *proc = (SeafileGetblockProc *)processor;
+    WingufileGetblockProc *proc = (WingufileGetblockProc *)processor;
 #endif
 
     if (priv->tdata) {
@@ -731,9 +731,9 @@ static void
 send_block_list (CcnetProcessor *processor)
 {
 #ifdef SEND
-    SeafileSendblockProc *proc = (SeafileSendblockProc *)processor;
+    WingufileSendblockProc *proc = (WingufileSendblockProc *)processor;
 #else
-    SeafileGetblockProc *proc = (SeafileGetblockProc *)processor;
+    WingufileGetblockProc *proc = (WingufileGetblockProc *)processor;
 #endif  /* SEND */
     BlockList *bl = proc->tx_task->block_list;
     int i, n = 0;
@@ -761,9 +761,9 @@ static int
 process_block_bitmap (CcnetProcessor *processor, char *content, int clen)
 {
 #ifdef SEND
-    SeafileSendblockProc *proc = (SeafileSendblockProc *)processor;
+    WingufileSendblockProc *proc = (WingufileSendblockProc *)processor;
 #else
-    SeafileGetblockProc *proc = (SeafileGetblockProc *)processor;
+    WingufileGetblockProc *proc = (WingufileGetblockProc *)processor;
 #endif  /* SEND */
     USE_PRIV;
 

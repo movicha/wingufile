@@ -25,7 +25,7 @@
 
 #define WINGUFILE_INI "wingufile.ini"
 
-SeafileApplet *applet;
+WingufileApplet *applet;
 
 static int
 spawn_process (char *cmdline_in)
@@ -141,7 +141,7 @@ void on_quit ()
 }
 
 void
-wingufile_applet_init (SeafileApplet *applet)
+wingufile_applet_init (WingufileApplet *applet)
 {
     applet->client = ccnet_client_new ();
     applet->sync_client = ccnet_client_new ();
@@ -158,7 +158,7 @@ main (int argc, char **argv)
     textdomain(GETTEXT_PACKAGE);
 
     if (count_process("wingufile-applet") > 1) {
-        fprintf(stderr, _("Seafile is already running\n"));
+        fprintf(stderr, _("Wingufile is already running\n"));
         exit(1);
     }
 
@@ -169,13 +169,13 @@ main (int argc, char **argv)
 
     signal (SIGINT, sigint_handler);
 
-    applet = g_new0 (SeafileApplet, 1);
+    applet = g_new0 (WingufileApplet, 1);
     wingufile_applet_init (applet);
     wingufile_applet_start (argc, argv);
 
     applet_message ("wingufile started\n");
 
-    trayicon_set_tip ("Seafile");
+    trayicon_set_tip ("Wingufile");
 
     gtk_main ();
 
@@ -270,7 +270,7 @@ static gboolean trayicon_is_rotating = FALSE;
 static gboolean
 do_rotate ()
 {
-    SeafileTrayIcon *icon = applet->icon;
+    WingufileTrayIcon *icon = applet->icon;
     
     if (rotate_counter >= 8 || !trayicon_is_rotating || applet->auto_sync_disabled ) {
         trayicon_is_rotating = FALSE;

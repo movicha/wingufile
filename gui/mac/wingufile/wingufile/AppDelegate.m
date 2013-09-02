@@ -38,7 +38,7 @@ enum {
 @synthesize bubbleView;
 @synthesize bubbleText;
 
-@synthesize initSeafileWindow = _initSeafileWindow;
+@synthesize initWingufileWindow = _initWingufileWindow;
 @synthesize chooseDirField;
 @synthesize chooseDirWarnImg;
 
@@ -54,7 +54,7 @@ enum {
     shutdown_process ("ccnet");
 
     g_type_init();
-    applet = g_new0 (SeafileApplet, 1);
+    applet = g_new0 (WingufileApplet, 1);
     applet->client = ccnet_client_new ();
     applet->sync_client = ccnet_client_new ();
     applet->web_status = WEB_NOT_STARTED;
@@ -117,8 +117,8 @@ enum {
 - (int)show_initwingufile_window
 {
     [chooseDirField setStringValue: NSHomeDirectory()];
-    NSInteger res = [NSApp runModalForWindow: _initSeafileWindow];
-    [_initSeafileWindow close];
+    NSInteger res = [NSApp runModalForWindow: _initWingufileWindow];
+    [_initWingufileWindow close];
     if(res == RESPONSE_OK)
         return 0;
     else
@@ -143,7 +143,7 @@ enum {
     on_quit ();
 }
 
-- (IBAction)openSeafileSite: (id)sender
+- (IBAction)openWingufileSite: (id)sender
 {
     open_web_browser (WINGUFILE_WEBSITE);
 }
@@ -206,7 +206,7 @@ enum {
 
     [statusItem setImage: statusImage[0]];
     [statusItem setMenu: statusMenu];
-    [statusItem setToolTip: @"Seafile"];
+    [statusItem setToolTip: @"Wingufile"];
     [statusItem setHighlightMode: YES];
 
     [openBrowerItem setEnabled: NO];

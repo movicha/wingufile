@@ -15,7 +15,7 @@ static char *config_dir = NULL;
 static char *wingufile_dir = NULL;
 
 CcnetClient *ccnet_client;
-SeafileSession *winguf;
+WingufileSession *winguf;
 
 static const char *short_opts = "hvc:d:VDi";
 static const struct option long_opts[] = {

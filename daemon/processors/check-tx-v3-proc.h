@@ -9,23 +9,23 @@
 #include "transfer-mgr.h"
 
 #define WINGUFILE_TYPE_CHECK_TX_V3_PROC               (wingufile_check_tx_v3_proc_get_type ())
-#define WINGUFILE_CHECK_TX_V3_PROC(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_CHECK_TX_V3_PROC, SeafileCheckTxV3Proc))
+#define WINGUFILE_CHECK_TX_V3_PROC(obj)               (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_CHECK_TX_V3_PROC, WingufileCheckTxV3Proc))
 #define WINGUFILE_IS_CHECK_TX_V3_PROC(obj)            (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_CHECK_TX_PROC))
-#define WINGUFILE_CHECK_TX_V3_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_CHECK_TX_V3_PROC, SeafileCheckTxV3ProcClass))
+#define WINGUFILE_CHECK_TX_V3_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_CHECK_TX_V3_PROC, WingufileCheckTxV3ProcClass))
 #define IS_WINGUFILE_CHECK_TX_V3_PROC_CLASS(klass)    (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_CHECK_TX_V3_PROC))
-#define WINGUFILE_CHECK_TX_V3_PROC_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_CHECK_TX_V3_PROC, SeafileCheckTxV3ProcClass))
+#define WINGUFILE_CHECK_TX_V3_PROC_GET_CLASS(obj)     (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_CHECK_TX_V3_PROC, WingufileCheckTxV3ProcClass))
 
-typedef struct _SeafileCheckTxV3Proc SeafileCheckTxV3Proc;
-typedef struct _SeafileCheckTxV3ProcClass SeafileCheckTxV3ProcClass;
+typedef struct _WingufileCheckTxV3Proc WingufileCheckTxV3Proc;
+typedef struct _WingufileCheckTxV3ProcClass WingufileCheckTxV3ProcClass;
 
-struct _SeafileCheckTxV3Proc {
+struct _WingufileCheckTxV3Proc {
     CcnetProcessor parent_instance;
 
     int           type;
     TransferTask *task;
 };
 
-struct _SeafileCheckTxV3ProcClass {
+struct _WingufileCheckTxV3ProcClass {
     CcnetProcessorClass parent_class;
 };
 

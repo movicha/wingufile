@@ -46,16 +46,16 @@ typedef struct  {
     GList *block_metadata_new;
     int new_blocks;
     CcnetTimer *flush_timer;
-} SeafileHeartbeatProcPriv;
+} WingufileHeartbeatProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_HEARTBEAT_PROC, SeafileHeartbeatProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_HEARTBEAT_PROC, WingufileHeartbeatProcPriv))
 
 #define USE_PRIV \
-    SeafileHeartbeatProcPriv *priv = GET_PRIV(processor);
+    WingufileHeartbeatProcPriv *priv = GET_PRIV(processor);
 
 
-G_DEFINE_TYPE (SeafileHeartbeatProc, wingufile_heartbeat_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileHeartbeatProc, wingufile_heartbeat_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -90,7 +90,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_heartbeat_proc_class_init (SeafileHeartbeatProcClass *klass)
+wingufile_heartbeat_proc_class_init (WingufileHeartbeatProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -100,11 +100,11 @@ wingufile_heartbeat_proc_class_init (SeafileHeartbeatProcClass *klass)
     proc_class->handle_thread_done = collect_block_sizes_done;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileHeartbeatProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileHeartbeatProcPriv));
 }
 
 static void
-wingufile_heartbeat_proc_init (SeafileHeartbeatProc *processor)
+wingufile_heartbeat_proc_init (WingufileHeartbeatProc *processor)
 {
 }
 

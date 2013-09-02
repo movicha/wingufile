@@ -40,11 +40,11 @@ enum {
 
 int signals[LAST_SIGNAL];
 
-G_DEFINE_TYPE (SeafileSession, wingufile_session, G_TYPE_OBJECT);
+G_DEFINE_TYPE (WingufileSession, wingufile_session, G_TYPE_OBJECT);
 
 
 static void
-wingufile_session_class_init (SeafileSessionClass *klass)
+wingufile_session_class_init (WingufileSessionClass *klass)
 {
 
     signals[REPO_COMMITTED] =
@@ -74,7 +74,7 @@ wingufile_session_class_init (SeafileSessionClass *klass)
 }
 
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new(const char *wingufile_dir,
                     const char *worktree_dir,
                     struct _CcnetClient *ccnet_session)
@@ -84,7 +84,7 @@ wingufile_session_new(const char *wingufile_dir,
     char *tmp_file_dir;
     char *db_path;
     sqlite3 *config_db;
-    SeafileSession *session = NULL;
+    WingufileSession *session = NULL;
 
 #ifndef SEAF_TOOL
     if (!ccnet_session)
@@ -180,12 +180,12 @@ onerror:
 
 
 static void
-wingufile_session_init (SeafileSession *session)
+wingufile_session_init (WingufileSession *session)
 {
 }
 
 void
-wingufile_session_prepare (SeafileSession *session)
+wingufile_session_prepare (WingufileSession *session)
 {
     /* Start mq manager earlier, so that we can send notifications
      * when start repo manager. */
@@ -247,7 +247,7 @@ on_start_cleanup_job (void *vdata)
 static void
 cleanup_job_done (void *vdata)
 {
-    SeafileSession *session = vdata;
+    WingufileSession *session = vdata;
 
     if (cevent_manager_start (session->ev_mgr) < 0) {
         g_error ("Failed to start event manager.\n");
@@ -285,7 +285,7 @@ cleanup_job_done (void *vdata)
 }
 
 static void
-on_start_cleanup (SeafileSession *session)
+on_start_cleanup (WingufileSession *session)
 {
     ccnet_job_manager_schedule_job (winguf->job_mgr, 
                                     on_start_cleanup_job, 
@@ -294,7 +294,7 @@ on_start_cleanup (SeafileSession *session)
 }
 
 void
-wingufile_session_start (SeafileSession *session)
+wingufile_session_start (WingufileSession *session)
 {
     /* MQ must be started to send heartbeat message to applet. */
     if (winguf_mq_manager_start (session->mq_mgr) < 0) {
@@ -308,7 +308,7 @@ wingufile_session_start (SeafileSession *session)
 
 #if 0
 void
-wingufile_session_add_event (SeafileSession *session, 
+wingufile_session_add_event (WingufileSession *session, 
                            const char *type,
                            const char *first, ...)
 {

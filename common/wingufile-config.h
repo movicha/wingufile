@@ -19,7 +19,7 @@
  * Returns: config value in string. The string should be freed by caller. 
  */
 char *
-wingufile_session_config_get_string (SeafileSession *session,
+wingufile_session_config_get_string (WingufileSession *session,
                                    const char *key);
 
 /*
@@ -28,17 +28,17 @@ wingufile_session_config_get_string (SeafileSession *session,
  * otherwise, @exists will be set to FALSE and returns -1.
  */
 int
-wingufile_session_config_get_int (SeafileSession *session,
+wingufile_session_config_get_int (WingufileSession *session,
                                 const char *key,
                                 gboolean *exists);
 
 int
-wingufile_session_config_set_string (SeafileSession *session,
+wingufile_session_config_set_string (WingufileSession *session,
                                    const char *key,
                                    const char *value);
 
 int
-wingufile_session_config_set_int (SeafileSession *session,
+wingufile_session_config_set_int (WingufileSession *session,
                                 const char *key,
                                 int value);
 

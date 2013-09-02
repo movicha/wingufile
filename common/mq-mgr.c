@@ -21,7 +21,7 @@ struct _SeafMqManagerPriv {
 static int heartbeat_pulse (void *vmanager);
 
 SeafMqManager *
-winguf_mq_manager_new (SeafileSession *winguf)
+winguf_mq_manager_new (WingufileSession *winguf)
 {
     CcnetClient *client = winguf->session;
     SeafMqManager *mgr;

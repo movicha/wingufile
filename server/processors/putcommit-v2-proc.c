@@ -25,17 +25,17 @@ typedef struct  {
 
     guint32     reader_id;
     gboolean    registered;
-} SeafilePutcommitProcPriv;
+} WingufilePutcommitProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_PUTCOMMIT_V2_PROC, SeafilePutcommitProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_PUTCOMMIT_V2_PROC, WingufilePutcommitProcPriv))
 
 #define USE_PRIV \
-    SeafilePutcommitProcPriv *priv = GET_PRIV(processor);
+    WingufilePutcommitProcPriv *priv = GET_PRIV(processor);
 
 static int put_commit_start (CcnetProcessor *processor, int argc, char **argv);
 
-G_DEFINE_TYPE (SeafilePutcommitV2Proc, wingufile_putcommit_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutcommitV2Proc, wingufile_putcommit_v2_proc, CCNET_TYPE_PROCESSOR)
 
 static void
 release_resource (CcnetProcessor *processor)
@@ -54,7 +54,7 @@ release_resource (CcnetProcessor *processor)
 }
 
 static void
-wingufile_putcommit_v2_proc_class_init (SeafilePutcommitV2ProcClass *klass)
+wingufile_putcommit_v2_proc_class_init (WingufilePutcommitV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -62,11 +62,11 @@ wingufile_putcommit_v2_proc_class_init (SeafilePutcommitV2ProcClass *klass)
     proc_class->start = put_commit_start;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafilePutcommitProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufilePutcommitProcPriv));
 }
 
 static void
-wingufile_putcommit_v2_proc_init (SeafilePutcommitV2Proc *processor)
+wingufile_putcommit_v2_proc_init (WingufilePutcommitV2Proc *processor)
 {
 }
 

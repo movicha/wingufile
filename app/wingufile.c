@@ -459,7 +459,7 @@ static int list_repos (int argc, char **argv)
     printf ("ID\tName\tDescription\n");
     printf ("-------\n");
     for (ptr = repos; ptr; ptr = ptr->next) {
-        SeafileRepo *repo = ptr->data;
+        WingufileRepo *repo = ptr->data;
         printf ("%s\t%s\t%s\n", repo->_id, repo->_name, repo->_desc);
     }
 
@@ -547,7 +547,7 @@ static int list_worktrees (int argc, char **argv)
     }
 
     for (ptr = repos; ptr; ptr = ptr->next) {
-        SeafileRepo *repo = ptr->data;
+        WingufileRepo *repo = ptr->data;
         const char *wt;
 
         wt = wingufile_repo_get_worktree(repo);

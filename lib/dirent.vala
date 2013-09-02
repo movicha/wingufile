@@ -1,4 +1,4 @@
-namespace Seafile {
+namespace Wingufile {
 
 public class Dirent : Object {
 

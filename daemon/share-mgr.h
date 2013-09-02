@@ -6,7 +6,7 @@
 #include <sqlite3.h>
 #include <glib.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 struct _SeafRepo;
 struct _CcnetGroup;
 
@@ -14,7 +14,7 @@ typedef struct _SeafShareManager SeafShareManager;
 typedef struct _SeafShareManagerPriv SeafShareManagerPriv;
 
 struct _SeafShareManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     int sync_interval;
     int sync_relay_interval;
@@ -22,7 +22,7 @@ struct _SeafShareManager {
     SeafShareManagerPriv *priv;
 };
 
-SeafShareManager *winguf_share_manager_new (struct _SeafileSession *winguf);
+SeafShareManager *winguf_share_manager_new (struct _WingufileSession *winguf);
 
 int winguf_share_manager_init (SeafShareManager *mgr);
 int winguf_share_manager_start (SeafShareManager *mgr);

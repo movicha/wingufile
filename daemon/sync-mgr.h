@@ -81,10 +81,10 @@ struct _SyncTask {
     SeafRepo        *repo;  /* for convenience, only valid when in_sync. */
 };
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 struct _SeafSyncManager {
-    struct _SeafileSession   *winguf;
+    struct _WingufileSession   *winguf;
 
     GHashTable *sync_infos;
     GQueue     *sync_tasks;
@@ -96,7 +96,7 @@ struct _SeafSyncManager {
     SeafSyncManagerPriv *priv;
 };
 
-SeafSyncManager* winguf_sync_manager_new (struct _SeafileSession *winguf);
+SeafSyncManager* winguf_sync_manager_new (struct _WingufileSession *winguf);
 
 int winguf_sync_manager_init (SeafSyncManager *mgr);
 int winguf_sync_manager_start (SeafSyncManager *mgr);

@@ -69,13 +69,13 @@ winguf_commit_unref (SeafCommit *commit);
 */
 typedef gboolean (*CommitTraverseFunc) (SeafCommit *commit, void *data, gboolean *stop);
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 typedef struct _SeafCommitManager SeafCommitManager;
 typedef struct _SeafCommitManagerPriv SeafCommitManagerPriv;
 
 struct _SeafCommitManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     sqlite3    *db;
     struct SeafObjStore *obj_store;
@@ -84,7 +84,7 @@ struct _SeafCommitManager {
 };
 
 SeafCommitManager *
-winguf_commit_manager_new (struct _SeafileSession *winguf);
+winguf_commit_manager_new (struct _WingufileSession *winguf);
 
 int
 winguf_commit_manager_init (SeafCommitManager *mgr);

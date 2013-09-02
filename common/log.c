@@ -93,7 +93,7 @@ wingufile_log_init (const char *logfile, const char *ccnet_debug_level_str,
 }
 
 
-static SeafileDebugFlags debug_flags = 0;
+static WingufileDebugFlags debug_flags = 0;
 
 static GDebugKey debug_keys[] = {
   { "Transfer", WINGUFILE_DEBUG_TRANSFER },
@@ -105,13 +105,13 @@ static GDebugKey debug_keys[] = {
 };
 
 gboolean
-wingufile_debug_flag_is_set (SeafileDebugFlags flag)
+wingufile_debug_flag_is_set (WingufileDebugFlags flag)
 {
     return (debug_flags & flag) != 0;
 }
 
 void
-wingufile_debug_set_flags (SeafileDebugFlags flags)
+wingufile_debug_set_flags (WingufileDebugFlags flags)
 {
     g_message ("Set debug flags %#x\n", flags);
     debug_flags |= flags;
@@ -128,7 +128,7 @@ wingufile_debug_set_flags_string (const gchar *flags_string)
 }
 
 void
-wingufile_debug_impl (SeafileDebugFlags flag, const gchar *format, ...)
+wingufile_debug_impl (WingufileDebugFlags flag, const gchar *format, ...)
 {
     if (flag & debug_flags) {
         va_list args;

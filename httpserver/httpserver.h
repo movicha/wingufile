@@ -1,6 +1,6 @@
 #ifndef HTTPSERVER_H
 #define HTTPSERVER_H
 
-extern SeafileSession *winguf;
+extern WingufileSession *winguf;
 
 #endif /* HTTPSERVER_H */

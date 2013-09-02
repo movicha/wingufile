@@ -1402,9 +1402,9 @@ check_access_token (SearpcClient *rpc,
                     char **repo_id,
                     char **user)
 {
-    SeafileWebAccess *webaccess;
+    WingufileWebAccess *webaccess;
 
-    webaccess = (SeafileWebAccess *)
+    webaccess = (WingufileWebAccess *)
         wingufile_web_query_access_token (rpc, token, NULL);
     if (!webaccess)
         return -1;

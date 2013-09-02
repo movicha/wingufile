@@ -3,7 +3,7 @@
 
 #include "putbranch-proc.h"
 
-G_DEFINE_TYPE (SeafilePutbranchProc, wingufile_putbranch_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutbranchProc, wingufile_putbranch_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -20,7 +20,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_putbranch_proc_class_init (SeafilePutbranchProcClass *klass)
+wingufile_putbranch_proc_class_init (WingufilePutbranchProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -31,7 +31,7 @@ wingufile_putbranch_proc_class_init (SeafilePutbranchProcClass *klass)
 }
 
 static void
-wingufile_putbranch_proc_init (SeafilePutbranchProc *processor)
+wingufile_putbranch_proc_init (WingufilePutbranchProc *processor)
 {
 }
 

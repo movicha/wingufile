@@ -1,7 +1,7 @@
-                         Seafile command line client
+                         Wingufile command line client
                          ===========================
 
-For the full manual about wingufile CLI client, see [https://github.com/haiwen/wingufile/wiki/Seafile-CLI-client]
+For the full manual about wingufile CLI client, see [https://github.com/haiwen/wingufile/wiki/Wingufile-CLI-client]
 
 Table of Contents
 =================

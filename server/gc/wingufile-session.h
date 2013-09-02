@@ -14,9 +14,9 @@
 
 struct _CcnetClient;
 
-typedef struct _SeafileSession SeafileSession;
+typedef struct _WingufileSession WingufileSession;
 
-struct _SeafileSession {
+struct _WingufileSession {
     struct _CcnetClient *session;
 
     char                *winguf_dir;
@@ -34,9 +34,9 @@ struct _SeafileSession {
     int                  keep_history_days;
 };
 
-extern SeafileSession *winguf;
+extern WingufileSession *winguf;
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new (const char *wingufile_dir,
                      struct _CcnetClient *ccnet);
 

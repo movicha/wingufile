@@ -185,10 +185,10 @@ transition_state_to_error (TransferTask *task, int task_errno);
  * Transfer Manager
  */
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 struct _SeafTransferManager {
-    struct _SeafileSession   *winguf;
+    struct _WingufileSession   *winguf;
     sqlite3         *db;
 
     GHashTable      *download_tasks;
@@ -206,7 +206,7 @@ struct _SeafTransferManager {
 
 typedef struct _SeafTransferManager SeafTransferManager;
 
-SeafTransferManager *winguf_transfer_manager_new (struct _SeafileSession *winguf);
+SeafTransferManager *winguf_transfer_manager_new (struct _WingufileSession *winguf);
 
 int winguf_transfer_manager_start (SeafTransferManager *manager);
 

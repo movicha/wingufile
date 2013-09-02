@@ -22,7 +22,7 @@ struct merge_options {
     GHashTable *current_directory_set;
     gboolean recover_merge;
     gboolean force_merge;
-    SeafileCrypt *crypt;
+    WingufileCrypt *crypt;
 
     /* True if we only want to know the files that would be
      * updated in this merge, but don't want to update them in the

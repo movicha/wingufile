@@ -5,17 +5,17 @@
 
 #include <wingurpc-client.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 struct TokenManagerPriv;
 
 struct _SeafTokenManager {
-    struct _SeafileSession  *winguf;
+    struct _WingufileSession  *winguf;
     struct TokenManagerPriv *priv;
 };
 typedef struct _SeafTokenManager SeafTokenManager;
 
 SeafTokenManager *
-winguf_token_manager_new (struct _SeafileSession *session);
+winguf_token_manager_new (struct _WingufileSession *session);
 
 /* Generate a token, signed by me.
  * This is called by a master server.

@@ -29,7 +29,7 @@ struct _SeafShareManagerPriv {
 static void item_got_cb (CcnetKVItem *item, void *vmanager);
 
 SeafShareManager*
-winguf_share_manager_new (SeafileSession *winguf)
+winguf_share_manager_new (WingufileSession *winguf)
 {
     SeafShareManager *mgr = g_new0 (SeafShareManager, 1);
     mgr->priv = g_new0 (SeafShareManagerPriv, 1);

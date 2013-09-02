@@ -61,15 +61,15 @@ typedef struct {
     char *rsp_msg;
     char head_id[41];
     int has_branch;
-} SeafileCheckTxSlaveProcPriv;
+} WingufileCheckTxSlaveProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_CHECK_TX_SLAVE_PROC, SeafileCheckTxSlaveProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_CHECK_TX_SLAVE_PROC, WingufileCheckTxSlaveProcPriv))
 
 #define USE_PRIV \
-    SeafileCheckTxSlaveProcPriv *priv = GET_PRIV(processor);
+    WingufileCheckTxSlaveProcPriv *priv = GET_PRIV(processor);
 
-G_DEFINE_TYPE (SeafileCheckTxSlaveProc, wingufile_check_tx_slave_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileCheckTxSlaveProc, wingufile_check_tx_slave_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -93,7 +93,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_check_tx_slave_proc_class_init (SeafileCheckTxSlaveProcClass *klass)
+wingufile_check_tx_slave_proc_class_init (WingufileCheckTxSlaveProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -102,11 +102,11 @@ wingufile_check_tx_slave_proc_class_init (SeafileCheckTxSlaveProcClass *klass)
     proc_class->handle_update = handle_update;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileCheckTxSlaveProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileCheckTxSlaveProcPriv));
 }
 
 static void
-wingufile_check_tx_slave_proc_init (SeafileCheckTxSlaveProc *processor)
+wingufile_check_tx_slave_proc_init (WingufileCheckTxSlaveProc *processor)
 {
 }
 

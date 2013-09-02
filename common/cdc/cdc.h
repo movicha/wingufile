@@ -32,10 +32,10 @@
 
 struct _CDCFileDescriptor;
 struct _CDCDescriptor;
-struct SeafileCrypt;
+struct WingufileCrypt;
 
 typedef int (*WriteblockFunc)(struct _CDCDescriptor *chunk_descr,
-                              struct SeafileCrypt *crypt,
+                              struct WingufileCrypt *crypt,
                               uint8_t *checksum,
                               gboolean write_data);
 
@@ -63,12 +63,12 @@ typedef struct _CDCDescriptor {
 
 int file_chunk_cdc(int fd_src,
                    CDCFileDescriptor *file_descr,
-                   struct SeafileCrypt *crypt,
+                   struct WingufileCrypt *crypt,
                    gboolean write_data);
 
 int filename_chunk_cdc(const char *filename,
                        CDCFileDescriptor *file_descr,
-                       struct SeafileCrypt *crypt,
+                       struct WingufileCrypt *crypt,
                        gboolean write_data);
 
 void cdc_init ();

@@ -9,19 +9,19 @@
 
 #include "block.h"
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 typedef struct _SeafBlockManager SeafBlockManager;
 
 struct _SeafBlockManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     struct BlockBackend *backend;
 };
 
 
 SeafBlockManager *
-winguf_block_manager_new (struct _SeafileSession *winguf,
+winguf_block_manager_new (struct _WingufileSession *winguf,
                         const char *winguf_dir);
 
 /*

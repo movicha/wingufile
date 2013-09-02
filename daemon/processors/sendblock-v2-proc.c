@@ -58,13 +58,13 @@ static void handle_response (CcnetProcessor *processor,
 static void release_resource (CcnetProcessor *processor);
 static void sent_block_cb (CEvent *event, void *vprocessor);
 
-G_DEFINE_TYPE (SeafileSendblockV2Proc, wingufile_sendblock_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSendblockV2Proc, wingufile_sendblock_v2_proc, CCNET_TYPE_PROCESSOR)
 
 #define SENDBLOCK_PROC
 #include "processors/blocktx-common-impl-v2.h"
 
 static void
-wingufile_sendblock_v2_proc_class_init (SeafileSendblockV2ProcClass *klass)
+wingufile_sendblock_v2_proc_class_init (WingufileSendblockV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -77,7 +77,7 @@ wingufile_sendblock_v2_proc_class_init (SeafileSendblockV2ProcClass *klass)
 }
 
 static void
-wingufile_sendblock_v2_proc_init (SeafileSendblockV2Proc *processor)
+wingufile_sendblock_v2_proc_init (WingufileSendblockV2Proc *processor)
 {
 }
 
@@ -85,7 +85,7 @@ wingufile_sendblock_v2_proc_init (SeafileSendblockV2Proc *processor)
 static int
 block_proc_start (CcnetProcessor *processor, int argc, char **argv)
 {
-    SeafileSendblockV2Proc *proc = (SeafileSendblockV2Proc *)processor;
+    WingufileSendblockV2Proc *proc = (WingufileSendblockV2Proc *)processor;
     USE_PRIV;
     
     if (master_block_proc_start(processor, proc->tx_task,
@@ -105,7 +105,7 @@ block_proc_start (CcnetProcessor *processor, int argc, char **argv)
 static void
 release_resource (CcnetProcessor *processor)
 {
-    SeafileSendblockV2Proc *proc = (SeafileSendblockV2Proc *)processor;
+    WingufileSendblockV2Proc *proc = (WingufileSendblockV2Proc *)processor;
 
     release_thread (processor);
     descruct_bitfield (&proc->block_bitmap, &proc->active, proc->tx_task);
@@ -114,7 +114,7 @@ release_resource (CcnetProcessor *processor)
 }
 
 int
-wingufile_sendblock_v2_proc_send_block (SeafileSendblockV2Proc *proc,
+wingufile_sendblock_v2_proc_send_block (WingufileSendblockV2Proc *proc,
                                    int block_idx)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
@@ -142,7 +142,7 @@ wingufile_sendblock_v2_proc_send_block (SeafileSendblockV2Proc *proc,
 }
 
 gboolean
-wingufile_sendblock_v2_proc_is_ready (SeafileSendblockV2Proc *proc)
+wingufile_sendblock_v2_proc_is_ready (WingufileSendblockV2Proc *proc)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
     USE_PRIV;
@@ -153,7 +153,7 @@ wingufile_sendblock_v2_proc_is_ready (SeafileSendblockV2Proc *proc)
 static void
 sent_block_cb (CEvent *event, void *vprocessor)
 {
-    SeafileSendblockV2Proc *proc = vprocessor;
+    WingufileSendblockV2Proc *proc = vprocessor;
     BlockResponse *blk_rsp = event->data;
 
     if (blk_rsp->block_idx >= 0)
@@ -165,7 +165,7 @@ sent_block_cb (CEvent *event, void *vprocessor)
 static void
 process_ack (CcnetProcessor *processor, char *content, int clen)
 {
-    SeafileSendblockV2Proc *proc = (SeafileSendblockV2Proc *)processor;
+    WingufileSendblockV2Proc *proc = (WingufileSendblockV2Proc *)processor;
     int block_idx;
 
     if (content[clen-1] != '\0') {
@@ -192,7 +192,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileSendblockV2Proc *proc = (SeafileSendblockV2Proc *)processor;
+    WingufileSendblockV2Proc *proc = (WingufileSendblockV2Proc *)processor;
     USE_PRIV;
 
     if (proc->tx_task->state != TASK_STATE_NORMAL) {

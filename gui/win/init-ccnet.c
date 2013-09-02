@@ -46,7 +46,7 @@ msgbox (HWND hWnd, char *format, ...)
     va_end(params);
 
     wbuf = wchar_from_utf8 (buf);
-    MessageBoxW (hWnd, wbuf, L"Seafile", MB_ICONINFORMATION | MB_OK);
+    MessageBoxW (hWnd, wbuf, L"Wingufile", MB_ICONINFORMATION | MB_OK);
 
     g_free (wbuf);
 }
@@ -64,7 +64,7 @@ msgbox_yes_or_no (HWND hWnd, char *format, ...)
     va_end(params);
 
     wbuf = wchar_from_utf8 (buf);
-    res = MessageBoxW (hWnd, wbuf, L"Seafile", MB_ICONQUESTION | MB_YESNO);
+    res = MessageBoxW (hWnd, wbuf, L"Wingufile", MB_ICONQUESTION | MB_YESNO);
 
     g_free (wbuf);
     return (res == IDYES);
@@ -255,10 +255,10 @@ set_wingufdir_attributes ()
     char *icon_path = NULL;
     char *ini_file_path = NULL;
 
-    wchar_t *wingufile_dir_w = NULL; /* C:\\Seafile\\wingufile-data */
-    wchar_t *wingufdir_w =  NULL;    /* C:\\Seafile */
-    wchar_t *icon_path_w = NULL; /* C:\\Program Files\\Seafile\\bin\\wingufdir.ico */
-    wchar_t * ini_file_path_w = NULL; /* C:\\Seafile\\Desktop.ini */
+    wchar_t *wingufile_dir_w = NULL; /* C:\\Wingufile\\wingufile-data */
+    wchar_t *wingufdir_w =  NULL;    /* C:\\Wingufile */
+    wchar_t *icon_path_w = NULL; /* C:\\Program Files\\Wingufile\\bin\\wingufdir.ico */
+    wchar_t * ini_file_path_w = NULL; /* C:\\Wingufile\\Desktop.ini */
 
     FILE *ini_file = NULL;
 
@@ -313,22 +313,22 @@ out:
 
 extern char *wingufile_bin_dir;
 
-/* Copy manual from install dir to Seafile directory */
+/* Copy manual from install dir to Wingufile directory */
 void
 copy_user_manual ()
 {
-    char *installdir;            /* C:\Program Files\Seafile */
-    char *wingufdir;              /* C:\Seafile */
-    char *src_path;             /* C:\Program Files\Seafile\help.txt */
-    char *dst_path;             /* C:\Seafile\help.txt */
+    char *installdir;            /* C:\Program Files\Wingufile */
+    char *wingufdir;              /* C:\Wingufile */
+    char *src_path;             /* C:\Program Files\Wingufile\help.txt */
+    char *dst_path;             /* C:\Wingufile\help.txt */
 
     wchar_t *src_path_w, *dst_path_w;
 
     installdir = g_path_get_dirname (wingufile_bin_dir);
     wingufdir = g_path_get_dirname (applet->wingufile_dir);
 
-    src_path = g_build_filename (installdir, _("Seafile help.txt"), NULL);
-    dst_path = g_build_filename (wingufdir, _("Seafile help.txt"), NULL);
+    src_path = g_build_filename (installdir, _("Wingufile help.txt"), NULL);
+    dst_path = g_build_filename (wingufdir, _("Wingufile help.txt"), NULL);
 
     src_path_w = wchar_from_utf8 (src_path);
     dst_path_w = wchar_from_utf8 (dst_path);
@@ -371,7 +371,7 @@ browse_for_folder()
 }
 
 static BOOL CALLBACK
-InitSeafileProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+InitWingufileProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     int len;
     wchar_t wingufiledir[SEAF_PATH_MAX];
@@ -427,7 +427,7 @@ InitSeafileProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             char *dir = wchar_to_utf8(wingufiledir);
 
             applet->wingufile_dir = g_build_filename(dir,
-                                                   "Seafile",
+                                                   "Wingufile",
                                                    "wingufile-data", NULL);
 
             g_free (dir);
@@ -477,7 +477,7 @@ show_init_wingufile_window ()
 
     response = DialogBox (applet->hInstance,
                           MAKEINTRESOURCE(IDD_INIT_WINGUFILE),
-                          applet->hWnd, InitSeafileProc);
+                          applet->hWnd, InitWingufileProc);
     if (response != INIT_CCNET_SUCCESS) {
         return -1;
     }

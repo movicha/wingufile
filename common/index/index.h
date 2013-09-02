@@ -88,7 +88,7 @@ extern int git_munmap(void *start, size_t length);
 #define S_IFGITLINK    0160000
 #define S_ISGITLINK(m)    (((m) & S_IFMT) == S_IFGITLINK)
 
-struct SeafileCrypt;
+struct WingufileCrypt;
 
 /*
  * Basic data structures for the directory cache
@@ -400,14 +400,14 @@ extern int remove_file_from_index(struct index_state *, const char *path);
 
 typedef int (*IndexCB) (const char *path,
                         unsigned char sha1[],
-                        struct SeafileCrypt *crypt);
+                        struct WingufileCrypt *crypt);
 
 int add_to_index(struct index_state *istate,
                  const char *path,
                  const char *full_path,
                  SeafStat *st,
                  int flags,
-                 struct SeafileCrypt *crypt,
+                 struct WingufileCrypt *crypt,
                  IndexCB index_cb);
 
 int

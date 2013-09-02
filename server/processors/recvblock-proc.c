@@ -38,10 +38,10 @@ static void handle_update (CcnetProcessor *processor,
 static void recv_block_cb (CEvent *event, void *vprocessor);
 static void release_resource (CcnetProcessor *processor);
 
-G_DEFINE_TYPE (SeafileRecvblockProc, wingufile_recvblock_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileRecvblockProc, wingufile_recvblock_proc, CCNET_TYPE_PROCESSOR)
 
 static void
-wingufile_recvblock_proc_class_init (SeafileRecvblockProcClass *klass)
+wingufile_recvblock_proc_class_init (WingufileRecvblockProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -54,7 +54,7 @@ wingufile_recvblock_proc_class_init (SeafileRecvblockProcClass *klass)
 }
 
 static void
-wingufile_recvblock_proc_init (SeafileRecvblockProc *processor)
+wingufile_recvblock_proc_init (WingufileRecvblockProc *processor)
 {
 }
 

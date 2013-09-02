@@ -57,10 +57,10 @@ static void handle_response (CcnetProcessor *processor,
 static void release_resource (CcnetProcessor *processor);
 static void got_block_cb (CEvent *event, void *vprocessor);
 
-G_DEFINE_TYPE (SeafileGetblockProc, wingufile_getblock_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileGetblockProc, wingufile_getblock_proc, CCNET_TYPE_PROCESSOR)
 
 static void
-wingufile_getblock_proc_class_init (SeafileGetblockProcClass *klass)
+wingufile_getblock_proc_class_init (WingufileGetblockProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -73,12 +73,12 @@ wingufile_getblock_proc_class_init (SeafileGetblockProcClass *klass)
 }
 
 static void
-wingufile_getblock_proc_init (SeafileGetblockProc *processor)
+wingufile_getblock_proc_init (WingufileGetblockProc *processor)
 {
 }
 
 int
-wingufile_getblock_proc_get_block (SeafileGetblockProc *proc,
+wingufile_getblock_proc_get_block (WingufileGetblockProc *proc,
                                  int block_idx)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
@@ -102,7 +102,7 @@ wingufile_getblock_proc_get_block (SeafileGetblockProc *proc,
 }
 
 gboolean
-wingufile_getblock_proc_is_ready (SeafileGetblockProc *proc)
+wingufile_getblock_proc_is_ready (WingufileGetblockProc *proc)
 {
     return (((CcnetProcessor *)proc)->state == READY);
 }
@@ -110,7 +110,7 @@ wingufile_getblock_proc_is_ready (SeafileGetblockProc *proc)
 static void
 got_block_cb (CEvent *event, void *vprocessor)
 {
-    SeafileGetblockProc *proc = vprocessor;
+    WingufileGetblockProc *proc = vprocessor;
     BlockResponse *blk_rsp = event->data;
 
     if (blk_rsp->block_idx >= 0) {
@@ -151,7 +151,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileGetblockProc *proc = (SeafileGetblockProc *)processor;
+    WingufileGetblockProc *proc = (WingufileGetblockProc *)processor;
 
     if (proc->tx_task->state != TASK_STATE_NORMAL) {
         g_debug ("Task not running, get-block proc exits.\n");

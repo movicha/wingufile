@@ -31,13 +31,13 @@ typedef struct  {
     char        buf[4096];
     char       *bufptr;
     int         pending_objects;
-} SeafileRecvcommitProcPriv;
+} WingufileRecvcommitProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_RECVCOMMIT_PROC, SeafileRecvcommitProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_RECVCOMMIT_PROC, WingufileRecvcommitProcPriv))
 
 #define USE_PRIV \
-    SeafileRecvcommitProcPriv *priv = GET_PRIV(processor);
+    WingufileRecvcommitProcPriv *priv = GET_PRIV(processor);
 
 static int recv_commit_start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -45,10 +45,10 @@ static void handle_update (CcnetProcessor *processor,
                            char *content, int clen);
 
 
-G_DEFINE_TYPE (SeafileRecvcommitProc, wingufile_recvcommit_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileRecvcommitProc, wingufile_recvcommit_proc, CCNET_TYPE_PROCESSOR)
 
 static void
-wingufile_recvcommit_proc_class_init (SeafileRecvcommitProcClass *klass)
+wingufile_recvcommit_proc_class_init (WingufileRecvcommitProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -56,22 +56,22 @@ wingufile_recvcommit_proc_class_init (SeafileRecvcommitProcClass *klass)
     proc_class->start = recv_commit_start;
     proc_class->handle_update = handle_update;
 
-    g_type_class_add_private (klass, sizeof (SeafileRecvcommitProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileRecvcommitProcPriv));
 }
 
 static void
-wingufile_recvcommit_proc_init (SeafileRecvcommitProc *processor)
+wingufile_recvcommit_proc_init (WingufileRecvcommitProc *processor)
 {
 }
 
 inline static void
-request_object_batch_begin (SeafileRecvcommitProcPriv *priv)
+request_object_batch_begin (WingufileRecvcommitProcPriv *priv)
 {
     priv->bufptr = priv->buf;
 }
 
 inline static void
-request_object_batch (SeafileRecvcommitProcPriv *priv, const char *id)
+request_object_batch (WingufileRecvcommitProcPriv *priv, const char *id)
 {
     memcpy (priv->bufptr, id, 40);
     priv->bufptr += 40;
@@ -83,7 +83,7 @@ request_object_batch (SeafileRecvcommitProcPriv *priv, const char *id)
 
 inline static void
 request_object_batch_flush (CcnetProcessor *processor,
-                            SeafileRecvcommitProcPriv *priv)
+                            WingufileRecvcommitProcPriv *priv)
 {
     if (priv->bufptr == priv->buf)
         return;

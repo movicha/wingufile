@@ -72,7 +72,7 @@
                     <property name="yalign">0</property>
                     <property name="xpad">23</property>
                     <property name="ypad">3</property>
-                    <property name="label" translatable="yes">Please choose a directory to store Seafile data. 
+                    <property name="label" translatable="yes">Please choose a directory to store Wingufile data. 
 
 The wingufile data will be saved in a sub-directory named &lt;b&gt;wingufile-data&lt;/b&gt; under the directory you choose. The wingufile data may take much space, please choose a disk with much free space.
 
@@ -85,7 +85,7 @@ If sub-directory &lt;b&gt;wingufile-data&lt;/b&gt; already exists there, the old
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Welcome to Seafile&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Welcome to Wingufile&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>

@@ -383,7 +383,7 @@ should_ignore(const char *basepath, const char *filename, void *data)
 static int
 index_cb (const char *path,
           unsigned char sha1[],
-          SeafileCrypt *crypt)
+          WingufileCrypt *crypt)
 {
     /* Check in blocks and get object ID. */
     if (winguf_fs_manager_index_blocks (winguf->fs_mgr, path, sha1, crypt) < 0) {
@@ -397,7 +397,7 @@ static int
 add_recursive (struct index_state *istate, 
                const char *worktree,
                const char *path,
-               SeafileCrypt *crypt,
+               WingufileCrypt *crypt,
                gboolean ignore_empty_dir,
                GList *ignore_list)
 {
@@ -538,7 +538,7 @@ remove_deleted (struct index_state *istate, const char *worktree,
 static int
 index_add (SeafRepo *repo, struct index_state *istate, const char *path)
 {
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     GList *ignore_list = NULL;
 
     /* Skip any leading '/'. */
@@ -579,7 +579,7 @@ winguf_repo_index_worktree_files (const char *repo_id,
     char index_path[SEAF_PATH_MAX];
     struct index_state istate;
     unsigned char key[16], iv[16];
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     struct cache_tree *it = NULL;
     GList *ignore_list = NULL;
 
@@ -1375,7 +1375,7 @@ compare_repo (const SeafRepo *srepo, const SeafRepo *trepo)
 }
 
 SeafRepoManager*
-winguf_repo_manager_new (SeafileSession *winguf)
+winguf_repo_manager_new (WingufileSession *winguf)
 {
     SeafRepoManager *mgr = g_new0 (SeafRepoManager, 1);
 

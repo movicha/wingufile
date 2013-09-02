@@ -80,7 +80,7 @@ extern ObjBackend *
 obj_backend_fs_new (const char *obj_dir);
 
 struct SeafObjStore *
-winguf_obj_store_new (SeafileSession *winguf, const char *obj_type)
+winguf_obj_store_new (WingufileSession *winguf, const char *obj_type)
 {
     SeafObjStore *store = g_new0 (SeafObjStore, 1);
 

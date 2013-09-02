@@ -6,7 +6,7 @@ You are welcome to add translation to wingufile client in your language.
 
 For example, if you like to add Russian translation.
 
-- Make sure you can [Build Seafile Client from source](https://github.com/haiwen/wingufile/wiki/Build-and-use-wingufile-client-from-source)
+- Make sure you can [Build Wingufile Client from source](https://github.com/haiwen/wingufile/wiki/Build-and-use-wingufile-client-from-source)
 
 - Go to the `po/` directory
 
@@ -41,7 +41,7 @@ intltool-udpate ru
 
 - Continue running `intltool-update ru` and check that you have 0 fuzzy and 0 untranslated, then you're finished.
 
-## Step 2: Translate the local web interface of Seafile Client
+## Step 2: Translate the local web interface of Wingufile Client
 
 Translating the local web interface involves a bit more work to do. However, you can just finish the following steps and leave the rest work to wingufile developers.
 
@@ -56,6 +56,6 @@ cp web/i18n/zh_CN/LC_MESSAGES/messages.po web/i18n/ru/LC_MESSAGES/
 ```
 - Edit the `messages.po` entry by entry.
 
-## Step 3: Contribute your translation to Seafile
+## Step 3: Contribute your translation to Wingufile
 
 Fork wingufile and send us a pull request, we'll check and handle the rest of the work.

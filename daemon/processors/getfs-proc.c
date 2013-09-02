@@ -40,16 +40,16 @@ typedef struct  {
 
     char *obj_seg;
     int  obj_seg_len;
-} SeafileGetfsProcPriv;
+} WingufileGetfsProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_GETFS_PROC, SeafileGetfsProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_GETFS_PROC, WingufileGetfsProcPriv))
 
 #define USE_PRIV \
-    SeafileGetfsProcPriv *priv = GET_PRIV(processor);
+    WingufileGetfsProcPriv *priv = GET_PRIV(processor);
 
 
-G_DEFINE_TYPE (SeafileGetfsProc, wingufile_getfs_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileGetfsProc, wingufile_getfs_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -68,7 +68,7 @@ release_resource(CcnetProcessor *processor)
 }
 
 static void
-wingufile_getfs_proc_class_init (SeafileGetfsProcClass *klass)
+wingufile_getfs_proc_class_init (WingufileGetfsProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -77,16 +77,16 @@ wingufile_getfs_proc_class_init (SeafileGetfsProcClass *klass)
     proc_class->handle_response = handle_response;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileGetfsProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileGetfsProcPriv));
 }
 
 static void
-wingufile_getfs_proc_init (SeafileGetfsProc *processor)
+wingufile_getfs_proc_init (WingufileGetfsProc *processor)
 {
 }
 
 inline static void
-request_object_batch_begin (SeafileGetfsProcPriv *priv)
+request_object_batch_begin (WingufileGetfsProcPriv *priv)
 {
     priv->bufptr = priv->buf;
     priv->n_batch = 0;
@@ -94,7 +94,7 @@ request_object_batch_begin (SeafileGetfsProcPriv *priv)
 
 inline static void
 request_object_batch_flush (CcnetProcessor *processor,
-                            SeafileGetfsProcPriv *priv)
+                            WingufileGetfsProcPriv *priv)
 {
     if (priv->bufptr == priv->buf)
         return;
@@ -111,7 +111,7 @@ request_object_batch_flush (CcnetProcessor *processor,
 
 inline static void
 request_object_batch (CcnetProcessor *processor, 
-                      SeafileGetfsProcPriv *priv,
+                      WingufileGetfsProcPriv *priv,
                       const char *id)
 {
     g_assert(priv->bufptr - priv->buf <= (4096-41));
@@ -202,7 +202,7 @@ static int
 start (CcnetProcessor *processor, int argc, char **argv)
 {
     USE_PRIV;
-    TransferTask *task = ((SeafileGetfsProc *)processor)->tx_task;
+    TransferTask *task = ((WingufileGetfsProc *)processor)->tx_task;
     GString *buf = g_string_new (NULL);
 
     if (task->session_token)
@@ -237,7 +237,7 @@ recv_fs_object (CcnetProcessor *processor, char *content, int clen)
     USE_PRIV;
     ObjectPack *pack = (ObjectPack *)content;
     uint32_t type;
-    /* TransferTask *task = ((SeafileGetfsProc *)processor)->tx_task; */
+    /* TransferTask *task = ((WingufileGetfsProc *)processor)->tx_task; */
 
     if (clen < sizeof(ObjectPack)) {
         g_warning ("[getfs] invalid object id.\n");
@@ -278,7 +278,7 @@ recv_fs_object (CcnetProcessor *processor, char *content, int clen)
 
 bad:
     g_warning ("Bad fs object received.\n");
-    transfer_task_set_error (((SeafileGetfsProc *)processor)->tx_task,
+    transfer_task_set_error (((WingufileGetfsProc *)processor)->tx_task,
                              TASK_ERR_DOWNLOAD_FS);
     ccnet_processor_send_update (processor, SC_BAD_OBJECT, SS_BAD_OBJECT,
                                  NULL, 0);
@@ -317,7 +317,7 @@ static void
 load_fsroot_list (CcnetProcessor *processor)
 {
     USE_PRIV;
-    SeafileGetfsProc *proc = (SeafileGetfsProc *) processor;
+    WingufileGetfsProc *proc = (WingufileGetfsProc *) processor;
     ObjectList *ol = proc->tx_task->fs_roots;
     int i;
     int ollen = object_list_length (ol);
@@ -333,7 +333,7 @@ handle_response (CcnetProcessor *processor,
                  char *code, char *code_msg,
                  char *content, int clen)
 {
-    SeafileGetfsProc *proc = (SeafileGetfsProc *)processor;
+    WingufileGetfsProc *proc = (WingufileGetfsProc *)processor;
     TransferTask *task = proc->tx_task;
 
     switch (processor->state) {

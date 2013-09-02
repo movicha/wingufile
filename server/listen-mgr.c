@@ -42,7 +42,7 @@ static void read_cb (struct bufferevent *bufev, void *user_data);
 static void error_cb (struct bufferevent *bufev, short what, void *user_data);
 
 static int
-get_listen_port (SeafileSession *session)
+get_listen_port (WingufileSession *session)
 {
     char *port_str;
     int port = 0;
@@ -61,7 +61,7 @@ get_listen_port (SeafileSession *session)
 
 
 SeafListenManager *
-winguf_listen_manager_new (SeafileSession *session)
+winguf_listen_manager_new (WingufileSession *session)
 {
     SeafListenManager *mgr;
     mgr = g_new0 (SeafListenManager, 1);

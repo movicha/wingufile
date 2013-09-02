@@ -37,7 +37,7 @@ static void
 write_done_cb (OSAsyncResult *res, void *cb_data);
 
 
-G_DEFINE_TYPE (SeafileRecvcommitV2Proc, wingufile_recvcommit_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileRecvcommitV2Proc, wingufile_recvcommit_v2_proc, CCNET_TYPE_PROCESSOR)
 
 static void
 release_resource (CcnetProcessor *processor)
@@ -52,7 +52,7 @@ release_resource (CcnetProcessor *processor)
 }
 
 static void
-wingufile_recvcommit_v2_proc_class_init (SeafileRecvcommitV2ProcClass *klass)
+wingufile_recvcommit_v2_proc_class_init (WingufileRecvcommitV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -65,7 +65,7 @@ wingufile_recvcommit_v2_proc_class_init (SeafileRecvcommitV2ProcClass *klass)
 }
 
 static void
-wingufile_recvcommit_v2_proc_init (SeafileRecvcommitV2Proc *processor)
+wingufile_recvcommit_v2_proc_init (WingufileRecvcommitV2Proc *processor)
 {
 }
 

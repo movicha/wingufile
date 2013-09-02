@@ -95,7 +95,7 @@ static void publish_repo_update_event (CEvent *event, void *data);
 static int open_db (SeafBranchManager *mgr);
 
 SeafBranchManager *
-winguf_branch_manager_new (struct _SeafileSession *winguf)
+winguf_branch_manager_new (struct _WingufileSession *winguf)
 {
     SeafBranchManager *mgr;
 

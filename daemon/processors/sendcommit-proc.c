@@ -68,10 +68,10 @@ static void handle_response (CcnetProcessor *processor,
                              char *content, int clen);
 
 
-G_DEFINE_TYPE (SeafileSendcommitProc, wingufile_sendcommit_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSendcommitProc, wingufile_sendcommit_proc, CCNET_TYPE_PROCESSOR)
 
 static void
-wingufile_sendcommit_proc_class_init (SeafileSendcommitProcClass *klass)
+wingufile_sendcommit_proc_class_init (WingufileSendcommitProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -81,7 +81,7 @@ wingufile_sendcommit_proc_class_init (SeafileSendcommitProcClass *klass)
 }
 
 static void
-wingufile_sendcommit_proc_init (SeafileSendcommitProc *processor)
+wingufile_sendcommit_proc_init (WingufileSendcommitProc *processor)
 {
 }
 
@@ -100,7 +100,7 @@ send_commit_start (CcnetProcessor *processor, int argc, char **argv)
 {
     GString *buf;
     int ret;
-    TransferTask *task = ((SeafileSendcommitProc *)processor)->tx_task;
+    TransferTask *task = ((WingufileSendcommitProc *)processor)->tx_task;
     
     ObjectList *ol = object_list_new ();
     ret = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
@@ -189,7 +189,7 @@ send_commits (CcnetProcessor *processor, char *content, int clen)
 static void
 send_commit_ids (CcnetProcessor *processor)
 {
-    SeafileSendcommitProc *proc = (SeafileSendcommitProc *)processor;
+    WingufileSendcommitProc *proc = (WingufileSendcommitProc *)processor;
     char buf[2048];
     char *ptr = buf;
     int i, count = 0;
@@ -226,7 +226,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileSendcommitProc *proc = (SeafileSendcommitProc *)processor;
+    WingufileSendcommitProc *proc = (WingufileSendcommitProc *)processor;
     TransferTask *task = proc->tx_task;
     if (task->state != TASK_STATE_NORMAL) {
         /* TODO: not tested yet */

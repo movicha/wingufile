@@ -14,11 +14,11 @@
 
 struct _CcnetClient;
 
-typedef struct _SeafileSession SeafileSession;
+typedef struct _WingufileSession WingufileSession;
 
 struct CcnetClientPool;
 
-struct _SeafileSession {
+struct _WingufileSession {
     struct _CcnetClient *session;
 
     char                *winguf_dir;
@@ -40,16 +40,16 @@ struct _SeafileSession {
     SeafRepoManager     *repo_mgr;
 };
 
-extern SeafileSession *winguf;
+extern WingufileSession *winguf;
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new (const char *wingufile_dir,
                      struct _CcnetClient *ccnet);
 
 int
-wingufile_session_init (SeafileSession *session);
+wingufile_session_init (WingufileSession *session);
 
 int
-wingufile_session_start (SeafileSession *session);
+wingufile_session_start (WingufileSession *session);
 
 #endif

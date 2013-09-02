@@ -209,7 +209,7 @@ class Ccnet(Project):
     def get_version(self):
         return conf[CONF_CCNET_VERSION]
 
-class Seafile(Project):
+class Wingufile(Project):
     name = 'wingufile'
     def __init__(self):
         Project.__init__(self)
@@ -345,7 +345,7 @@ def validate_args(usage, options):
 def show_build_info():
     '''Print all conf information. Confirm before continue.'''
     info('------------------------------------------')
-    info('Seafile server %s: BUILD INFO' % conf[CONF_VERSION])
+    info('Wingufile server %s: BUILD INFO' % conf[CONF_VERSION])
     info('------------------------------------------')
     info('wingufile:          %s' % conf[CONF_WINGUFILE_VERSION])
     info('ccnet:            %s' % conf[CONF_CCNET_VERSION])
@@ -491,7 +491,7 @@ def copy_scripts_and_libs():
 
     '''
     builddir = conf[CONF_BUILDDIR]
-    scripts_srcdir = os.path.join(builddir, Seafile().projdir, 'scripts')
+    scripts_srcdir = os.path.join(builddir, Wingufile().projdir, 'scripts')
     serverdir = os.path.join(builddir, 'wingufile-server')
 
     must_copy(os.path.join(scripts_srcdir, 'setup-wingufile.sh'),
@@ -732,7 +732,7 @@ def main():
 
     libwingurpc = libwingurpc()
     ccnet = Ccnet()
-    wingufile = Seafile()
+    wingufile = Wingufile()
     winguhub = Seahub()
 
     libwingurpc.uncompress()

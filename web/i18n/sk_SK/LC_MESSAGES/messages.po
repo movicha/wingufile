@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Seafile 1.7.0\n"
+"Project-Id-Version: Wingufile 1.7.0\n"
 "POT-Creation-Date: 2013-06-05 20:10+CST\n"
 "PO-Revision-Date: 2013-07-02 23:14+0100\n"
 "Last-Translator: Peter Hudec <peter.hudec@cnc.sk>\n"
@@ -63,8 +63,8 @@ msgid "Internal error."
 msgstr "Vnútorná chyba."
 
 #: templates/base.html:5 templates/base.html:37
-msgid "Seafile Client"
-msgstr "Seafile Klient"
+msgid "Wingufile Client"
+msgstr "Wingufile Klient"
 
 #: templates/base.html:26
 msgid "System"
@@ -526,19 +526,19 @@ msgid "Official Server"
 msgstr "Oficiálny server"
 
 #: templates/repos.html:40
-msgid "Four Steps to Use Seafile Client"
-msgstr "Štyri kroky na používanie Seafile klienta"
+msgid "Four Steps to Use Wingufile Client"
+msgstr "Štyri kroky na používanie Wingufile klienta"
 
 #: templates/repos.html:42
 msgid ""
-"Log in to Seafile website, either our official website or your private "
+"Log in to Wingufile website, either our official website or your private "
 "website."
 msgstr ""
-"Prihlásiť sa na Seafile stránku, oficiálnu stránku alebo privánu stránku."
+"Prihlásiť sa na Wingufile stránku, oficiálnu stránku alebo privánu stránku."
 
 #: templates/repos.html:43
-msgid "Create a library on Seafile website."
-msgstr "Vytvoriť knižnicu na Seafile stránke."
+msgid "Create a library on Wingufile website."
+msgstr "Vytvoriť knižnicu na Wingufile stránke."
 
 #: templates/repos.html:44
 msgid "Download the library to a local folder."
@@ -589,12 +589,12 @@ msgid "Notify when libraries are synchronized"
 msgstr "Notifikuj keď sú knižnice zosynchronizované"
 
 #: templates/settings.html:22
-msgid "Auto start Seafile on system startup (only for Windows)"
-msgstr "Automatický štart Seafile pri štarte systému (iba platforma Windows)"
+msgid "Auto start Wingufile on system startup (only for Windows)"
+msgstr "Automatický štart Wingufile pri štarte systému (iba platforma Windows)"
 
 #: templates/settings.html:30
-msgid "Enable encryption for data transfer (restart Seafile to take effect)"
-msgstr "Zapnúť šifrovanie pre dátový transfer (je potrebný reštart Seafile)"
+msgid "Enable encryption for data transfer (restart Wingufile to take effect)"
+msgstr "Zapnúť šifrovanie pre dátový transfer (je potrebný reštart Wingufile)"
 
 #: templates/settings.html:33
 msgid "Upload speed limit:"
@@ -607,8 +607,8 @@ msgstr "Limit pre sťahovanie："
 #~ msgid "Incorrect password. Failed to decrypt files."
 #~ msgstr "密码错误。文件解密失败。"
 
-#~ msgid "Seafile@Local"
-#~ msgstr "Seafile 本地管理"
+#~ msgid "Wingufile@Local"
+#~ msgstr "Wingufile 本地管理"
 
 #~ msgid "Files"
 #~ msgstr "文件"
@@ -619,8 +619,8 @@ msgstr "Limit pre sťahovanie："
 #~ msgid "Network"
 #~ msgstr "网络"
 
-#~ msgid "Seafile Client Version:"
-#~ msgstr "Seafile 客户端版本："
+#~ msgid "Wingufile Client Version:"
+#~ msgstr "Wingufile 客户端版本："
 
 #~ msgid "About"
 #~ msgstr "关于"

@@ -1,4 +1,4 @@
-namespace Seafile {
+namespace Wingufile {
 
 public class CryptKey : Object {
        public string key { set; get; }

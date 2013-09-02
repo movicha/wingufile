@@ -5,7 +5,7 @@ pkgconfigdir = $(libdir)/pkgconfig
 AM_CPPFLAGS = @GLIB2_CFLAGS@ -I$(top_srcdir)/include \
 	-I$(top_srcdir)/lib \
 	-I$(top_srcdir)/common \
-	-DG_LOG_DOMAIN=\"Seafile\" \
+	-DG_LOG_DOMAIN=\"Wingufile\" \
 	@CCNET_CFLAGS@ \
 	@WINGURPC_CFLAGS@ \
 	@MSVC_CFLAGS@ \

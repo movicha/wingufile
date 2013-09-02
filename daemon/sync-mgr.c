@@ -49,10 +49,10 @@ static int
 perform_sync_task (SeafSyncManager *manager, SyncTask *task);
 static int check_sync_pulse (void *vmanager);
 static int auto_commit_pulse (void *vmanager);
-static void on_repo_fetched (SeafileSession *winguf,
+static void on_repo_fetched (WingufileSession *winguf,
                              TransferTask *tx_task,
                              SeafSyncManager *manager);
-static void on_repo_uploaded (SeafileSession *winguf,
+static void on_repo_uploaded (WingufileSession *winguf,
                               TransferTask *tx_task,
                               SeafSyncManager *manager);
 static inline void
@@ -62,7 +62,7 @@ static gint compare_sync_task (gconstpointer a, gconstpointer b);
 static void sync_task_free (SyncTask *task);
 
 SeafSyncManager*
-winguf_sync_manager_new (SeafileSession *winguf)
+winguf_sync_manager_new (WingufileSession *winguf)
 {
     SeafSyncManager *mgr = g_new0 (SeafSyncManager, 1);
     mgr->priv = g_new0 (SeafSyncManagerPriv, 1);    
@@ -880,7 +880,7 @@ start_sync_repo_proc (SeafSyncManager *manager, SyncTask *task)
         winguf_sync_manager_set_task_error (task, SYNC_ERROR_UNKNOWN);
         return -1;
     }
-    ((SeafileSyncRepoProc *)processor)->task = task;
+    ((WingufileSyncRepoProc *)processor)->task = task;
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
         winguf_warning ("[sync-mgr] failed to start get wingufile-sync-repo proc.\n");
@@ -1421,7 +1421,7 @@ send_sync_error_notification (SeafRepo *repo, const char *type)
 }
 
 static void
-on_repo_fetched (SeafileSession *winguf,
+on_repo_fetched (WingufileSession *winguf,
                  TransferTask *tx_task,
                  SeafSyncManager *manager)
 {
@@ -1456,7 +1456,7 @@ on_repo_fetched (SeafileSession *winguf,
 }
 
 static void
-on_repo_uploaded (SeafileSession *winguf,
+on_repo_uploaded (WingufileSession *winguf,
                   TransferTask *tx_task,
                   SeafSyncManager *manager)
 {

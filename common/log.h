@@ -26,9 +26,9 @@ typedef enum
     WINGUFILE_DEBUG_HTTP = 1 << 4,  /* http server */
     WINGUFILE_DEBUG_MERGE = 1 << 5,
     WINGUFILE_DEBUG_OTHER = 1 << 6,
-} SeafileDebugFlags;
+} WingufileDebugFlags;
 
-void wingufile_debug_impl (SeafileDebugFlags flag, const gchar *format, ...);
+void wingufile_debug_impl (WingufileDebugFlags flag, const gchar *format, ...);
 
 #ifdef DEBUG_FLAG
 

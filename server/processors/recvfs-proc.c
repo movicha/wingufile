@@ -50,16 +50,16 @@ typedef struct  {
     guint32  reader_id;
     guint32  writer_id;
     guint32  stat_id;
-} SeafileRecvfsProcPriv;
+} WingufileRecvfsProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_RECVFS_PROC, SeafileRecvfsProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_RECVFS_PROC, WingufileRecvfsProcPriv))
 
 #define USE_PRIV \
-    SeafileRecvfsProcPriv *priv = GET_PRIV(processor);
+    WingufileRecvfsProcPriv *priv = GET_PRIV(processor);
 
 
-G_DEFINE_TYPE (SeafileRecvfsProc, wingufile_recvfs_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileRecvfsProc, wingufile_recvfs_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -100,7 +100,7 @@ release_resource(CcnetProcessor *processor)
 }
 
 static void
-wingufile_recvfs_proc_class_init (SeafileRecvfsProcClass *klass)
+wingufile_recvfs_proc_class_init (WingufileRecvfsProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -109,16 +109,16 @@ wingufile_recvfs_proc_class_init (SeafileRecvfsProcClass *klass)
     proc_class->handle_update = handle_update;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileRecvfsProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileRecvfsProcPriv));
 }
 
 static void
-wingufile_recvfs_proc_init (SeafileRecvfsProc *processor)
+wingufile_recvfs_proc_init (WingufileRecvfsProc *processor)
 {
 }
 
 inline static void
-request_object_batch_begin (SeafileRecvfsProcPriv *priv)
+request_object_batch_begin (WingufileRecvfsProcPriv *priv)
 {
     priv->bufptr = priv->buf;
     priv->n_batch = 0;
@@ -126,7 +126,7 @@ request_object_batch_begin (SeafileRecvfsProcPriv *priv)
 
 inline static void
 request_object_batch_flush (CcnetProcessor *processor,
-                            SeafileRecvfsProcPriv *priv)
+                            WingufileRecvfsProcPriv *priv)
 {
     if (priv->bufptr == priv->buf)
         return;
@@ -142,7 +142,7 @@ request_object_batch_flush (CcnetProcessor *processor,
 
 inline static void
 request_object_batch (CcnetProcessor *processor,
-                      SeafileRecvfsProcPriv *priv, const char *id)
+                      WingufileRecvfsProcPriv *priv, const char *id)
 {
     g_assert(priv->bufptr - priv->buf <= (4096-41));
 

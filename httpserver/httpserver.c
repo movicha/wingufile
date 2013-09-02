@@ -33,7 +33,7 @@ static char *privkey = NULL;
 static char *pidfile = NULL;
 
 CcnetClient *ccnet_client;
-SeafileSession *winguf;
+WingufileSession *winguf;
 
 static const char *short_opts = "hvfc:d:t:l:g:G:D:k:P:";
 static const struct option long_opts[] = {
@@ -109,7 +109,7 @@ on_httpserver_exit(void)
 }
 
 static void
-load_httpserver_config (SeafileSession *session)
+load_httpserver_config (WingufileSession *session)
 {
     GError *error = NULL;
     int port = 0;

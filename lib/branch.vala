@@ -1,6 +1,6 @@
 // compile this file with `valac --pkg posix repo.vala -C -H repo.h`
 
-namespace Seafile {
+namespace Wingufile {
 
 public class Branch : Object {
 

@@ -13,16 +13,16 @@ typedef struct {
     char *email;
     char *token;
 
-} SeafileGetrepoemailtokenProcPriv;
+} WingufileGetrepoemailtokenProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_GETREPOEMAILTOKEN_PROC, SeafileGetrepoemailtokenProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_GETREPOEMAILTOKEN_PROC, WingufileGetrepoemailtokenProcPriv))
 
 #define USE_PRIV \
-    SeafileGetrepoemailtokenProcPriv *priv = GET_PRIV(processor);
+    WingufileGetrepoemailtokenProcPriv *priv = GET_PRIV(processor);
 
 
-G_DEFINE_TYPE (SeafileGetrepoemailtokenProc, wingufile_getrepoemailtoken_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileGetrepoemailtokenProc, wingufile_getrepoemailtoken_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -43,7 +43,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_getrepoemailtoken_proc_class_init (SeafileGetrepoemailtokenProcClass *klass)
+wingufile_getrepoemailtoken_proc_class_init (WingufileGetrepoemailtokenProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -52,11 +52,11 @@ wingufile_getrepoemailtoken_proc_class_init (SeafileGetrepoemailtokenProcClass *
     proc_class->handle_response = handle_response;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileGetrepoemailtokenProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileGetrepoemailtokenProcPriv));
 }
 
 static void
-wingufile_getrepoemailtoken_proc_init (SeafileGetrepoemailtokenProc *processor)
+wingufile_getrepoemailtoken_proc_init (WingufileGetrepoemailtokenProc *processor)
 {
 }
 

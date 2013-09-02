@@ -28,17 +28,17 @@ struct _CcnetClient;
 
 
 #define WINGUFILE_TYPE_SESSION                  (wingufile_session_get_type ())
-#define WINGUFILE_SESSION(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_SESSION, SeafileSession))
+#define WINGUFILE_SESSION(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_SESSION, WingufileSession))
 #define WINGUFILE_IS_SESSION(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_SESSION))
-#define WINGUFILE_SESSION_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_SESSION, SeafileSessionClass))
+#define WINGUFILE_SESSION_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_SESSION, WingufileSessionClass))
 #define WINGUFILE_IS_SESSION_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_SESSION))
-#define WINGUFILE_SESSION_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_SESSION, SeafileSessionClass))
+#define WINGUFILE_SESSION_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_SESSION, WingufileSessionClass))
 
 
-typedef struct _SeafileSession SeafileSession;
-typedef struct _SeafileSessionClass SeafileSessionClass;
+typedef struct _WingufileSession WingufileSession;
+typedef struct _WingufileSessionClass WingufileSessionClass;
 
-struct _SeafileSession {
+struct _WingufileSession {
     GObject         parent_instance;
 
     struct _CcnetClient *session;
@@ -70,31 +70,31 @@ struct _SeafileSession {
     gboolean             started;
 };
 
-struct _SeafileSessionClass
+struct _WingufileSessionClass
 {
     GObjectClass    parent_class;
 };
 
 
-extern SeafileSession *winguf;
+extern WingufileSession *winguf;
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new(const char *wingufile_dir,
                     const char *worktree_dir,
                     struct _CcnetClient *ccnet_session);
 void
-wingufile_session_prepare (SeafileSession *session);
+wingufile_session_prepare (WingufileSession *session);
 
 void
-wingufile_session_start (SeafileSession *session);
+wingufile_session_start (WingufileSession *session);
 
 char *
-wingufile_session_get_tmp_file_path (SeafileSession *session,
+wingufile_session_get_tmp_file_path (WingufileSession *session,
                                    const char *basename,
                                    char path[]);
 #if 0
 void
-wingufile_session_add_event (SeafileSession *session, 
+wingufile_session_add_event (WingufileSession *session, 
                            const char *type,
                            const char *first, ...);
 #endif

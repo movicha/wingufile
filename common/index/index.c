@@ -847,7 +847,7 @@ int add_to_index(struct index_state *istate,
                  const char *full_path,
                  SeafStat *st,
                  int flags,
-                 SeafileCrypt *crypt,
+                 WingufileCrypt *crypt,
                  IndexCB index_cb)
 {
     int size, namelen, was_same;

@@ -8,22 +8,22 @@
 #include "transfer-mgr.h"
 
 #define WINGUFILE_TYPE_GETCS_V2_PROC                  (wingufile_getcs_v2_proc_get_type ())
-#define WINGUFILE_GETCS_V2_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_GETCS_V2_PROC, SeafileGetcsV2Proc))
+#define WINGUFILE_GETCS_V2_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_GETCS_V2_PROC, WingufileGetcsV2Proc))
 #define WINGUFILE_IS_GETCS_V2_PROC(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_GETCS_V2_PROC))
-#define WINGUFILE_GETCS_V2_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_GETCS_V2_PROC, SeafileGetcsV2ProcClass))
+#define WINGUFILE_GETCS_V2_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_GETCS_V2_PROC, WingufileGetcsV2ProcClass))
 #define IS_WINGUFILE_GETCS_V2_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_GETCS_V2_PROC))
-#define WINGUFILE_GETCS_V2_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_GETCS_V2_PROC, SeafileGetcsV2ProcClass))
+#define WINGUFILE_GETCS_V2_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_GETCS_V2_PROC, WingufileGetcsV2ProcClass))
 
-typedef struct _SeafileGetcsV2Proc SeafileGetcsV2Proc;
-typedef struct _SeafileGetcsV2ProcClass SeafileGetcsV2ProcClass;
+typedef struct _WingufileGetcsV2Proc WingufileGetcsV2Proc;
+typedef struct _WingufileGetcsV2ProcClass WingufileGetcsV2ProcClass;
 
-struct _SeafileGetcsV2Proc {
+struct _WingufileGetcsV2Proc {
     CcnetProcessor parent_instance;
 
     TransferTask *task;
 };
 
-struct _SeafileGetcsV2ProcClass {
+struct _WingufileGetcsV2ProcClass {
     CcnetProcessorClass parent_class;
 };
 

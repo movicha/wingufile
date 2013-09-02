@@ -34,15 +34,15 @@ typedef struct {
 
     char *rsp_code;
     char *rsp_msg;
-} SeafileRecvbranchProcPriv;
+} WingufileRecvbranchProcPriv;
 
-G_DEFINE_TYPE (SeafileRecvbranchProc, wingufile_recvbranch_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileRecvbranchProc, wingufile_recvbranch_proc, CCNET_TYPE_PROCESSOR)
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_RECVBRANCH_PROC, SeafileRecvbranchProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_RECVBRANCH_PROC, WingufileRecvbranchProcPriv))
 
 #define USE_PRIV \
-    SeafileRecvbranchProcPriv *priv = GET_PRIV(processor);
+    WingufileRecvbranchProcPriv *priv = GET_PRIV(processor);
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -64,7 +64,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_recvbranch_proc_class_init (SeafileRecvbranchProcClass *klass)
+wingufile_recvbranch_proc_class_init (WingufileRecvbranchProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -73,11 +73,11 @@ wingufile_recvbranch_proc_class_init (SeafileRecvbranchProcClass *klass)
     proc_class->handle_update = handle_update;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileRecvbranchProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileRecvbranchProcPriv));
 }
 
 static void
-wingufile_recvbranch_proc_init (SeafileRecvbranchProc *processor)
+wingufile_recvbranch_proc_init (WingufileRecvbranchProc *processor)
 {
 }
 

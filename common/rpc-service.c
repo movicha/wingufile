@@ -47,7 +47,7 @@ convert_repo_list (GList *inner_repos)
             continue;
 #endif
 
-        SeafileRepo *repo = wingufile_repo_new ();
+        WingufileRepo *repo = wingufile_repo_new ();
         g_object_set (repo, "id", r->id, "name", r->name,
                       "desc", r->desc, "encrypted", r->encrypted,
                       NULL);
@@ -111,7 +111,7 @@ wingufile_list_dir_by_path(const char *commit_id, const char *path, GError **err
 
     SeafDir *dir;
     SeafDirent *dent;
-    SeafileDirent *d;
+    WingufileDirent *d;
 
     GList *ptr;
     GList *res = NULL;
@@ -199,7 +199,7 @@ wingufile_get_dirid_by_path(const char *commit_id, const char *path, GError **er
 GObject *
 wingufile_get_session_info (GError **error)
 {
-    SeafileSessionInfo *info;
+    WingufileSessionInfo *info;
 
     info = wingufile_session_info_new ();
     g_object_set (info, "datadir", winguf->winguf_dir, NULL);
@@ -322,7 +322,7 @@ wingufile_get_checkout_task (const char *repo_id, GError **error)
     if (!task)
         return NULL;
 
-    SeafileCheckoutTask *c_task = g_object_new
+    WingufileCheckoutTask *c_task = g_object_new
         (WINGUFILE_TYPE_CHECKOUT_TASK,
          "repo_id", task->repo_id,
          "worktree", task->worktree,
@@ -452,7 +452,7 @@ wingufile_get_clone_tasks (GError **error)
     GList *tasks, *ptr;
     GList *ret = NULL;
     CloneTask *task;
-    SeafileCloneTask *t;
+    WingufileCloneTask *t;
 
     tasks = winguf_clone_manager_get_tasks (winguf->clone_mgr);
     for (ptr = tasks; ptr != NULL; ptr = ptr->next) {
@@ -505,11 +505,11 @@ static void get_task_size(TransferTask *task, gint64 *rsize, gint64 *dsize)
     }
 }
 
-static SeafileTask *
+static WingufileTask *
 convert_task (TransferTask *task)
 {
     gint64 rsize = 0, dsize = 0;
-    SeafileTask *t = wingufile_task_new();
+    WingufileTask *t = wingufile_task_new();
 
     get_task_size (task, &rsize, &dsize);
 
@@ -570,7 +570,7 @@ wingufile_get_repo_sync_info (const char *repo_id, GError **error)
     if (!info)
         return NULL;
 
-    SeafileSyncInfo *sinfo;
+    WingufileSyncInfo *sinfo;
     sinfo = g_object_new (WINGUFILE_TYPE_SYNC_INFO,
                           "repo_id", info->repo_id,
                           "head_commit", info->head_commit,
@@ -594,7 +594,7 @@ wingufile_get_repo_sync_task (const char *repo_id, GError **error)
 
     SyncTask *task = info->current_task;
 
-    SeafileSyncTask *s_task;
+    WingufileSyncTask *s_task;
     s_task = g_object_new (WINGUFILE_TYPE_SYNC_TASK,
                            "is_sync_lan", task->is_sync_lan,
                            "force_upload", task->force_upload,
@@ -613,7 +613,7 @@ wingufile_get_sync_task_list (GError **error)
 {
     GHashTable *sync_info_tbl = winguf->sync_mgr->sync_infos;
     GHashTableIter iter;
-    SeafileSyncTask *s_task;
+    WingufileSyncTask *s_task;
     GList *task_list = NULL;
     gpointer key, value;
 
@@ -821,7 +821,7 @@ wingufile_list_dir (const char *dir_id, int offset, int limit, GError **error)
 {
     SeafDir *dir;
     SeafDirent *dent;
-    SeafileDirent *d;
+    WingufileDirent *d;
     GList *res = NULL;
     GList *p;
 
@@ -879,7 +879,7 @@ wingufile_branch_gets (const char *repo_id, GError **error)
 
     for (ptr = blist; ptr; ptr=ptr->next) {
         SeafBranch *b = ptr->data;
-        SeafileBranch *branch = wingufile_branch_new ();
+        WingufileBranch *branch = wingufile_branch_new ();
         g_object_set (branch, "repo_id", b->repo_id, "name", b->name,
                       "commit_id", b->commit_id, NULL);
         ret = g_list_prepend (ret, branch);
@@ -932,7 +932,7 @@ wingufile_get_repo (const char *repo_id, GError **error)
         return NULL;
 #endif
 
-    SeafileRepo *repo = wingufile_repo_new ();
+    WingufileRepo *repo = wingufile_repo_new ();
     g_object_set (repo, "id", r->id, "name", r->name,
                   "desc", r->desc, "encrypted", r->encrypted,
                   "magic", r->magic,
@@ -979,10 +979,10 @@ wingufile_get_repo (const char *repo_id, GError **error)
     return (GObject *)repo;
 }
 
-inline SeafileCommit *
+inline WingufileCommit *
 convert_to_wingufile_commit (SeafCommit *c)
 {
-    SeafileCommit *commit = wingufile_commit_new ();
+    WingufileCommit *commit = wingufile_commit_new ();
     g_object_set (commit,
                   "id", c->commit_id,
                   "creator_name", c->creator_name,
@@ -1000,7 +1000,7 @@ convert_to_wingufile_commit (SeafCommit *c)
 GObject*
 wingufile_get_commit (const gchar *id, GError **error)
 {
-    SeafileCommit *commit;
+    WingufileCommit *commit;
     SeafCommit *c;
 
     c = winguf_commit_manager_get_commit (winguf->commit_mgr, id);
@@ -1015,7 +1015,7 @@ wingufile_get_commit (const gchar *id, GError **error)
 static void
 free_commit_list (GList *commits)
 {
-    SeafileCommit *c;
+    WingufileCommit *c;
     GList *ptr;
 
     for (ptr = commits; ptr; ptr = ptr->next) {
@@ -1067,7 +1067,7 @@ get_commit (SeafCommit *c, void *data, gboolean *stop)
     }
 
     if (cp->count >= cp->offset) {
-        SeafileCommit *commit = convert_to_wingufile_commit (c);
+        WingufileCommit *commit = convert_to_wingufile_commit (c);
         cp->commits = g_list_prepend (cp->commits, commit);
     }
 
@@ -1395,7 +1395,7 @@ wingufile_diff (const char *repo_id, const char *arg1, const char *arg2, GError 
 
     for (p = diff_entries; p != NULL; p = p->next) {
         DiffEntry *de = p->data;
-        SeafileDiffEntry *entry = g_object_new (
+        WingufileDiffEntry *entry = g_object_new (
             WINGUFILE_TYPE_DIFF_ENTRY,
             "status", get_diff_status_str(de->status),
             "name", de->name,
@@ -1465,7 +1465,7 @@ wingufile_list_owned_repos (const char *email, GError **error)
     GList *ret = NULL;
     GList *repos, *ptr;
     SeafRepo *r;
-    SeafileRepo *repo;
+    WingufileRepo *repo;
 
     repos = winguf_repo_manager_get_repos_by_owner (winguf->repo_mgr, email);
     ptr = repos;
@@ -1797,7 +1797,7 @@ wingufile_web_get_access_token (const char *repo_id,
 GObject *
 wingufile_web_query_access_token (const char *token, GError **error)
 {
-    SeafileWebAccess *webaccess = NULL;
+    WingufileWebAccess *webaccess = NULL;
 
     if (!token) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
@@ -2505,7 +2505,7 @@ wingufile_is_passwd_set (const char *repo_id, const char *user, GError **error)
 GObject *
 wingufile_get_decrypt_key (const char *repo_id, const char *user, GError **error)
 {
-    SeafileCryptKey *ret;
+    WingufileCryptKey *ret;
 
     if (!repo_id || strlen(repo_id) != 36 || !user) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
@@ -2864,7 +2864,7 @@ wingufile_list_org_repos_by_owner (int org_id, const char *user, GError **error)
     GList *ret = NULL;
     GList *repos, *ptr;
     SeafRepo *r;
-    SeafileRepo *repo;
+    WingufileRepo *repo;
 
     repos = winguf_repo_manager_get_org_repos_by_owner (winguf->repo_mgr, org_id,
                                                       user);
@@ -3091,7 +3091,7 @@ wingufile_list_file_revisions (const char *repo_id,
         GList *p;
         for (p = commit_list; p; p = p->next) {
             SeafCommit *commit = p->data;
-            SeafileCommit *c = convert_to_wingufile_commit(commit);
+            WingufileCommit *c = convert_to_wingufile_commit(commit);
             l = g_list_prepend (l, c);
             winguf_commit_unref (commit);
         }
@@ -3414,7 +3414,7 @@ wingufile_get_virtual_repos_by_owner (const char *owner, GError **error)
 {
     GList *repos, *ret = NULL, *ptr;
     SeafRepo *r, *o;
-    SeafileRepo *repo;
+    WingufileRepo *repo;
     char *orig_repo_id;
     gboolean is_original_owner;
 

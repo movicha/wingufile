@@ -32,7 +32,7 @@
 #include "ccnet-init.h"
 #include "wingufile-applet.h"
 
-#define WARNING_MSG_TITLE "Seafile"
+#define WARNING_MSG_TITLE "Wingufile"
 
 static GtkDialog       *dialog;
 static GtkBuilder      *builder;

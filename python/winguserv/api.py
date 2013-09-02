@@ -11,7 +11,7 @@ WebAccess:
     string username
 """
 
-class SeafileAPI(object):
+class WingufileAPI(object):
 
     def __init__(self):
         pass
@@ -311,4 +311,4 @@ class SeafileAPI(object):
     def get_virtual_repo(self, origin_repo, path, owner):
         return wingufserv_threaded_rpc.get_virtual_repo(origin_repo, path, owner)
 
-wingufile_api = SeafileAPI()
+wingufile_api = WingufileAPI()

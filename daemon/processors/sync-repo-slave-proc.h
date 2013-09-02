@@ -7,20 +7,20 @@
 #include <ccnet.h>
 
 #define WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC                  (wingufile_sync_repo_slave_proc_get_type ())
-#define WINGUFILE_SYNC_REPO_SLAVE_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, SeafileSynRepoSlaveProc))
+#define WINGUFILE_SYNC_REPO_SLAVE_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, WingufileSynRepoSlaveProc))
 #define WINGUFILE_IS_SYNC_REPO_SLAVE_PROC(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC))
-#define WINGUFILE_SYNC_REPO_SLAVE_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, SeafileSynRepoSlaveProcClass))
+#define WINGUFILE_SYNC_REPO_SLAVE_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, WingufileSynRepoSlaveProcClass))
 #define IS_WINGUFILE_SYNC_REPO_SLAVE_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC))
-#define WINGUFILE_SYNC_REPO_SLAVE_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, SeafileSynRepoSlaveProcClass))
+#define WINGUFILE_SYNC_REPO_SLAVE_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, WingufileSynRepoSlaveProcClass))
 
-typedef struct _SeafileSynRepoSlaveProc SeafileSynRepoSlaveProc;
-typedef struct _SeafileSynRepoSlaveProcClass SeafileSynRepoSlaveProcClass;
+typedef struct _WingufileSynRepoSlaveProc WingufileSynRepoSlaveProc;
+typedef struct _WingufileSynRepoSlaveProcClass WingufileSynRepoSlaveProcClass;
 
-struct _SeafileSynRepoSlaveProc {
+struct _WingufileSynRepoSlaveProc {
     CcnetProcessor parent_instance;
 };
 
-struct _SeafileSynRepoSlaveProcClass {
+struct _WingufileSynRepoSlaveProcClass {
     CcnetProcessorClass parent_class;
 };
 

@@ -26,7 +26,7 @@ get_default_quota (GKeyFile *config)
 }
 
 SeafQuotaManager *
-winguf_quota_manager_new (struct _SeafileSession *session)
+winguf_quota_manager_new (struct _WingufileSession *session)
 {
     SeafQuotaManager *mgr = g_new0 (SeafQuotaManager, 1);
     if (!mgr)

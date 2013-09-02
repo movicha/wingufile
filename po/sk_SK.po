@@ -130,8 +130,8 @@ msgstr "Automaticky spojené wingufile systémom"
 
 #: ../gui/gtk/wingufile-applet.c:161
 #, c-format
-msgid "Seafile is already running\n"
-msgstr "Seafile je už spustený\n"
+msgid "Wingufile is already running\n"
+msgstr "Wingufile je už spustený\n"
 
 #: ../gui/gtk/trayicon.c:117 ../gui/win/wingufile-applet.c:76
 msgid "Auto sync is disabled"
@@ -146,8 +146,8 @@ msgid "free space unknown"
 msgstr "voľný priestor nebol zistený"
 
 #: ../gui/win/init-ccnet.c:330 ../gui/win/init-ccnet.c:331
-msgid "Seafile help.txt"
-msgstr "Seafile help.txt"
+msgid "Wingufile help.txt"
+msgstr "Wingufile help.txt"
 
 #: ../gui/win/init-ccnet.c:351
 msgid "Choose a folder"
@@ -162,8 +162,8 @@ msgid "Initialzation is not finished. Really quit?"
 msgstr "Inicializácia nebola dokončená. Naozej chcete program ukončiť?"
 
 #: ../gui/win/wingufile-applet.c:60
-msgid "Seafile is started"
-msgstr "Seafile je spustený"
+msgid "Wingufile is started"
+msgstr "Wingufile je spustený"
 
 #: ../gui/win/wingufile-applet.c:60
 msgid "Click the icon to open admin console"
@@ -178,11 +178,11 @@ msgid "Failed to enable auto sync"
 msgstr "Nepodarilo sa zapnúť automatickú synchronizáciu"
 
 #: ../gui/win/wingufile-applet.c:520
-msgid "Seafile is already running"
-msgstr "Seafile je už spustený"
+msgid "Wingufile is already running"
+msgstr "Wingufile je už spustený"
 
-#~ msgid "Seafile Initialization"
-#~ msgstr "Seafile 初始化"
+#~ msgid "Wingufile Initialization"
+#~ msgstr "Wingufile 初始化"
 
 #~ msgid "Courier"
 #~ msgstr "宋体"

@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- * Seafile-controller is responsible for:
+ * Wingufile-controller is responsible for:
  *
  *    1. Start: start server processes:
  *
@@ -21,7 +21,7 @@
 #ifndef WINGUFILE_CONTROLLER_H
 #define WINGUFILE_CONTROLLER_H
 
-typedef struct _SeafileController SeafileController;
+typedef struct _WingufileController WingufileController;
 
 enum {
     PID_CCNET = 0,
@@ -30,7 +30,7 @@ enum {
     N_PID
 };
 
-struct _SeafileController {
+struct _WingufileController {
     char *config_dir;
     char *wingufile_dir;
     char *logdir;

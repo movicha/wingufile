@@ -17,16 +17,16 @@ typedef struct  {
     int len;
     GString *buf;
     gboolean success;
-} SeafileCheckblProcPriv;
+} WingufileCheckblProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_CHECKBL_PROC, SeafileCheckblProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_CHECKBL_PROC, WingufileCheckblProcPriv))
 
 #define USE_PRIV \
-    SeafileCheckblProcPriv *priv = GET_PRIV(processor);
+    WingufileCheckblProcPriv *priv = GET_PRIV(processor);
 
 
-G_DEFINE_TYPE (SeafileCheckblProc, wingufile_checkbl_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileCheckblProc, wingufile_checkbl_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -47,7 +47,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_checkbl_proc_class_init (SeafileCheckblProcClass *klass)
+wingufile_checkbl_proc_class_init (WingufileCheckblProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -55,11 +55,11 @@ wingufile_checkbl_proc_class_init (SeafileCheckblProcClass *klass)
     proc_class->handle_update = handle_update;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileCheckblProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileCheckblProcPriv));
 }
 
 static void
-wingufile_checkbl_proc_init (SeafileCheckblProc *processor)
+wingufile_checkbl_proc_init (WingufileCheckblProc *processor)
 {
 }
 

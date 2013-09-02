@@ -283,7 +283,7 @@ class Ccnet(Project):
 
         self.append_cflags(macros)
 
-class Seafile(Project):
+class Wingufile(Project):
     name = 'wingufile'
     def __init__(self):
         Project.__init__(self)
@@ -385,7 +385,7 @@ def validate_args(usage, options):
 def show_build_info():
     '''Print all conf information. Confirm before continue.'''
     info('------------------------------------------')
-    info('Seafile msi installer: BUILD INFO')
+    info('Wingufile msi installer: BUILD INFO')
     info('------------------------------------------')
     info('wingufile:                  %s' % conf[CONF_VERSION])
     info('libwingurpc:                %s' % conf[CONF_libwingurpc_VERSION])
@@ -480,7 +480,7 @@ def parse_args():
 
 def setup_build_env():
     '''Setup environment variables, such as export PATH=$BUILDDDIR/bin:$PATH'''
-    prefix = Seafile().prefix
+    prefix = Wingufile().prefix
     prepend_env_value('CPPFLAGS',
                      '-I%s' % to_mingw_path(os.path.join(prefix, 'include')),
                      seperator=' ')
@@ -511,7 +511,7 @@ def setup_build_env():
     must_mkdir(wix_temp_dir)
 
 def web_py2exe():
-    webdir = os.path.join(Seafile().projdir, 'web')
+    webdir = os.path.join(Wingufile().projdir, 'web')
     os.chdir(webdir)
 
     original_argv = sys.argv
@@ -530,7 +530,7 @@ def web_py2exe():
                "bundle_files" : 3}}
 
     prepend_env_value('PATH',
-                      os.path.join(Seafile().prefix, 'bin'),
+                      os.path.join(Wingufile().prefix, 'bin'),
                       seperator=';')
     try:
         dist_setup(name=targetname,
@@ -585,7 +585,7 @@ def copy_shared_libs():
     '''
 
     output = os.path.join(conf[CONF_BUILDDIR], 'depends.csv')
-    applet = os.path.join(Seafile().projdir, 'gui', 'win', 'wingufile-applet.exe')
+    applet = os.path.join(Wingufile().projdir, 'gui', 'win', 'wingufile-applet.exe')
     cmd = 'depends.exe -c -f 1 -oc %s %s' % (output, applet)
 
     # See the manual of Dependency walker
@@ -605,7 +605,7 @@ def copy_shared_libs():
     must_copy(libsqlite3, pack_bin_dir)
 
 def copy_dll_exe():
-    prefix = Seafile().prefix
+    prefix = Wingufile().prefix
     destdir = os.path.join(conf[CONF_BUILDDIR], 'pack', 'bin')
 
     filelist = [
@@ -615,7 +615,7 @@ def copy_dll_exe():
         os.path.join(prefix, 'bin', 'libwingufile-0.dll'),
         os.path.join(prefix, 'bin', 'ccnet.exe'),
         os.path.join(prefix, 'bin', 'winguf-daemon.exe'),
-        os.path.join(Seafile().projdir, 'gui', 'win', 'wingufile-applet.exe')
+        os.path.join(Wingufile().projdir, 'gui', 'win', 'wingufile-applet.exe')
     ]
 
     for name in filelist:
@@ -626,7 +626,7 @@ def copy_dll_exe():
 def prepare_msi():
     pack_dir = os.path.join(conf[CONF_BUILDDIR], 'pack')
 
-    msi_dir = os.path.join(Seafile().projdir, 'msi')
+    msi_dir = os.path.join(Wingufile().projdir, 'msi')
 
     must_copytree(msi_dir, pack_dir)
 
@@ -640,7 +640,7 @@ def prepare_msi():
         strip_symbols()
 
     # copy each translation file (*.mo) to bin/i18n/LANG_CODE/LC_MESSAGES/wingufile.mo)
-    src_mos_pattern = os.path.join(Seafile().prefix, 'share', 'locale', '*', 'LC_MESSAGES', 'wingufile.mo')
+    src_mos_pattern = os.path.join(Wingufile().prefix, 'share', 'locale', '*', 'LC_MESSAGES', 'wingufile.mo')
     d = os.path.dirname
     b = os.path.basename
     for src_mo in glob.glob(src_mos_pattern):
@@ -712,7 +712,7 @@ def build_msi():
 
 def build_english_msi():
     '''The extra work to build the English msi.'''
-    gui_win = os.path.join(Seafile().projdir, 'gui', 'win')
+    gui_win = os.path.join(Wingufile().projdir, 'gui', 'win')
     pack_dir = os.path.join(conf[CONF_BUILDDIR], 'pack')
     pack_bin_dir = os.path.join(conf[CONF_BUILDDIR], 'pack', 'bin')
 
@@ -774,7 +774,7 @@ def main():
 
     libwingurpc = libwingurpc()
     ccnet = Ccnet()
-    wingufile = Seafile()
+    wingufile = Wingufile()
 
     libwingurpc.uncompress()
     libwingurpc.build()

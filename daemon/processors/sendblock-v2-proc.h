@@ -7,16 +7,16 @@
 #include "transfer-mgr.h"
 
 #define WINGUFILE_TYPE_SENDBLOCK_V2_PROC                  (wingufile_sendblock_v2_proc_get_type ())
-#define WINGUFILE_SENDBLOCK_V2_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_SENDBLOCK_V2_PROC, SeafileSendblockV2Proc))
+#define WINGUFILE_SENDBLOCK_V2_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_SENDBLOCK_V2_PROC, WingufileSendblockV2Proc))
 #define WINGUFILE_IS_SENDBLOCK_V2_PROC(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_SENDBLOCK_V2_PROC))
-#define WINGUFILE_SENDBLOCK_V2_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_SENDBLOCK_V2_PROC, SeafileSendblockV2ProcClass))
+#define WINGUFILE_SENDBLOCK_V2_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_SENDBLOCK_V2_PROC, WingufileSendblockV2ProcClass))
 #define IS_WINGUFILE_SENDBLOCK_V2_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_SENDBLOCK_V2_PROC))
-#define WINGUFILE_SENDBLOCK_V2_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_SENDBLOCK_V2_PROC, SeafileSendblockV2ProcClass))
+#define WINGUFILE_SENDBLOCK_V2_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_SENDBLOCK_V2_PROC, WingufileSendblockV2ProcClass))
 
-typedef struct _SeafileSendblockV2Proc SeafileSendblockV2Proc;
-typedef struct _SeafileSendblockV2ProcClass SeafileSendblockV2ProcClass;
+typedef struct _WingufileSendblockV2Proc WingufileSendblockV2Proc;
+typedef struct _WingufileSendblockV2ProcClass WingufileSendblockV2ProcClass;
 
-struct _SeafileSendblockV2Proc {
+struct _WingufileSendblockV2Proc {
     CcnetProcessor parent_instance;
 
     TransferTask  *tx_task;
@@ -29,15 +29,15 @@ struct _SeafileSendblockV2Proc {
     int            pending_blocks;
 };
 
-struct _SeafileSendblockV2ProcClass {
+struct _WingufileSendblockV2ProcClass {
     CcnetProcessorClass parent_class;
 };
 
 GType wingufile_sendblock_v2_proc_get_type ();
 
-int wingufile_sendblock_v2_proc_send_block (SeafileSendblockV2Proc *proc,
+int wingufile_sendblock_v2_proc_send_block (WingufileSendblockV2Proc *proc,
                                           int block_idx);
 
-gboolean wingufile_sendblock_v2_proc_is_ready (SeafileSendblockV2Proc *proc);
+gboolean wingufile_sendblock_v2_proc_is_ready (WingufileSendblockV2Proc *proc);
 
 #endif

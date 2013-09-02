@@ -129,8 +129,8 @@ msgstr ""
 
 #: ../gui/gtk/wingufile-applet.c:161
 #, c-format
-msgid "Seafile is already running\n"
-msgstr "Seafile läuft bereits\n"
+msgid "Wingufile is already running\n"
+msgstr "Wingufile läuft bereits\n"
 
 #: ../gui/gtk/trayicon.c:117 ../gui/win/wingufile-applet.c:76
 msgid "Auto sync is disabled"
@@ -145,8 +145,8 @@ msgid "free space unknown"
 msgstr "freier Speicher unbekannt"
 
 #: ../gui/win/init-ccnet.c:295 ../gui/win/init-ccnet.c:296
-msgid "Seafile help.txt"
-msgstr "Seafile Hilfe.txt"
+msgid "Wingufile help.txt"
+msgstr "Wingufile Hilfe.txt"
 
 #: ../gui/win/init-ccnet.c:316
 #, fuzzy
@@ -162,8 +162,8 @@ msgid "Initialzation is not finished. Really quit?"
 msgstr "Die Initialisierung ist nicht abgeschlossen. Wirklich beenden?"
 
 #: ../gui/win/wingufile-applet.c:60
-msgid "Seafile is started"
-msgstr "Seafile ist gestartet"
+msgid "Wingufile is started"
+msgstr "Wingufile ist gestartet"
 
 #: ../gui/win/wingufile-applet.c:60
 msgid "Click the icon to open admin console"
@@ -178,8 +178,8 @@ msgid "Failed to enable auto sync"
 msgstr "Aktivieren der automatischen Synchronisation fehlgeschlagen"
 
 #: ../gui/win/wingufile-applet.c:520
-msgid "Seafile is already running"
-msgstr "Seafile läuft bereits"
+msgid "Wingufile is already running"
+msgstr "Wingufile läuft bereits"
 
-#~ msgid "Seafile Initialization"
-#~ msgstr "Seafile initialisierung"
+#~ msgid "Wingufile Initialization"
+#~ msgstr "Wingufile initialisierung"

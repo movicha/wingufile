@@ -42,7 +42,7 @@ free_access_info (AccessInfo *info)
 }
 
 SeafWebAccessTokenManager*
-winguf_web_at_manager_new (SeafileSession *winguf)
+winguf_web_at_manager_new (WingufileSession *winguf)
 {
     SeafWebAccessTokenManager *mgr = g_new0 (SeafWebAccessTokenManager, 1);
 
@@ -168,11 +168,11 @@ winguf_web_at_manager_get_access_token (SeafWebAccessTokenManager *mgr,
     return g_strdup(token->token);
 }
 
-SeafileWebAccess *
+WingufileWebAccess *
 winguf_web_at_manager_query_access_token (SeafWebAccessTokenManager *mgr,
                                         const char *token)
 {
-    SeafileWebAccess *webaccess;
+    WingufileWebAccess *webaccess;
     AccessInfo *info;
 
     info = g_hash_table_lookup (mgr->access_token_hash, token);

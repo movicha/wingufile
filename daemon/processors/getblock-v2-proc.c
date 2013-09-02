@@ -56,13 +56,13 @@ static void handle_response (CcnetProcessor *processor,
 static void release_resource (CcnetProcessor *processor);
 static void got_block_cb (CEvent *event, void *vprocessor);
 
-G_DEFINE_TYPE (SeafileGetblockV2Proc, wingufile_getblock_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileGetblockV2Proc, wingufile_getblock_v2_proc, CCNET_TYPE_PROCESSOR)
 
 #define GETBLOCK_PROC
 #include "processors/blocktx-common-impl-v2.h"
 
 static void
-wingufile_getblock_v2_proc_class_init (SeafileGetblockV2ProcClass *klass)
+wingufile_getblock_v2_proc_class_init (WingufileGetblockV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -75,14 +75,14 @@ wingufile_getblock_v2_proc_class_init (SeafileGetblockV2ProcClass *klass)
 }
 
 static void
-wingufile_getblock_v2_proc_init (SeafileGetblockV2Proc *processor)
+wingufile_getblock_v2_proc_init (WingufileGetblockV2Proc *processor)
 {
 }
 
 static int
 block_proc_start (CcnetProcessor *processor, int argc, char **argv)
 {
-    SeafileGetblockV2Proc *proc = (SeafileGetblockV2Proc *)processor;
+    WingufileGetblockV2Proc *proc = (WingufileGetblockV2Proc *)processor;
     USE_PRIV;
     
     if (master_block_proc_start(processor, proc->tx_task,
@@ -102,7 +102,7 @@ block_proc_start (CcnetProcessor *processor, int argc, char **argv)
 static void
 release_resource (CcnetProcessor *processor)
 {
-    SeafileGetblockV2Proc *proc = (SeafileGetblockV2Proc *)processor;
+    WingufileGetblockV2Proc *proc = (WingufileGetblockV2Proc *)processor;
 
     release_thread (processor);
     descruct_bitfield (&proc->block_bitmap, &proc->active, proc->tx_task);
@@ -111,7 +111,7 @@ release_resource (CcnetProcessor *processor)
 }
 
 int
-wingufile_getblock_v2_proc_get_block (SeafileGetblockV2Proc *proc,
+wingufile_getblock_v2_proc_get_block (WingufileGetblockV2Proc *proc,
                                  int block_idx)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
@@ -132,7 +132,7 @@ wingufile_getblock_v2_proc_get_block (SeafileGetblockV2Proc *proc,
 }
 
 gboolean
-wingufile_getblock_v2_proc_is_ready (SeafileGetblockV2Proc *proc)
+wingufile_getblock_v2_proc_is_ready (WingufileGetblockV2Proc *proc)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
     USE_PRIV;
@@ -143,7 +143,7 @@ wingufile_getblock_v2_proc_is_ready (SeafileGetblockV2Proc *proc)
 static void
 got_block_cb (CEvent *event, void *vprocessor)
 {
-    SeafileGetblockV2Proc *proc = vprocessor;
+    WingufileGetblockV2Proc *proc = vprocessor;
     BlockResponse *blk_rsp = event->data;
 
     if (blk_rsp->block_idx >= 0) {
@@ -161,7 +161,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileGetblockV2Proc *proc = (SeafileGetblockV2Proc *)processor;
+    WingufileGetblockV2Proc *proc = (WingufileGetblockV2Proc *)processor;
     USE_PRIV;
 
     if (proc->tx_task->state != TASK_STATE_NORMAL) {

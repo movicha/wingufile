@@ -32,14 +32,14 @@ config_get_string (sqlite3 *config_db, const char *key)
 }
 
 char *
-wingufile_session_config_get_string (SeafileSession *session,
+wingufile_session_config_get_string (WingufileSession *session,
                                    const char *key)
 {
     return (config_get_string (session->config_db, key));
 }
 
 int
-wingufile_session_config_get_int (SeafileSession *session,
+wingufile_session_config_get_int (WingufileSession *session,
                                 const char *key,
                                 gboolean *exists)
 {
@@ -61,7 +61,7 @@ wingufile_session_config_get_int (SeafileSession *session,
 }
 
 int
-wingufile_session_config_set_string (SeafileSession *session,
+wingufile_session_config_set_string (WingufileSession *session,
                                    const char *key,
                                    const char *value)
 {
@@ -77,7 +77,7 @@ wingufile_session_config_set_string (SeafileSession *session,
 }
 
 int
-wingufile_session_config_set_int (SeafileSession *session,
+wingufile_session_config_set_int (WingufileSession *session,
                                 const char *key,
                                 int value)
 {

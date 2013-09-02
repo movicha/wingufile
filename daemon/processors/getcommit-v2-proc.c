@@ -41,11 +41,11 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen);
 
-G_DEFINE_TYPE (SeafileGetcommitV2Proc, wingufile_getcommit_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileGetcommitV2Proc, wingufile_getcommit_v2_proc, CCNET_TYPE_PROCESSOR)
 
 
 static void
-wingufile_getcommit_v2_proc_class_init (SeafileGetcommitV2ProcClass *klass)
+wingufile_getcommit_v2_proc_class_init (WingufileGetcommitV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -55,7 +55,7 @@ wingufile_getcommit_v2_proc_class_init (SeafileGetcommitV2ProcClass *klass)
 }
 
 static void
-wingufile_getcommit_v2_proc_init (SeafileGetcommitV2Proc *processor)
+wingufile_getcommit_v2_proc_init (WingufileGetcommitV2Proc *processor)
 {
 }
 
@@ -64,7 +64,7 @@ static int
 get_commit_start (CcnetProcessor *processor, int argc, char **argv)
 {
     GString *buf = g_string_new (NULL);
-    TransferTask *task = ((SeafileGetcommitV2Proc *)processor)->tx_task;
+    TransferTask *task = ((WingufileGetcommitV2Proc *)processor)->tx_task;
     SeafBranch *master = NULL;
     char *end_commit_id = NULL;
 
@@ -112,7 +112,7 @@ static void
 receive_commit (CcnetProcessor *processor, char *content, int clen)
 {
     ObjectPack *pack = (ObjectPack *)content;
-    TransferTask *task = ((SeafileGetcommitV2Proc *)processor)->tx_task;
+    TransferTask *task = ((WingufileGetcommitV2Proc *)processor)->tx_task;
     SeafCommit *commit;
 
     if (clen < sizeof(ObjectPack)) {
@@ -138,7 +138,7 @@ receive_commit (CcnetProcessor *processor, char *content, int clen)
 
 bad:
     g_warning ("[getcommit] Bad commit object received.\n");
-    transfer_task_set_error (((SeafileGetcommitV2Proc *)processor)->tx_task,
+    transfer_task_set_error (((WingufileGetcommitV2Proc *)processor)->tx_task,
                              TASK_ERR_DOWNLOAD_COMMIT);
     ccnet_processor_send_update (processor, SC_BAD_OBJECT, SS_BAD_OBJECT,
                                  NULL, 0);
@@ -149,7 +149,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileGetcommitV2Proc *proc = (SeafileGetcommitV2Proc *)processor;
+    WingufileGetcommitV2Proc *proc = (WingufileGetcommitV2Proc *)processor;
     if (proc->tx_task->state != TASK_STATE_NORMAL) {
         ccnet_processor_done (processor, TRUE);
         return;

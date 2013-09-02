@@ -30,7 +30,7 @@ static void
 compute_repo_size_done (void *vjob);
 
 SizeScheduler *
-size_scheduler_new (SeafileSession *session)
+size_scheduler_new (WingufileSession *session)
 {
     SizeScheduler *sched = g_new0 (SizeScheduler, 1);
 

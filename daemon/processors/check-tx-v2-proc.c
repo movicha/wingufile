@@ -42,7 +42,7 @@ enum {
     CHECK_TX_TYPE_DOWNLOAD,
 };
 
-G_DEFINE_TYPE (SeafileCheckTxV2Proc, wingufile_check_tx_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileCheckTxV2Proc, wingufile_check_tx_v2_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -57,7 +57,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_check_tx_v2_proc_class_init (SeafileCheckTxV2ProcClass *klass)
+wingufile_check_tx_v2_proc_class_init (WingufileCheckTxV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -68,7 +68,7 @@ wingufile_check_tx_v2_proc_class_init (SeafileCheckTxV2ProcClass *klass)
 }
 
 static void
-wingufile_check_tx_v2_proc_init (SeafileCheckTxV2Proc *processor)
+wingufile_check_tx_v2_proc_init (WingufileCheckTxV2Proc *processor)
 {
 }
 
@@ -78,7 +78,7 @@ encrypt_token (CcnetProcessor *processor, const char *token)
 {
     CcnetPeer *peer = NULL;
     char *enc_out = NULL;
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     unsigned char key[16], iv[16];
     int len;
     char *output = NULL;
@@ -122,7 +122,7 @@ out:
 static int
 start (CcnetProcessor *processor, int argc, char **argv)
 {
-    SeafileCheckTxV2Proc *proc = (SeafileCheckTxV2Proc *)processor;
+    WingufileCheckTxV2Proc *proc = (WingufileCheckTxV2Proc *)processor;
     TransferTask *task = proc->task;
     char *type, *enc_token;
     GString *buf;
@@ -217,7 +217,7 @@ handle_response (CcnetProcessor *processor,
                  char *code, char *code_msg,
                  char *content, int clen)
 {
-    SeafileCheckTxV2Proc *proc = (SeafileCheckTxV2Proc *)processor;
+    WingufileCheckTxV2Proc *proc = (WingufileCheckTxV2Proc *)processor;
     TransferTask *task = proc->task;
 
     if (strncmp(code, SC_OK, 3) == 0) {

@@ -5,16 +5,16 @@
 
 #include <glib.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 struct _SeafWebAccessTokenManager {
-    struct _SeafileSession	*winguf;
+    struct _WingufileSession	*winguf;
     GHashTable		*access_token_hash; /* token -> access info */
     GHashTable      *access_info_hash;  /* access info -> token */
 };
 typedef struct _SeafWebAccessTokenManager SeafWebAccessTokenManager;
 
-SeafWebAccessTokenManager* winguf_web_at_manager_new (struct _SeafileSession *winguf);
+SeafWebAccessTokenManager* winguf_web_at_manager_new (struct _WingufileSession *winguf);
 
 int
 winguf_web_at_manager_start (SeafWebAccessTokenManager *mgr);
@@ -33,7 +33,7 @@ winguf_web_at_manager_get_access_token (SeafWebAccessTokenManager *mgr,
 /*
  * Returns access info for the given token.
  */
-SeafileWebAccess *
+WingufileWebAccess *
 winguf_web_at_manager_query_access_token (SeafWebAccessTokenManager *mgr,
                                         const char *token);
 

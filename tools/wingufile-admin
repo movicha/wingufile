@@ -819,11 +819,11 @@ def setup_wingufile(args):
     print
     print 'If you have any problem, refer to\n'
     print
-    print ' Seafile server manual:      %s' % SERVER_MANUAL_HTTP
+    print ' Wingufile server manual:      %s' % SERVER_MANUAL_HTTP
     print
-    print ' Seafile discussion group:   %s' % WINGUFILE_GOOGLE_GROUP
+    print ' Wingufile discussion group:   %s' % WINGUFILE_GOOGLE_GROUP
     print
-    print ' Seafile website:            %s' % WINGUFILE_WEBSITE
+    print ' Wingufile website:            %s' % WINGUFILE_WEBSITE
     print
     print 'for more information.'
     print
@@ -843,7 +843,7 @@ def check_necessary_files():
 def start_wingufile(args):
     '''start ccnet/wingufile/winguhub/httpserver'''
     if is_running('wingufile-controller'):
-        error(highlight('NOTE: Seafile is already running'))
+        error(highlight('NOTE: Wingufile is already running'))
 
     check_python_dependencies(silent=True)
     if args.fastcgi:

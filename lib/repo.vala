@@ -1,4 +1,4 @@
-namespace Seafile {
+namespace Wingufile {
 
 public class Repo : Object {
 

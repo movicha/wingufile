@@ -17,7 +17,7 @@ struct _SeafPermManagerPriv {
 static int load_db (SeafPermManager *mgr);
 
 SeafPermManager *
-winguf_perm_manager_new (SeafileSession *winguf)
+winguf_perm_manager_new (WingufileSession *winguf)
 {
     SeafPermManager *mgr = g_new0 (SeafPermManager, 1);
     mgr->priv = g_new0 (SeafPermManagerPriv, 1);

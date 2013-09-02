@@ -22,7 +22,7 @@ struct TokenManagerPriv {
 };
 
 SeafTokenManager *
-winguf_token_manager_new (struct _SeafileSession *session)
+winguf_token_manager_new (struct _WingufileSession *session)
 {
     SeafTokenManager *mgr = g_new0(SeafTokenManager, 1);
     struct TokenManagerPriv *priv = g_new0(struct TokenManagerPriv, 1);

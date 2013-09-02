@@ -7,20 +7,20 @@
 #include <ccnet/processor.h>
 
 #define WINGUFILE_TYPE_PUTCS_V2_PROC                  (wingufile_putcs_v2_proc_get_type ())
-#define WINGUFILE_PUTCS_V2_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_PUTCS_V2_PROC, SeafilePutcsV2Proc))
+#define WINGUFILE_PUTCS_V2_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_PUTCS_V2_PROC, WingufilePutcsV2Proc))
 #define WINGUFILE_IS_PUTCS_V2_PROC(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_PUTCS_V2_PROC))
-#define WINGUFILE_PUTCS_V2_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_PUTCS_V2_PROC, SeafilePutcsV2ProcClass))
+#define WINGUFILE_PUTCS_V2_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_PUTCS_V2_PROC, WingufilePutcsV2ProcClass))
 #define IS_WINGUFILE_PUTCS_V2_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_PUTCS_V2_PROC))
-#define WINGUFILE_PUTCS_V2_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_PUTCS_V2_PROC, SeafilePutcsV2ProcClass))
+#define WINGUFILE_PUTCS_V2_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_PUTCS_V2_PROC, WingufilePutcsV2ProcClass))
 
-typedef struct _SeafilePutcsV2Proc SeafilePutcsV2Proc;
-typedef struct _SeafilePutcsV2ProcClass SeafilePutcsV2ProcClass;
+typedef struct _WingufilePutcsV2Proc WingufilePutcsV2Proc;
+typedef struct _WingufilePutcsV2ProcClass WingufilePutcsV2ProcClass;
 
-struct _SeafilePutcsV2Proc {
+struct _WingufilePutcsV2Proc {
     CcnetProcessor parent_instance;
 };
 
-struct _SeafilePutcsV2ProcClass {
+struct _WingufilePutcsV2ProcClass {
     CcnetProcessorClass parent_class;
 };
 

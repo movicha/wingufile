@@ -59,10 +59,10 @@ static void handle_response (CcnetProcessor *processor,
 static void release_resource (CcnetProcessor *processor);
 static void sent_block_cb (CEvent *event, void *vprocessor);
 
-G_DEFINE_TYPE (SeafileSendblockProc, wingufile_sendblock_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSendblockProc, wingufile_sendblock_proc, CCNET_TYPE_PROCESSOR)
 
 static void
-wingufile_sendblock_proc_class_init (SeafileSendblockProcClass *klass)
+wingufile_sendblock_proc_class_init (WingufileSendblockProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -75,12 +75,12 @@ wingufile_sendblock_proc_class_init (SeafileSendblockProcClass *klass)
 }
 
 static void
-wingufile_sendblock_proc_init (SeafileSendblockProc *processor)
+wingufile_sendblock_proc_init (WingufileSendblockProc *processor)
 {
 }
 
 int
-wingufile_sendblock_proc_send_block (SeafileSendblockProc *proc,
+wingufile_sendblock_proc_send_block (WingufileSendblockProc *proc,
                                    int block_idx)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
@@ -111,7 +111,7 @@ wingufile_sendblock_proc_send_block (SeafileSendblockProc *proc,
 }
 
 gboolean
-wingufile_sendblock_proc_is_ready (SeafileSendblockProc *proc)
+wingufile_sendblock_proc_is_ready (WingufileSendblockProc *proc)
 {
     return (((CcnetProcessor *)proc)->state == READY);
 }
@@ -119,7 +119,7 @@ wingufile_sendblock_proc_is_ready (SeafileSendblockProc *proc)
 static void
 sent_block_cb (CEvent *event, void *vprocessor)
 {
-    SeafileSendblockProc *proc = vprocessor;
+    WingufileSendblockProc *proc = vprocessor;
     BlockResponse *blk_rsp = event->data;
 
     if (proc->tx_bytes != 0)
@@ -148,7 +148,7 @@ sent_block_cb (CEvent *event, void *vprocessor)
 static void
 process_ack (CcnetProcessor *processor, char *content, int clen)
 {
-    SeafileSendblockProc *proc = (SeafileSendblockProc *)processor;
+    WingufileSendblockProc *proc = (WingufileSendblockProc *)processor;
     int block_idx;
 
     if (content[clen-1] != '\0') {
@@ -175,7 +175,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileSendblockProc *proc = (SeafileSendblockProc *)processor;
+    WingufileSendblockProc *proc = (WingufileSendblockProc *)processor;
 
     if (proc->tx_task->state != TASK_STATE_NORMAL) {
         g_debug ("Task not running, send-block proc exits.\n");

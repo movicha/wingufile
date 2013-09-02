@@ -2,8 +2,8 @@
 
 #define S_WINDOW_NAME "wingufile-applet"
 
-/* UINT __stdcall TerminateSeafile(MSIHANDLE hModule) */
-UINT __stdcall TerminateSeafile(HANDLE hModule)
+/* UINT __stdcall TerminateWingufile(MSIHANDLE hModule) */
+UINT __stdcall TerminateWingufile(HANDLE hModule)
 {
     HWND hWnd = FindWindow(S_WINDOW_NAME, S_WINDOW_NAME);
     if (hWnd)
@@ -27,10 +27,10 @@ UINT __stdcall TerminateSeafile(HANDLE hModule)
 }
 
 /* Remove auto start entry for wingufile when uninstall. Error is ignored. */
-UINT __stdcall RemoveSeafileAutoStart(HANDLE hModule)
+UINT __stdcall RemoveWingufileAutoStart(HANDLE hModule)
 {
     const char *key_run = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
-    const char *appname = "Seafile";
+    const char *appname = "Wingufile";
     HKEY hKey;
     LONG result = RegOpenKeyEx(HKEY_CURRENT_USER,
                                key_run,

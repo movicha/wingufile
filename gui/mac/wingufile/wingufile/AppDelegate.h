@@ -27,7 +27,7 @@
 @property (assign) IBOutlet NSView *bubbleView;
 @property (assign) IBOutlet NSTextField *bubbleText;
 
-@property (assign) IBOutlet NSWindow *initSeafileWindow;
+@property (assign) IBOutlet NSWindow *initWingufileWindow;
 @property (assign) IBOutlet NSTextField *chooseDirField;
 @property (assign) IBOutlet NSImageView *chooseDirWarnImg;
 
@@ -41,7 +41,7 @@
 - (IBAction)open_browser: (id)sender;
 - (IBAction)restart: (id)sender;
 - (IBAction)quit: (id)sender;
-- (IBAction)openSeafileSite: (id)sender;
+- (IBAction)openWingufileSite: (id)sender;
 - (IBAction)enableAutoSync: (id)sender;
 - (IBAction)disableAutoSync: (id)sender;
 

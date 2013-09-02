@@ -20,7 +20,7 @@
 
 #define CHECK_PROCESS_INTERVAL 10        /* every 10 seconds */
 
-SeafileController *ctl;
+WingufileController *ctl;
 
 static char *controller_pidfile = NULL;
 
@@ -415,7 +415,7 @@ stop_ccnet_server ()
 }
 
 static void
-init_pidfile_path (SeafileController *ctl)
+init_pidfile_path (WingufileController *ctl)
 {
     char *pid_dir = g_build_filename(ctl->wingufile_dir, "pids", NULL);
     if (!g_file_test(pid_dir, G_FILE_TEST_EXISTS)) {
@@ -431,7 +431,7 @@ init_pidfile_path (SeafileController *ctl)
 }
 
 static int
-winguf_controller_init (SeafileController *ctl,
+winguf_controller_init (WingufileController *ctl,
                       char *config_dir,
                       char *wingufile_dir,
                       char *logdir,
@@ -688,7 +688,7 @@ int main (int argc, char **argv)
         test_config (config_dir, wingufile_dir);
     }
 
-    ctl = g_new0 (SeafileController, 1);
+    ctl = g_new0 (WingufileController, 1);
     if (winguf_controller_init (ctl, config_dir, wingufile_dir, logdir, cloud_mode) < 0) {
         controller_exit(1);
     }

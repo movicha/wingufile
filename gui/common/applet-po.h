@@ -2,7 +2,7 @@
 #define APPLET_PO_H
 
 #define S_WINDOW_NAME                   "wingufile-applet"
-#define S_WINDOW_TITLE                  "Seafile 初始化"
+#define S_WINDOW_TITLE                  "Wingufile 初始化"
 
 #define S_UNKNOWN_ERR                   "未知错误"
 #define S_WRONG_PASSWD                  "密码错误"
@@ -10,9 +10,9 @@
 #define S_PERMISSION_ERROR              "权限不够"
 #define S_CREATE_CONF_FAILED            "创建配置文件错误"
 #define S_CREATE_WINGUFILE_CONF_FAILED    "创建配置文件错误"
-#define S_WINGUFILE_STARTUP               "Seafile 已启动"
+#define S_WINGUFILE_STARTUP               "Wingufile 已启动"
 #define S_WINGUFILE_CLICK_HINT            "点击图标即可打开管理页面"
-#define S_ENSURE_QUIT_INIT              "Seafile 初始化仍未完成。确认要退出吗？"
+#define S_ENSURE_QUIT_INIT              "Wingufile 初始化仍未完成。确认要退出吗？"
 
 #define S_REPO_SYNC_DONE "已同步"
 #define S_BOLD_FONT "宋体"
@@ -32,13 +32,13 @@
 
 #define S_SPEED "速度"
 
-#define S_WINGUFILE_APPLET_ALREAD_RUNNING "Seafile 已经在运行中"
+#define S_WINGUFILE_APPLET_ALREAD_RUNNING "Wingufile 已经在运行中"
 
-#define S_USER_MANUAL_FILENAME "Seafile使用帮助.txt"
+#define S_USER_MANUAL_FILENAME "Wingufile使用帮助.txt"
 
 #define S_FAILED_DISABLE_AUTO_SYNC "暂停同步失败"
 #define S_FAILED_ENABLE_AUTO_SYNC "开启同步失败"
 
-#define S_TIP_AUTO_SYNC_DISABLED "Seafile 同步已暂停"
+#define S_TIP_AUTO_SYNC_DISABLED "Wingufile 同步已暂停"
 
 #endif

@@ -4,12 +4,12 @@
 #include <glib.h>
 #include <sys/types.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 struct SeafObjStore;
 struct CEventManager;
 
 struct SeafObjStore *
-winguf_obj_store_new (struct _SeafileSession *winguf, const char *obj_type);
+winguf_obj_store_new (struct _WingufileSession *winguf, const char *obj_type);
 
 int
 winguf_obj_store_init (struct SeafObjStore *obj_store,

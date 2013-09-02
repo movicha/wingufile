@@ -1,6 +1,6 @@
 [Desktop Entry]
-Name=Seafile
-Comment=Seafile
+Name=Wingufile
+Comment=Wingufile
 TryExec=wingufile-applet
 Exec=wingufile-applet
 Icon=wingufile

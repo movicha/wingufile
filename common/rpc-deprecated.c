@@ -197,7 +197,7 @@ convert_pubrepo_list (GList *inner_repos)
         SeafRepo *r = ptr->data;
         if (!check_repo_public(r))
             continue;
-        SeafileRepo *repo = wingufile_repo_new ();
+        WingufileRepo *repo = wingufile_repo_new ();
         g_object_set (repo, "id", r->id, "name", r->name,
                       "desc", r->desc, "encrypted", r->encrypted,
                       NULL);
@@ -238,7 +238,7 @@ GObject* wingufile_get_repo_pub (const gchar* id, GError **error)
     if (r == NULL || !check_repo_public(r))
         return NULL;
 
-    SeafileRepo *repo = wingufile_repo_new ();
+    WingufileRepo *repo = wingufile_repo_new ();
     g_object_set (repo, "id", r->id, "name", r->name,
                   "desc", r->desc, "encrypted", r->encrypted,
                   "head_branch", r->head ? r->head->name : NULL,
@@ -260,7 +260,7 @@ GObject* wingufile_get_repo_pub (const gchar* id, GError **error)
 GObject*
 wingufile_get_commit_pub (const gchar *id, GError **error)
 {
-    SeafileCommit *commit;
+    WingufileCommit *commit;
     SeafCommit *c;
 
     c = winguf_commit_manager_get_commit (winguf->commit_mgr, id);

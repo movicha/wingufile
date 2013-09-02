@@ -1,4 +1,4 @@
-namespace Seafile {
+namespace Wingufile {
 
 public class WebAccess : Object {
        public string repo_id { set; get; }

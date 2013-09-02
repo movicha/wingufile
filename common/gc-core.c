@@ -74,7 +74,7 @@ static int
 add_blocks_to_index (SeafFSManager *mgr, GCData *data, const char *file_id)
 {
     Bloom *index = data->index;
-    Seafile *wingufile;
+    Wingufile *wingufile;
     int i;
 
     wingufile = winguf_fs_manager_get_wingufile (mgr, file_id);

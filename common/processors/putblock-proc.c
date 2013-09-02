@@ -37,10 +37,10 @@ static void handle_update (CcnetProcessor *processor,
                            char *content, int clen);
 static void release_resource (CcnetProcessor *processor);
 
-G_DEFINE_TYPE (SeafilePutblockProc, wingufile_putblock_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutblockProc, wingufile_putblock_proc, CCNET_TYPE_PROCESSOR)
 
 static void
-wingufile_putblock_proc_class_init (SeafilePutblockProcClass *klass)
+wingufile_putblock_proc_class_init (WingufilePutblockProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -53,7 +53,7 @@ wingufile_putblock_proc_class_init (SeafilePutblockProcClass *klass)
 }
 
 static void
-wingufile_putblock_proc_init (SeafilePutblockProc *processor)
+wingufile_putblock_proc_init (WingufilePutblockProc *processor)
 {
 }
 

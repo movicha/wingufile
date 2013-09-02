@@ -28,7 +28,7 @@ typedef struct  {
 #define USE_PRIV \
     PutfsProcPriv *priv = GET_PRIV(processor);
 
-G_DEFINE_TYPE (SeafilePutfsProc, wingufile_putfs_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutfsProc, wingufile_putfs_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -51,7 +51,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_putfs_proc_class_init (SeafilePutfsProcClass *klass)
+wingufile_putfs_proc_class_init (WingufilePutfsProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -64,7 +64,7 @@ wingufile_putfs_proc_class_init (SeafilePutfsProcClass *klass)
 }
 
 static void
-wingufile_putfs_proc_init (SeafilePutfsProc *processor)
+wingufile_putfs_proc_init (WingufilePutfsProc *processor)
 {
 }
 

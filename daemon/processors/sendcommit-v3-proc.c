@@ -43,13 +43,13 @@ typedef struct  {
     GList       *id_list;
     GHashTable  *commit_hash;
     gboolean    fast_forward;
-} SeafileSendcommitProcPriv;
+} WingufileSendcommitProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_SENDCOMMIT_V3_PROC, SeafileSendcommitProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_SENDCOMMIT_V3_PROC, WingufileSendcommitProcPriv))
 
 #define USE_PRIV \
-    SeafileSendcommitProcPriv *priv = GET_PRIV(processor);
+    WingufileSendcommitProcPriv *priv = GET_PRIV(processor);
 
 static int send_commit_start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -57,7 +57,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *content, int clen);
 
 
-G_DEFINE_TYPE (SeafileSendcommitV3Proc, wingufile_sendcommit_v3_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSendcommitV3Proc, wingufile_sendcommit_v3_proc, CCNET_TYPE_PROCESSOR)
 
 static void
 release_resource (CcnetProcessor *processor)
@@ -73,7 +73,7 @@ release_resource (CcnetProcessor *processor)
 }
 
 static void
-wingufile_sendcommit_v3_proc_class_init (SeafileSendcommitV3ProcClass *klass)
+wingufile_sendcommit_v3_proc_class_init (WingufileSendcommitV3ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -82,11 +82,11 @@ wingufile_sendcommit_v3_proc_class_init (SeafileSendcommitV3ProcClass *klass)
     proc_class->handle_response = handle_response;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileSendcommitProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileSendcommitProcPriv));
 }
 
 static void
-wingufile_sendcommit_v3_proc_init (SeafileSendcommitV3Proc *processor)
+wingufile_sendcommit_v3_proc_init (WingufileSendcommitV3Proc *processor)
 {
 }
 
@@ -95,7 +95,7 @@ send_commit_start (CcnetProcessor *processor, int argc, char **argv)
 {
     USE_PRIV;
     GString *buf;
-    TransferTask *task = ((SeafileSendcommitV3Proc *)processor)->tx_task;
+    TransferTask *task = ((WingufileSendcommitV3Proc *)processor)->tx_task;
 
     memcpy (priv->remote_id, task->remote_head, 41);
 
@@ -185,7 +185,7 @@ static gboolean
 traverse_commit_fast_forward (SeafCommit *commit, void *data, gboolean *stop)
 {
     CcnetProcessor *processor = data;
-    TransferTask *task = ((SeafileSendcommitV3Proc *)processor)->tx_task;
+    TransferTask *task = ((WingufileSendcommitV3Proc *)processor)->tx_task;
     USE_PRIV;
 
     if (priv->remote_id[0] != 0 &&
@@ -231,7 +231,7 @@ static gboolean
 compute_delta (SeafCommit *commit, void *data, gboolean *stop)
 {
     CcnetProcessor *processor = data;
-    TransferTask *task = ((SeafileSendcommitV3Proc *)processor)->tx_task;
+    TransferTask *task = ((WingufileSendcommitV3Proc *)processor)->tx_task;
     USE_PRIV;
 
     if (!g_hash_table_lookup (priv->commit_hash, commit->commit_id)) {
@@ -256,7 +256,7 @@ static int
 compute_delta_commits (CcnetProcessor *processor, const char *head)
 {
     gboolean ret;
-    TransferTask *task = ((SeafileSendcommitV3Proc *)processor)->tx_task;
+    TransferTask *task = ((WingufileSendcommitV3Proc *)processor)->tx_task;
     USE_PRIV;
 
     string_list_free (priv->id_list);
@@ -331,7 +331,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileSendcommitV3Proc *proc = (SeafileSendcommitV3Proc *)processor;
+    WingufileSendcommitV3Proc *proc = (WingufileSendcommitV3Proc *)processor;
     TransferTask *task = proc->tx_task;
     if (task->state != TASK_STATE_NORMAL) {
         ccnet_processor_done (processor, TRUE);

@@ -171,7 +171,7 @@ winguf_commit_unref (SeafCommit *commit)
 }
 
 SeafCommitManager*
-winguf_commit_manager_new (SeafileSession *winguf)
+winguf_commit_manager_new (WingufileSession *winguf)
 {
     SeafCommitManager *mgr = g_new0 (SeafCommitManager, 1);
 

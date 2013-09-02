@@ -40,13 +40,13 @@ static void release_resource (CcnetProcessor *processor);
 
 static void put_block_cb (CEvent *event, void *vprocessor);
 
-G_DEFINE_TYPE (SeafilePutblockV2Proc, wingufile_putblock_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutblockV2Proc, wingufile_putblock_v2_proc, CCNET_TYPE_PROCESSOR)
 
 #define PUTBLOCK_PROC
 #include "processors/blocktx-common-impl-v2.h"
 
 static void
-wingufile_putblock_v2_proc_class_init (SeafilePutblockV2ProcClass *klass)
+wingufile_putblock_v2_proc_class_init (WingufilePutblockV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -59,7 +59,7 @@ wingufile_putblock_v2_proc_class_init (SeafilePutblockV2ProcClass *klass)
 }
 
 static void
-wingufile_putblock_v2_proc_init (SeafilePutblockV2Proc *processor)
+wingufile_putblock_v2_proc_init (WingufilePutblockV2Proc *processor)
 {
 }
 

@@ -31,7 +31,7 @@
 
 #define WINGUFILE_INI "wingufile.ini"
 
-SeafileSession *winguf;
+WingufileSession *winguf;
 
 GTree *already_traversed_commits = NULL;
 GTree *already_traversed_blocks = NULL;

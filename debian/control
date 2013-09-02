@@ -30,7 +30,7 @@ Depends:
 	python-mako,
 	python-simplejson
 Description: Client of wingufile, an online file storage and collaboration tool
- Seafile enables you to build private cloud for file sharing and collaboration
+ Wingufile enables you to build private cloud for file sharing and collaboration
  among team members in your company/organization. This is the Linux desktop
  client of the wingufile system.
  .

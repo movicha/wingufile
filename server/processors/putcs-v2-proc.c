@@ -4,7 +4,7 @@
 #include "wingufile-session.h"
 #include "putcs-v2-proc.h"
 
-G_DEFINE_TYPE (SeafilePutcsV2Proc, wingufile_putcs_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutcsV2Proc, wingufile_putcs_v2_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 
@@ -16,7 +16,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_putcs_v2_proc_class_init (SeafilePutcsV2ProcClass *klass)
+wingufile_putcs_v2_proc_class_init (WingufilePutcsV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -26,7 +26,7 @@ wingufile_putcs_v2_proc_class_init (SeafilePutcsV2ProcClass *klass)
 }
 
 static void
-wingufile_putcs_v2_proc_init (SeafilePutcsV2Proc *processor)
+wingufile_putcs_v2_proc_init (WingufilePutcsV2Proc *processor)
 {
 }
 

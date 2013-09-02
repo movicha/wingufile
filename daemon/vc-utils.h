@@ -10,7 +10,7 @@
 
 #define PATH_SEPERATOR "/"
 
-struct SeafileCrypt;
+struct WingufileCrypt;
 
 #ifdef WIN32
 
@@ -39,7 +39,7 @@ files_locked_on_windows (struct index_state *index, const char *worktree);
 int
 compare_file_content (const char *path, SeafStat *st, 
                       const unsigned char *ce_sha1,
-                      struct SeafileCrypt *crypt);
+                      struct WingufileCrypt *crypt);
 
 void
 fill_wingufile_blocks (const unsigned char *sha1, BlockList *bl);

@@ -1,18 +1,18 @@
 #ifndef SIZE_SCHEDULER_H
 #define SIZE_SCHEDULER_H
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 struct SizeSchedulerPriv;
 
 typedef struct SizeScheduler {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     struct SizeSchedulerPriv *priv;
 } SizeScheduler;
 
 SizeScheduler *
-size_scheduler_new (struct _SeafileSession *session);
+size_scheduler_new (struct _WingufileSession *session);
 
 int
 size_scheduler_start (SizeScheduler *scheduler);

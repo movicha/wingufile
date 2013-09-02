@@ -177,7 +177,7 @@ compare_repo (const SeafRepo *srepo, const SeafRepo *trepo)
 }
 
 SeafRepoManager*
-winguf_repo_manager_new (SeafileSession *winguf)
+winguf_repo_manager_new (WingufileSession *winguf)
 {
     SeafRepoManager *mgr = g_new0 (SeafRepoManager, 1);
 

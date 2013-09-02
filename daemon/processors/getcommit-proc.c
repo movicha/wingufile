@@ -69,24 +69,24 @@ typedef struct  {
     char        buf[4096];
     char       *bufptr;
     int         pending_objects;
-} SeafileGetcommitProcPriv;
+} WingufileGetcommitProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_GETCOMMIT_PROC, SeafileGetcommitProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_GETCOMMIT_PROC, WingufileGetcommitProcPriv))
 
 #define USE_PRIV \
-    SeafileGetcommitProcPriv *priv = GET_PRIV(processor);
+    WingufileGetcommitProcPriv *priv = GET_PRIV(processor);
 
 static int get_commit_start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen);
 
-G_DEFINE_TYPE (SeafileGetcommitProc, wingufile_getcommit_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileGetcommitProc, wingufile_getcommit_proc, CCNET_TYPE_PROCESSOR)
 
 
 static void
-wingufile_getcommit_proc_class_init (SeafileGetcommitProcClass *klass)
+wingufile_getcommit_proc_class_init (WingufileGetcommitProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -94,11 +94,11 @@ wingufile_getcommit_proc_class_init (SeafileGetcommitProcClass *klass)
     proc_class->start = get_commit_start;
     proc_class->handle_response = handle_response;
 
-    g_type_class_add_private (klass, sizeof (SeafileGetcommitProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileGetcommitProcPriv));
 }
 
 static void
-wingufile_getcommit_proc_init (SeafileGetcommitProc *processor)
+wingufile_getcommit_proc_init (WingufileGetcommitProc *processor)
 {
 }
 
@@ -107,7 +107,7 @@ static int
 get_commit_start (CcnetProcessor *processor, int argc, char **argv)
 {
     GString *buf = g_string_new (NULL);
-    TransferTask *task = ((SeafileGetcommitProc *)processor)->tx_task;
+    TransferTask *task = ((WingufileGetcommitProc *)processor)->tx_task;
 
     if (task->session_token)
         g_string_printf (buf, "remote %s wingufile-putcommit %s %s",
@@ -123,13 +123,13 @@ get_commit_start (CcnetProcessor *processor, int argc, char **argv)
 
 
 inline static void
-request_object_batch_begin (SeafileGetcommitProcPriv *priv)
+request_object_batch_begin (WingufileGetcommitProcPriv *priv)
 {
     priv->bufptr = priv->buf;
 }
 
 inline static void
-request_object_batch (SeafileGetcommitProcPriv *priv, const char *id)
+request_object_batch (WingufileGetcommitProcPriv *priv, const char *id)
 {
     memcpy (priv->bufptr, id, 40);
     priv->bufptr += 40;
@@ -141,7 +141,7 @@ request_object_batch (SeafileGetcommitProcPriv *priv, const char *id)
 
 inline static void
 request_object_batch_flush (CcnetProcessor *processor,
-                            SeafileGetcommitProcPriv *priv)
+                            WingufileGetcommitProcPriv *priv)
 {
     if (priv->bufptr == priv->buf)
         return;
@@ -201,7 +201,7 @@ bad:
     ccnet_processor_send_update (processor, SC_BAD_OBJECT,
                                    SS_BAD_OBJECT, NULL, 0);
     g_warning ("[getcommit] Bad commit object received.\n");
-    transfer_task_set_error (((SeafileGetcommitProc *)processor)->tx_task,
+    transfer_task_set_error (((WingufileGetcommitProc *)processor)->tx_task,
                              TASK_ERR_DOWNLOAD_COMMIT);
     ccnet_processor_done (processor, FALSE);
 }
@@ -218,7 +218,7 @@ process_commit_list (CcnetProcessor *processor, char *content, int clen)
     if (clen % 41 != 1 || content[clen-1] != '\0') {
         g_warning ("[getcommit] Bad commit id list.\n");
         ccnet_processor_send_update (processor, SC_BAD_OL, SS_BAD_OL, NULL, 0);
-        transfer_task_set_error (((SeafileGetcommitProc *)processor)->tx_task,
+        transfer_task_set_error (((WingufileGetcommitProc *)processor)->tx_task,
                                  TASK_ERR_DOWNLOAD_COMMIT);
         ccnet_processor_done (processor, FALSE);
         return;
@@ -248,7 +248,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileGetcommitProc *proc = (SeafileGetcommitProc *)processor;
+    WingufileGetcommitProc *proc = (WingufileGetcommitProc *)processor;
     if (proc->tx_task->state != TASK_STATE_NORMAL) {
         /* TODO: not tested yet */
         ccnet_processor_send_update (processor, SC_SHUTDOWN, SS_SHUTDOWN,

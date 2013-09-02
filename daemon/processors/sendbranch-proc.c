@@ -14,7 +14,7 @@
 #define SC_ACCESS_DENIED "410"
 #define SS_ACCESS_DENIED "Access denied"
 
-G_DEFINE_TYPE (SeafileSendbranchProc, wingufile_sendbranch_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSendbranchProc, wingufile_sendbranch_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -31,7 +31,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_sendbranch_proc_class_init (SeafileSendbranchProcClass *klass)
+wingufile_sendbranch_proc_class_init (WingufileSendbranchProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -42,7 +42,7 @@ wingufile_sendbranch_proc_class_init (SeafileSendbranchProcClass *klass)
 }
 
 static void
-wingufile_sendbranch_proc_init (SeafileSendbranchProc *processor)
+wingufile_sendbranch_proc_init (WingufileSendbranchProc *processor)
 {
 }
 
@@ -52,7 +52,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
 {
     char *repo_id, *branch, *new_head;
     GString *buf;
-    TransferTask *task = ((SeafileSendbranchProc *)processor)->task;
+    TransferTask *task = ((WingufileSendbranchProc *)processor)->task;
 
     if (argc != 3) {
         return -1;
@@ -76,7 +76,7 @@ handle_response (CcnetProcessor *processor,
                  char *code, char *code_msg,
                  char *content, int clen)
 {
-    SeafileSendbranchProc *proc = (SeafileSendbranchProc *)processor;
+    WingufileSendbranchProc *proc = (WingufileSendbranchProc *)processor;
     TransferTask *task = proc->task;
 
     if (memcmp (code, SC_OK, 3) == 0) {

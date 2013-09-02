@@ -11,7 +11,7 @@
 #include "wingufile-config.h"
 #include "winguf-utils.h"
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new(const char *wingufile_dir,
                     CcnetClient *ccnet_session)
 {
@@ -20,7 +20,7 @@ wingufile_session_new(const char *wingufile_dir,
     char *config_file_path;
     struct stat st;
     GKeyFile *config;
-    SeafileSession *session = NULL;
+    WingufileSession *session = NULL;
 
     if (!ccnet_session)
         return NULL;
@@ -30,13 +30,13 @@ wingufile_session_new(const char *wingufile_dir,
     config_file_path = g_build_filename (abs_wingufile_dir, "wingufile.conf", NULL);
 
     if (g_lstat(abs_wingufile_dir, &st) < 0 || !S_ISDIR(st.st_mode)) {
-        g_warning ("Seafile data dir %s does not exist\n",
+        g_warning ("Wingufile data dir %s does not exist\n",
                    abs_wingufile_dir);
         goto onerror;
     }
 
     if (g_lstat(tmp_file_dir, &st) < 0 || !S_ISDIR(st.st_mode)) {
-        g_warning ("Seafile tmp dir %s does not exist\n",
+        g_warning ("Wingufile tmp dir %s does not exist\n",
                    tmp_file_dir);
         goto onerror;
     }
@@ -50,7 +50,7 @@ wingufile_session_new(const char *wingufile_dir,
         goto onerror;
     }
 
-    session = g_new0(SeafileSession, 1);
+    session = g_new0(WingufileSession, 1);
     session->winguf_dir = abs_wingufile_dir;
     session->tmp_file_dir = tmp_file_dir;
     session->session = ccnet_session;

@@ -804,7 +804,7 @@ class CcnetConfigurator(AbstractConfigurator):
                                        validate=validate)
 
 
-class SeafileConfigurator(AbstractConfigurator):
+class WingufileConfigurator(AbstractConfigurator):
     def __init__(self):
         AbstractConfigurator.__init__(self)
         self.wingufile_dir = os.path.join(env_mgr.top_dir, 'wingufile-data')
@@ -1111,7 +1111,7 @@ def report_config():
 
 env_mgr = EnvManager()
 ccnet_config = CcnetConfigurator()
-wingufile_config = SeafileConfigurator()
+wingufile_config = WingufileConfigurator()
 winguhub_config = SeahubConfigurator()
 # Would be created after AbstractDBConfigurator.ask_use_existing_db()
 db_config = None

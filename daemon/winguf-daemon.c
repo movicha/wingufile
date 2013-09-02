@@ -37,7 +37,7 @@
 #endif
 
 
-SeafileSession *winguf;
+WingufileSession *winguf;
 SearpcClient *ccnetrpc_client;
 SearpcClient *appletrpc_client;
 CcnetClient *bind_client;
@@ -238,7 +238,7 @@ start_rpc_service (CcnetClient *client)
 }
 
 static void
-set_signal_handlers (SeafileSession *session)
+set_signal_handlers (WingufileSession *session)
 {
 #ifndef WIN32
     signal (SIGPIPE, SIG_IGN);

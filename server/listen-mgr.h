@@ -29,7 +29,7 @@ struct _SeafListenManager {
 };
 
 struct _SeafListenManager *
-winguf_listen_manager_new (struct _SeafileSession *session);
+winguf_listen_manager_new (struct _WingufileSession *session);
 
 int
 winguf_listen_manager_start (SeafListenManager *mgr);

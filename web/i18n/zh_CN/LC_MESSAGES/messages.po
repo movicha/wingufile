@@ -41,7 +41,7 @@ msgstr "你所指定的本地目录已经与其他资料库同步，请指定其
 msgid ""
 "The local directory you chose cannot be under or includes a system directory "
 "of wingufile."
-msgstr "本地目录的路径不能处在 Seafile 系统目录下，或者包含 Seafile 系统目录"
+msgstr "本地目录的路径不能处在 Wingufile 系统目录下，或者包含 Wingufile 系统目录"
 
 #: main.py:637 main.py:756
 msgid ""
@@ -57,8 +57,8 @@ msgid "Internal error."
 msgstr "内部错误"
 
 #: templates/base.html:5 templates/base.html:47
-msgid "Seafile Client"
-msgstr "Seafile 客户端"
+msgid "Wingufile Client"
+msgstr "Wingufile 客户端"
 
 #: templates/base.html:26
 msgid "System"
@@ -444,7 +444,7 @@ msgid ""
 "changes to take effect."
 msgstr ""
 "仅当服务器的地址确实发生了改变时，你才应该在这里编辑它。否则将可能导致你的资"
-"料库无法同步。修改地址后，请重启 Seafile 以使其生效。"
+"料库无法同步。修改地址后，请重启 Wingufile 以使其生效。"
 
 #: templates/repo.html:104
 msgid "server name"
@@ -527,17 +527,17 @@ msgid "not connected"
 msgstr "未连接"
 
 #: templates/repos.html:34
-msgid "Four Steps to Use Seafile Client"
-msgstr "Seafile 客户端使用方法"
+msgid "Four Steps to Use Wingufile Client"
+msgstr "Wingufile 客户端使用方法"
 
 #: templates/repos.html:36
 msgid ""
-"Log in to Seafile website, either our official website or your private "
+"Log in to Wingufile website, either our official website or your private "
 "website."
-msgstr "登录 Seafile 网站，可以是我们的官方网站或者您的私有网站。"
+msgstr "登录 Wingufile 网站，可以是我们的官方网站或者您的私有网站。"
 
 #: templates/repos.html:37
-msgid "Create a library on Seafile website."
+msgid "Create a library on Wingufile website."
 msgstr "在网站上创建新资料库。"
 
 #: templates/repos.html:38
@@ -581,12 +581,12 @@ msgid "Notify when libraries are synchronized"
 msgstr "资料库同步后用气泡通知"
 
 #: templates/settings.html:21
-msgid "Auto start Seafile on system startup (only for Windows)"
-msgstr "开机自动启动 Seafile（仅对 Windows 有效）"
+msgid "Auto start Wingufile on system startup (only for Windows)"
+msgstr "开机自动启动 Wingufile（仅对 Windows 有效）"
 
 #: templates/settings.html:29
-msgid "Enable encryption for data transfer (restart Seafile to take effect)"
-msgstr "传输数据时加密（需要重启 Seafile 才生效）"
+msgid "Enable encryption for data transfer (restart Wingufile to take effect)"
+msgstr "传输数据时加密（需要重启 Wingufile 才生效）"
 
 #: templates/settings.html:32
 msgid "Upload speed limit:"
@@ -605,8 +605,8 @@ msgstr "最大下载速度："
 #~ msgid "Incorrect password. Failed to decrypt files."
 #~ msgstr "密码错误。文件解密失败。"
 
-#~ msgid "Seafile@Local"
-#~ msgstr "Seafile 本地管理"
+#~ msgid "Wingufile@Local"
+#~ msgstr "Wingufile 本地管理"
 
 #~ msgid "Files"
 #~ msgstr "文件"
@@ -614,8 +614,8 @@ msgstr "最大下载速度："
 #~ msgid "Network"
 #~ msgstr "网络"
 
-#~ msgid "Seafile Client Version:"
-#~ msgstr "Seafile 客户端版本："
+#~ msgid "Wingufile Client Version:"
+#~ msgstr "Wingufile 客户端版本："
 
 #~ msgid "About"
 #~ msgstr "关于"

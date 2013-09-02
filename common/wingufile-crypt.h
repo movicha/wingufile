@@ -19,15 +19,15 @@
 #define BLK_SIZE 16
 #define ENCRYPT_BLK_SIZE BLK_SIZE
 
-struct SeafileCrypt {
+struct WingufileCrypt {
     int version;
     unsigned char key[16];   /* set when enc_version >= 1 */
     unsigned char iv[16];
 };
 
-typedef struct SeafileCrypt SeafileCrypt;
+typedef struct WingufileCrypt WingufileCrypt;
 
-SeafileCrypt *
+WingufileCrypt *
 wingufile_crypt_new (int version, unsigned char *key, unsigned char *iv);
 
 /*  
@@ -65,7 +65,7 @@ wingufile_encrypt (char **data_out,
                  int *out_len,
                  const char *data_in,
                  const int in_len,
-                 SeafileCrypt *crypt);
+                 WingufileCrypt *crypt);
 
 
 int
@@ -73,7 +73,7 @@ wingufile_decrypt (char **data_out,
                  int *out_len,
                  const char *data_in,
                  const int in_len,
-                 SeafileCrypt *crypt);
+                 WingufileCrypt *crypt);
 
 int
 wingufile_decrypt_init (EVP_CIPHER_CTX *ctx,

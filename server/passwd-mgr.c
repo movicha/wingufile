@@ -38,7 +38,7 @@ decrypt_key_free (DecryptKey *key)
 }
 
 SeafPasswdManager *
-winguf_passwd_manager_new (struct _SeafileSession *session)
+winguf_passwd_manager_new (struct _WingufileSession *session)
 {
     SeafPasswdManager *mgr = g_new0 (SeafPasswdManager, 1);
 
@@ -150,14 +150,14 @@ winguf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
     return ret;
 }
 
-SeafileCryptKey *
+WingufileCryptKey *
 winguf_passwd_manager_get_decrypt_key (SeafPasswdManager *mgr,
                                      const char *repo_id,
                                      const char *user)
 {
     GString *hash_key;
     DecryptKey *crypt_key;
-    SeafileCryptKey *ret;
+    WingufileCryptKey *ret;
     char key_hex[33], iv_hex[33];
 
     hash_key = g_string_new (NULL);

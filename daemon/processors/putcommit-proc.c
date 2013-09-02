@@ -25,13 +25,13 @@ typedef struct  {
     char        object_path[SEAF_PATH_MAX];
     gboolean    transfer_started;
     int         fd;
-} SeafilePutcommitProcPriv;
+} WingufilePutcommitProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_PUTCOMMIT_PROC, SeafilePutcommitProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_PUTCOMMIT_PROC, WingufilePutcommitProcPriv))
 
 #define USE_PRIV \
-    SeafilePutcommitProcPriv *priv = GET_PRIV(processor);
+    WingufilePutcommitProcPriv *priv = GET_PRIV(processor);
 
 static int put_commit_start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -41,10 +41,10 @@ static void handle_update (CcnetProcessor *processor,
 static int send_commit_ids (CcnetProcessor *processor, const char *head);
 
 
-G_DEFINE_TYPE (SeafilePutcommitProc, wingufile_putcommit_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutcommitProc, wingufile_putcommit_proc, CCNET_TYPE_PROCESSOR)
 
 static void
-wingufile_putcommit_proc_class_init (SeafilePutcommitProcClass *klass)
+wingufile_putcommit_proc_class_init (WingufilePutcommitProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -52,11 +52,11 @@ wingufile_putcommit_proc_class_init (SeafilePutcommitProcClass *klass)
     proc_class->start = put_commit_start;
     proc_class->handle_update = handle_update;
 
-    g_type_class_add_private (klass, sizeof (SeafilePutcommitProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufilePutcommitProcPriv));
 }
 
 static void
-wingufile_putcommit_proc_init (SeafilePutcommitProc *processor)
+wingufile_putcommit_proc_init (WingufilePutcommitProc *processor)
 {
 }
 

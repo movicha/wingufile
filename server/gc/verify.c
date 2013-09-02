@@ -9,7 +9,7 @@ typedef struct VerifyData {
 static int
 check_blocks (SeafFSManager *mgr, const char *file_id)
 {
-    Seafile *wingufile;
+    Wingufile *wingufile;
     int i;
 
     wingufile = winguf_fs_manager_get_wingufile (mgr, file_id);

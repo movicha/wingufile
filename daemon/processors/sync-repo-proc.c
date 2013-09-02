@@ -33,7 +33,7 @@
 */
 
 
-G_DEFINE_TYPE (SeafileSyncRepoProc, wingufile_sync_repo_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSyncRepoProc, wingufile_sync_repo_proc, CCNET_TYPE_PROCESSOR)
 
 
 static int
@@ -45,7 +45,7 @@ handle_response (CcnetProcessor *processor,
                  char *content, int clen);
 
 static void
-wingufile_sync_repo_proc_class_init (SeafileSyncRepoProcClass *klass)
+wingufile_sync_repo_proc_class_init (WingufileSyncRepoProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -55,7 +55,7 @@ wingufile_sync_repo_proc_class_init (SeafileSyncRepoProcClass *klass)
 }
 
 static void
-wingufile_sync_repo_proc_init (SeafileSyncRepoProc *processor)
+wingufile_sync_repo_proc_init (WingufileSyncRepoProc *processor)
 {
 }
 
@@ -63,7 +63,7 @@ wingufile_sync_repo_proc_init (SeafileSyncRepoProc *processor)
 static int
 sync_repo_start (CcnetProcessor *processor, int argc, char **argv)
 {
-    SeafileSyncRepoProc *proc = (SeafileSyncRepoProc *) processor;
+    WingufileSyncRepoProc *proc = (WingufileSyncRepoProc *) processor;
 
     if (argc != 0) {
         winguf_warning ("[sync-repo] argc should be 0.\n");
@@ -93,7 +93,7 @@ static void handle_response (CcnetProcessor *processor,
                              char *code, char *code_msg,
                              char *content, int clen)
 {
-    SeafileSyncRepoProc *proc = (SeafileSyncRepoProc *)processor;
+    WingufileSyncRepoProc *proc = (WingufileSyncRepoProc *)processor;
 
     proc->task->info->deleted_on_relay = FALSE;
     proc->task->info->branch_deleted_on_relay = FALSE;

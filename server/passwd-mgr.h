@@ -3,18 +3,18 @@
 
 #include <glib.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 struct _SeafPasswdManagerPriv;
-struct _SeafileCryptKey;
+struct _WingufileCryptKey;
 
 struct _SeafPasswdManager {
-    struct _SeafileSession *session;
+    struct _WingufileSession *session;
     struct _SeafPasswdManagerPriv *priv;
 };
 typedef struct _SeafPasswdManager SeafPasswdManager;
 
 SeafPasswdManager *
-winguf_passwd_manager_new (struct _SeafileSession *session);
+winguf_passwd_manager_new (struct _WingufileSession *session);
 
 int
 winguf_passwd_manager_start (SeafPasswdManager *mgr);
@@ -55,7 +55,7 @@ winguf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
 /**
  * Returns decryption key for @repo_id, NULL if it's not set.
  */
-struct _SeafileCryptKey *
+struct _WingufileCryptKey *
 winguf_passwd_manager_get_decrypt_key (SeafPasswdManager *mgr,
                                      const char *repo_id,
                                      const char *user);

@@ -8,7 +8,7 @@
     cd ccnet;
     CFLAGS="-O2" ./configure --enable-server-pkg --prefix=$dest
     make install
-3. Seafile
+3. Wingufile
     cd wingufile; 
     CFLAGS="-O2" configure --enable-server-pkg --prefix=$dest
     make install

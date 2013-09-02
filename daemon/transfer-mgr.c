@@ -607,7 +607,7 @@ inline static gboolean is_peer_relay (const char *peer_id)
  */
 
 SeafTransferManager*
-winguf_transfer_manager_new (struct _SeafileSession *winguf)
+winguf_transfer_manager_new (struct _WingufileSession *winguf)
 {
     SeafTransferManager *mgr = g_new0 (SeafTransferManager, 1);
 
@@ -986,7 +986,7 @@ start_getcs_proc (TransferTask *task, const char *peer_id)
         winguf_warning ("failed to create get chunk server proc.\n");
         return -1;
     }
-    ((SeafileGetcsProc *)processor)->task = task;
+    ((WingufileGetcsProc *)processor)->task = task;
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
         winguf_warning ("failed to start get chunk server proc.\n");
@@ -1048,7 +1048,7 @@ start_sendblock_proc (TransferTask *task, const char *peer_id)
         return NULL;
     }
 
-    ((SeafileSendblockV2Proc *)processor)->tx_task = task;
+    ((WingufileSendblockV2Proc *)processor)->tx_task = task;
     if (ccnet_processor_start (processor, 0, NULL) < 0) {
         winguf_warning ("failed to start sendblock proc.\n");
         return NULL;
@@ -1071,7 +1071,7 @@ start_getblock_proc (TransferTask *task, const char *peer_id)
         return NULL;
     }
 
-    ((SeafileGetblockV2Proc *)processor)->tx_task = task;
+    ((WingufileGetblockV2Proc *)processor)->tx_task = task;
     if (ccnet_processor_start (processor, 0, NULL) < 0) {
         winguf_warning ("failed to start getblock proc.\n");
         return NULL;
@@ -1233,7 +1233,7 @@ get_chunk_server_address (TransferTask *task)
 
     processor = ccnet_proc_factory_create_remote_master_processor (
                 winguf->session->proc_factory, "wingufile-getcs-v2", task->dest_id);
-    ((SeafileGetcsV2Proc *)processor)->task = task;
+    ((WingufileGetcsV2Proc *)processor)->task = task;
     g_signal_connect (processor, "done", (GCallback)on_getcs_v2_done, task);
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
@@ -1262,7 +1262,7 @@ start_getcommit_proc (TransferTask *task, const char *peer_id, GCallback done_cb
         return -1;
     }
 
-    ((SeafileSendcommitProc *)processor)->tx_task = task;
+    ((WingufileSendcommitProc *)processor)->tx_task = task;
     g_signal_connect (processor, "done", done_cb, task);
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
@@ -1286,7 +1286,7 @@ start_getfs_proc (TransferTask *task, const char *peer_id, GCallback done_cb)
         return -1;
     }
 
-    ((SeafileGetfsProc *)processor)->tx_task = task;
+    ((WingufileGetfsProc *)processor)->tx_task = task;
     g_signal_connect (processor, "done", done_cb, task);
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
@@ -1313,7 +1313,7 @@ start_getfs_proc (TransferTask *task, const char *peer_id, GCallback done_cb)
 
 static void
 download_dispatch_blocks_to_processor (TransferTask *task,
-                                       SeafileGetblockV2Proc *proc,
+                                       WingufileGetblockV2Proc *proc,
                                        guint n_procs)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
@@ -1354,7 +1354,7 @@ download_dispatch_blocks (TransferTask *task)
 {
     GHashTableIter iter;
     gpointer key, value;
-    SeafileGetblockV2Proc *proc;
+    WingufileGetblockV2Proc *proc;
     guint n_procs = g_hash_table_size (task->processors);
 
     g_hash_table_iter_init (&iter, task->processors);
@@ -1559,7 +1559,7 @@ check_download_cb (CcnetProcessor *processor, gboolean success, void *data)
 
         g_signal_connect (v2_proc, "done", (GCallback)check_download_cb, task);
 
-        ((SeafileCheckTxV2Proc *)v2_proc)->task = task;
+        ((WingufileCheckTxV2Proc *)v2_proc)->task = task;
         if (ccnet_processor_startl (v2_proc, "download", NULL) < 0)
             winguf_warning ("failed to start check-tx-v2 proc for download.\n");
 
@@ -1597,7 +1597,7 @@ start_download (TransferTask *task)
 
     g_signal_connect (processor, "done", (GCallback)check_download_cb, task);
 
-    ((SeafileCheckTxV3Proc *)processor)->task = task;
+    ((WingufileCheckTxV3Proc *)processor)->task = task;
     if (ccnet_processor_startl (processor, "download", NULL) < 0) {
         winguf_warning ("failed to start check-tx proc for download.\n");
         return -1;
@@ -1744,7 +1744,7 @@ start_sendfs_proc (TransferTask *task, const char *peer_id, GCallback done_cb)
         return -1;
     }
 
-    ((SeafileSendfsProc *)processor)->tx_task = task;
+    ((WingufileSendfsProc *)processor)->tx_task = task;
     g_signal_connect (processor, "done", done_cb, task);
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
@@ -1779,7 +1779,7 @@ start_sendcommit_proc (TransferTask *task, const char *peer_id, GCallback done_c
         return -1;
     }
 
-    ((SeafileSendcommitProc *)processor)->tx_task = task;
+    ((WingufileSendcommitProc *)processor)->tx_task = task;
     g_signal_connect (processor, "done", done_cb, task);
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
@@ -1838,7 +1838,7 @@ update_remote_branch (TransferTask *task)
 
     g_signal_connect (processor, "done", (GCallback)update_branch_cb, task);
 
-    ((SeafileSendbranchProc *)processor)->task = task;
+    ((WingufileSendbranchProc *)processor)->task = task;
     if (ccnet_processor_startl (processor, task->repo_id, 
                                 task->to_branch, task->head, NULL) < 0)
     {
@@ -1897,7 +1897,7 @@ start_check_block_list_proc (TransferTask *task)
 
     processor = ccnet_proc_factory_create_remote_master_processor (
                 winguf->session->proc_factory, "wingufile-checkbl", task->dest_id);
-    ((SeafileCheckblProc *)processor)->task = task;
+    ((WingufileCheckblProc *)processor)->task = task;
     g_signal_connect (processor, "done", (GCallback)on_checkbl_done, task);
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
@@ -2051,7 +2051,7 @@ check_upload_cb (CcnetProcessor *processor, gboolean success, void *data)
 
         g_signal_connect (v2_proc, "done", (GCallback)check_upload_cb, task);
 
-        ((SeafileCheckTxV2Proc *)v2_proc)->task = task;
+        ((WingufileCheckTxV2Proc *)v2_proc)->task = task;
         if (ccnet_processor_startl (v2_proc, "upload", NULL) < 0)
             winguf_warning ("failed to start check-tx-v2 proc for upload.\n");
 
@@ -2100,7 +2100,7 @@ start_upload (TransferTask *task)
 
     g_signal_connect (processor, "done", (GCallback)check_upload_cb, task);
 
-    ((SeafileCheckTxV3Proc *)processor)->task = task;
+    ((WingufileCheckTxV3Proc *)processor)->task = task;
     if (ccnet_processor_startl (processor, "upload", NULL) < 0)
     {
         winguf_warning ("failed to start check-tx-v3 proc for upload.\n");
@@ -2132,7 +2132,7 @@ start_chunk_server_upload (TransferTask *task)
 
 static void
 upload_dispatch_blocks_to_processor (TransferTask *task,
-                                     SeafileSendblockV2Proc *proc,
+                                     WingufileSendblockV2Proc *proc,
                                      guint n_procs)
 {
     CcnetProcessor *processor = (CcnetProcessor *)proc;
@@ -2173,7 +2173,7 @@ upload_dispatch_blocks (TransferTask *task)
 {
     GHashTableIter iter;
     gpointer key, value;
-    SeafileSendblockV2Proc *proc;
+    WingufileSendblockV2Proc *proc;
     guint n_procs = g_hash_table_size (task->processors);
 
     g_hash_table_iter_init (&iter, task->processors);

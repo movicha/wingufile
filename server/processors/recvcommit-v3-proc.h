@@ -7,20 +7,20 @@
 
 
 #define WINGUFILE_TYPE_RECVCOMMIT_V3_PROC                  (wingufile_recvcommit_v3_proc_get_type ())
-#define WINGUFILE_RECVCOMMIT_V3_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC, SeafileRecvcommitV3Proc))
+#define WINGUFILE_RECVCOMMIT_V3_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC, WingufileRecvcommitV3Proc))
 #define WINGUFILE_IS_RECVCOMMIT_V3_PROC(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC))
-#define WINGUFILE_RECVCOMMIT_V3_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC, SeafileRecvcommitV3ProcClass))
+#define WINGUFILE_RECVCOMMIT_V3_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC, WingufileRecvcommitV3ProcClass))
 #define IS_WINGUFILE_RECVCOMMIT_V3_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC))
-#define WINGUFILE_RECVCOMMIT_V3_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC, SeafileRecvcommitV3ProcClass))
+#define WINGUFILE_RECVCOMMIT_V3_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_RECVCOMMIT_V3_PROC, WingufileRecvcommitV3ProcClass))
 
-typedef struct _SeafileRecvcommitV3Proc SeafileRecvcommitV3Proc;
-typedef struct _SeafileRecvcommitV3ProcClass SeafileRecvcommitV3ProcClass;
+typedef struct _WingufileRecvcommitV3Proc WingufileRecvcommitV3Proc;
+typedef struct _WingufileRecvcommitV3ProcClass WingufileRecvcommitV3ProcClass;
 
-struct _SeafileRecvcommitV3Proc {
+struct _WingufileRecvcommitV3Proc {
     CcnetProcessor parent_instance;
 };
 
-struct _SeafileRecvcommitV3ProcClass {
+struct _WingufileRecvcommitV3ProcClass {
     CcnetProcessorClass parent_class;
 };
 

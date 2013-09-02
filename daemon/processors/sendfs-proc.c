@@ -51,7 +51,7 @@ enum {
     SEND_OBJECT
 };
 
-G_DEFINE_TYPE (SeafileSendfsProc, wingufile_sendfs_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSendfsProc, wingufile_sendfs_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -68,7 +68,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_sendfs_proc_class_init (SeafileSendfsProcClass *klass)
+wingufile_sendfs_proc_class_init (WingufileSendfsProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -79,7 +79,7 @@ wingufile_sendfs_proc_class_init (SeafileSendfsProcClass *klass)
 }
 
 static void
-wingufile_sendfs_proc_init (SeafileSendfsProc *processor)
+wingufile_sendfs_proc_init (WingufileSendfsProc *processor)
 {
 }
 
@@ -88,7 +88,7 @@ static int
 start (CcnetProcessor *processor, int argc, char **argv)
 {
     GString *buf;
-    SeafileSendfsProc *proc = (SeafileSendfsProc *)processor;
+    WingufileSendfsProc *proc = (WingufileSendfsProc *)processor;
     TransferTask *task = proc->tx_task;
 
     buf = g_string_new (NULL);
@@ -190,7 +190,7 @@ send_fs_objects (CcnetProcessor *processor, char *content, int clen)
 static void
 send_fs_roots (CcnetProcessor *processor)
 {
-    SeafileSendfsProc *proc = (SeafileSendfsProc *)processor;
+    WingufileSendfsProc *proc = (WingufileSendfsProc *)processor;
     char buf[2096];
     char *ptr = buf;
     int i, count = 0;
@@ -223,7 +223,7 @@ handle_response (CcnetProcessor *processor,
                  char *code, char *code_msg,
                  char *content, int clen)
 {
-    SeafileSendfsProc *proc = (SeafileSendfsProc *)processor;
+    WingufileSendfsProc *proc = (WingufileSendfsProc *)processor;
     TransferTask *task = proc->tx_task;
 
     switch (processor->state) {

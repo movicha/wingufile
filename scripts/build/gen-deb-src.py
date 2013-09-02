@@ -367,7 +367,7 @@ def prepare_builddir(builddir):
 def show_build_info():
     '''Print all conf information. Confirm before continue.'''
     info('------------------------------------------')
-    info('Seafile debian source tarball %s:' % conf[CONF_VERSION])
+    info('Wingufile debian source tarball %s:' % conf[CONF_VERSION])
     info('------------------------------------------')
     info('wingufile:          %s' % conf[CONF_WINGUFILE_VERSION])
     info('ccnet:            %s' % conf[CONF_CCNET_VERSION])

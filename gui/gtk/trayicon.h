@@ -6,29 +6,29 @@
 #include <glib.h>
 
 #define WINGUFILE_TYPE_TRAY_ICON         (wingufile_tray_icon_get_type ())
-#define WINGUFILE_TRAY_ICON(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), WINGUFILE_TYPE_TRAY_ICON, SeafileTrayIcon))
-#define WINGUFILE_TRAY_ICON_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), WINGUFILE_TYPE_TRAY_ICON, SeafileTrayIconClass))
+#define WINGUFILE_TRAY_ICON(o)           (G_TYPE_CHECK_INSTANCE_CAST ((o), WINGUFILE_TYPE_TRAY_ICON, WingufileTrayIcon))
+#define WINGUFILE_TRAY_ICON_CLASS(k)     (G_TYPE_CHECK_CLASS_CAST((k), WINGUFILE_TYPE_TRAY_ICON, WingufileTrayIconClass))
 #define WINGUFILE_IS_TRAY_ICON(o)        (G_TYPE_CHECK_INSTANCE_TYPE ((o), WINGUFILE_TYPE_TRAY_ICON))
 #define WINGUFILE_IS_TRAY_ICON_CLASS(k)  (G_TYPE_CHECK_CLASS_TYPE ((k), WINGUFILE_TYPE_TRAY_ICON))
-#define WINGUFILE_TRAY_ICON_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), WINGUFILE_TYPE_TRAY_ICON, SeafileTrayIconClass))
+#define WINGUFILE_TRAY_ICON_GET_CLASS(o) (G_TYPE_INSTANCE_GET_CLASS ((o), WINGUFILE_TYPE_TRAY_ICON, WingufileTrayIconClass))
 
-typedef struct _SeafileTrayIcon      SeafileTrayIcon;
-typedef struct _SeafileTrayIconClass SeafileTrayIconClass;
+typedef struct _WingufileTrayIcon      WingufileTrayIcon;
+typedef struct _WingufileTrayIconClass WingufileTrayIconClass;
 
-typedef struct SeafileTrayIconPriv SeafileTrayIconPriv;
+typedef struct WingufileTrayIconPriv WingufileTrayIconPriv;
 
-struct _SeafileTrayIcon {
+struct _WingufileTrayIcon {
         GObject parent;
-        SeafileTrayIconPriv *priv;
+        WingufileTrayIconPriv *priv;
 };
 
-struct _SeafileTrayIconClass {
+struct _WingufileTrayIconClass {
         GObjectClass parent_class;
 };
 
 GType wingufile_trayicon_get_type (void);
 
-SeafileTrayIcon *wingufile_trayicon_new ();
+WingufileTrayIcon *wingufile_trayicon_new ();
 
 #define ICON_STATUS_UP	    "ccnet_daemon_up"
 #define ICON_STATUS_DOWN    "ccnet_daemon_down"
@@ -39,12 +39,12 @@ SeafileTrayIcon *wingufile_trayicon_new ();
 #define WINGUFILE_TRANFER_3   "wingufile_transfer_3"
 #define WINGUFILE_TRANFER_4   "wingufile_transfer_4"
 
-void wingufile_trayicon_set_icon (SeafileTrayIcon *icon, const char *name);
+void wingufile_trayicon_set_icon (WingufileTrayIcon *icon, const char *name);
 
-void wingufile_trayicon_notify (SeafileTrayIcon *icon, char *title, char *buf);
+void wingufile_trayicon_notify (WingufileTrayIcon *icon, char *title, char *buf);
 
-void wingufile_trayicon_set_tooltip (SeafileTrayIcon *icon, const char *tooltip);
+void wingufile_trayicon_set_tooltip (WingufileTrayIcon *icon, const char *tooltip);
 
-void reset_trayicon_and_tip (SeafileTrayIcon *icon);
+void reset_trayicon_and_tip (WingufileTrayIcon *icon);
 
 #endif /* __WINGUFILE_TRAY_ICON_H__ */

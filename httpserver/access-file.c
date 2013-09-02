@@ -33,8 +33,8 @@ struct file_type_map {
 
 typedef struct SendfileData {
     evhtp_request_t *req;
-    Seafile *file;
-    SeafileCrypt *crypt;
+    Wingufile *file;
+    WingufileCrypt *crypt;
     gboolean enc_init;
     EVP_CIPHER_CTX ctx;
     BlockHandle *handle;
@@ -62,7 +62,7 @@ typedef struct SendDirData {
 
 
 
-extern SeafileSession *winguf;
+extern WingufileSession *winguf;
 
 static struct file_type_map ftmap[] = {
     { "txt", "text/plain" },
@@ -350,16 +350,16 @@ test_firefox (evhtp_request_t *req)
 static int
 do_file(evhtp_request_t *req, SeafRepo *repo, const char *file_id,
         const char *filename, const char *operation,
-        SeafileCryptKey *crypt_key)
+        WingufileCryptKey *crypt_key)
 {
-    Seafile *file;
+    Wingufile *file;
     char *type = NULL;
     char file_size[255];
     gchar *content_type = NULL;
     char cont_filename[SEAF_PATH_MAX];
     char *key_hex, *iv_hex;
     unsigned char enc_key[16], enc_iv[16];
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     SendfileData *data;
 
     file = winguf_fs_manager_get_wingufile(winguf->fs_mgr, file_id);
@@ -465,7 +465,7 @@ do_file(evhtp_request_t *req, SeafRepo *repo, const char *file_id,
 static int
 do_dir (evhtp_request_t *req, SeafRepo *repo, const char *dir_id,
         const char *filename, const char *operation,
-        SeafileCryptKey *crypt_key)
+        WingufileCryptKey *crypt_key)
 {
     char *zipfile = NULL;
     char *filename_escaped = NULL;
@@ -474,7 +474,7 @@ do_dir (evhtp_request_t *req, SeafRepo *repo, const char *dir_id,
     SeafStat st;
     char *key_hex, *iv_hex;
     unsigned char enc_key[16], enc_iv[16];
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     int zipfd = 0;
     int ret = 0;
     gint64 dir_size = 0;
@@ -607,8 +607,8 @@ access_cb(evhtp_request_t *req, void *arg)
     SearpcClient *rpc_client = NULL;
     GError *err = NULL;
     char *repo_role = NULL;
-    SeafileCryptKey *key = NULL;
-    SeafileWebAccess *webaccess = NULL;
+    WingufileCryptKey *key = NULL;
+    WingufileWebAccess *webaccess = NULL;
 
     /* Skip the first '/'. */
     char **parts = g_strsplit (req->uri->path->full + 1, "/", 0);
@@ -625,7 +625,7 @@ access_cb(evhtp_request_t *req, void *arg)
                                                  NULL,
                                                  "wingufserv-rpcserver");
 
-    webaccess = (SeafileWebAccess *) wingurpc_client_call__object (
+    webaccess = (WingufileWebAccess *) wingurpc_client_call__object (
         rpc_client, "wingufile_web_query_access_token", WINGUFILE_TYPE_WEB_ACCESS,
         NULL, 1, "string", token);
     if (!webaccess) {
@@ -673,7 +673,7 @@ access_cb(evhtp_request_t *req, void *arg)
 
     if (repo->encrypted) {
         err = NULL;
-        key = (SeafileCryptKey *) wingufile_get_decrypt_key (rpc_client,
+        key = (WingufileCryptKey *) wingufile_get_decrypt_key (rpc_client,
                                                            repo_id, user, &err);
         if (!key) {
             error = "Repo is encrypted. Please provide password to view it.";

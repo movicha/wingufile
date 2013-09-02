@@ -64,8 +64,8 @@ msgid "Internal error."
 msgstr "Erreur interne."
 
 #: templates/base.html:5 templates/base.html:47
-msgid "Seafile Client"
-msgstr "Client Seafile"
+msgid "Wingufile Client"
+msgstr "Client Wingufile"
 
 #: templates/base.html:26
 msgid "System"
@@ -454,7 +454,7 @@ msgstr ""
 "Vous devriez seulement éditer l'adresse de serveur quand vous êtes sûrs que "
 "le serveur utilise une nouvelle adresse. Autrement les bibliothèques seront "
 "incapables d'être synchronisé. Après avoir édité cette adresse, vous devriez "
-"redémarrer Seafile pour que les changements prennent effets."
+"redémarrer Wingufile pour que les changements prennent effets."
 
 #: templates/repo.html:104
 msgid "server name"
@@ -540,20 +540,20 @@ msgid "not connected"
 msgstr "Non connecté"
 
 #: templates/repos.html:34
-msgid "Four Steps to Use Seafile Client"
-msgstr "Quatre étapes pour utiliser le client Seafile"
+msgid "Four Steps to Use Wingufile Client"
+msgstr "Quatre étapes pour utiliser le client Wingufile"
 
 #: templates/repos.html:36
 msgid ""
-"Log in to Seafile website, either our official website or your private "
+"Log in to Wingufile website, either our official website or your private "
 "website."
 msgstr ""
-"Connectez-vous au site Web de Seafile, notre site Web officiel ou votre site "
+"Connectez-vous au site Web de Wingufile, notre site Web officiel ou votre site "
 "Web privé."
 
 #: templates/repos.html:37
-msgid "Create a library on Seafile website."
-msgstr "Créer une bibliothèque sur le site de Seafile"
+msgid "Create a library on Wingufile website."
+msgstr "Créer une bibliothèque sur le site de Wingufile"
 
 #: templates/repos.html:38
 msgid "Download the library to a local folder."
@@ -598,13 +598,13 @@ msgid "Notify when libraries are synchronized"
 msgstr "Notifier lorsque qu'une bibilothèque est synchronisée"
 
 #: templates/settings.html:21
-msgid "Auto start Seafile on system startup (only for Windows)"
-msgstr "Lancement automatique de Seafile au démarrage (Pour Windows seulement)"
+msgid "Auto start Wingufile on system startup (only for Windows)"
+msgstr "Lancement automatique de Wingufile au démarrage (Pour Windows seulement)"
 
 #: templates/settings.html:29
-msgid "Enable encryption for data transfer (restart Seafile to take effect)"
+msgid "Enable encryption for data transfer (restart Wingufile to take effect)"
 msgstr ""
-"Activer le cryptage lors du transfert des données (relancer Seafile pour "
+"Activer le cryptage lors du transfert des données (relancer Wingufile pour "
 "prendre effet)"
 
 #: templates/settings.html:32
@@ -624,8 +624,8 @@ msgstr "Téléchargement :"
 #~ msgid "Incorrect password. Failed to decrypt files."
 #~ msgstr "Mot de passe incorrect. Impossible de décrypter les fichiers"
 
-#~ msgid "Seafile@Local"
-#~ msgstr "Seafile@Local"
+#~ msgid "Wingufile@Local"
+#~ msgstr "Wingufile@Local"
 
 #~ msgid "Files"
 #~ msgstr "Fichiers"
@@ -633,8 +633,8 @@ msgstr "Téléchargement :"
 #~ msgid "Network"
 #~ msgstr "Réseau"
 
-#~ msgid "Seafile Client Version:"
-#~ msgstr "Version du client Seafile："
+#~ msgid "Wingufile Client Version:"
+#~ msgstr "Version du client Wingufile："
 
 #~ msgid "About"
 #~ msgstr "A propos"

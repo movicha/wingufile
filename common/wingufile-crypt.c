@@ -18,10 +18,10 @@
 /* truly random sequece read from /dev/urandom. */
 static unsigned char salt[8] = { 0xda, 0x90, 0x45, 0xc3, 0x06, 0xc7, 0xcc, 0x26 };
 
-SeafileCrypt *
+WingufileCrypt *
 wingufile_crypt_new (int version, unsigned char *key, unsigned char *iv)
 {
-    SeafileCrypt *crypt = g_new0 (SeafileCrypt, 1);
+    WingufileCrypt *crypt = g_new0 (WingufileCrypt, 1);
     crypt->version = version;
     memcpy (crypt->key, key, 16);
     memcpy (crypt->iv, iv, 16);
@@ -57,7 +57,7 @@ wingufile_encrypt (char **data_out,
                  int *out_len,
                  const char *data_in,
                  const int in_len,
-                 SeafileCrypt *crypt)
+                 WingufileCrypt *crypt)
 {
     *data_out = NULL;
     *out_len = -1;
@@ -159,7 +159,7 @@ wingufile_decrypt (char **data_out,
                  int *out_len,
                  const char *data_in,
                  const int in_len,
-                 SeafileCrypt *crypt)
+                 WingufileCrypt *crypt)
 {
     *data_out = NULL;
     *out_len = -1;

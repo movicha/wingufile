@@ -38,7 +38,7 @@
 
 #include "cdc/cdc.h"
 
-SeafileSession *winguf;
+WingufileSession *winguf;
 SearpcClient *ccnetrpc_client;
 SearpcClient *ccnetrpc_client_t;
 SearpcClient *async_ccnetrpc_client;
@@ -625,7 +625,7 @@ static void start_rpc_service (CcnetClient *client, int cloud_mode)
 }
 
 static void
-set_signal_handlers (SeafileSession *session)
+set_signal_handlers (WingufileSession *session)
 {
 #ifndef WIN32
     signal (SIGPIPE, SIG_IGN);

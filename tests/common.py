@@ -25,7 +25,7 @@ class CcnetDaemon(object):
     def stop(self):
         os.kill(self.child_pid, 2)
 
-class SeafileDaemon(object):
+class WingufileDaemon(object):
     
     def __init__(self, confdir):
         self.confdir = confdir

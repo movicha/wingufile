@@ -16,7 +16,7 @@ struct _SeafInfoManagerPriv {
 };
 
 SeafInfoManager*
-winguf_info_manager_new (SeafileSession *winguf)
+winguf_info_manager_new (WingufileSession *winguf)
 {
     SeafInfoManager *mgr = g_new0 (SeafInfoManager, 1);
     mgr->priv = g_new0 (SeafInfoManagerPriv, 1);    

@@ -32,7 +32,7 @@
 #define STARTWEBSERVER "wingufile-web.exe 127.0.0.1:13420"
 #define WEB_PROCESS_NAME "wingufile-web.exe"
 
-SeafileApplet *applet;
+WingufileApplet *applet;
 /* In UTF-8 */
 char *wingufile_bin_dir = NULL;
 
@@ -57,7 +57,7 @@ TestWebServer (HWND hwnd, UINT message, UINT iTimerID, DWORD dwTime)
 
         applet->web_status = WEB_READY;
         if (first_use) {
-            trayicon_notify (_("Seafile is started"), _("Click the icon to open admin console"));
+            trayicon_notify (_("Wingufile is started"), _("Click the icon to open admin console"));
         }
     }
 }
@@ -66,7 +66,7 @@ static void
 reset_trayicon_and_tip()
 {
     UINT id;
-    char *tip = "Seafile";
+    char *tip = "Wingufile";
 
     if (!applet->client->connected) {
         id = IDI_STATUS_DOWN;
@@ -200,7 +200,7 @@ get_wingufile_auto_start()
     char buf[SEAF_PATH_MAX] = {0};
     DWORD len = sizeof(buf);
     result = RegQueryValueEx (hKey,             /* Key */
-                              "Seafile",        /* value */
+                              "Wingufile",        /* value */
                               NULL,             /* reserved */
                               NULL,             /* output type */
                               (LPBYTE)buf,      /* output data */
@@ -226,11 +226,11 @@ set_wingufile_auto_start(int on)
             return -1;
         }
 
-        result = add_to_auto_start (L"Seafile", applet_path);
+        result = add_to_auto_start (L"Wingufile", applet_path);
 
     } else {
         /* turn off auto start */
-        result = delete_from_auto_start("Seafile");
+        result = delete_from_auto_start("Wingufile");
     }
     return result;
 }
@@ -356,7 +356,7 @@ set_auto_sync_cb (void *result, void *data, GError *error)
         wchar_t *msg = wchar_from_utf8 (disable ?
                                         _("Failed to disable auto sync") :
                                         _("Failed to enable auto sync"));
-        MessageBoxW (NULL, msg, L"Seafile", MB_OK);
+        MessageBoxW (NULL, msg, L"Wingufile", MB_OK);
 
         g_free (msg);
 
@@ -517,9 +517,9 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
     g_free (locale);
 
     if (count_process("wingufile-applet") > 1) {
-        char *msg = _("Seafile is already running");
+        char *msg = _("Wingufile is already running");
         wchar_t *msg_w = wchar_from_utf8 (msg);
-        MessageBoxW (NULL, msg_w, L"Seafile", MB_OK);
+        MessageBoxW (NULL, msg_w, L"Wingufile", MB_OK);
         exit(1);
     }
 
@@ -543,7 +543,7 @@ WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, in
 
     g_type_init();
 
-    applet = g_new0 (SeafileApplet, 1);
+    applet = g_new0 (WingufileApplet, 1);
 
     wingufile_applet_init (hInstance);
     wingufile_applet_start (argc, argv);

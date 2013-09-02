@@ -19,7 +19,7 @@
 #define CHECK_CONNECT_INTERVAL 5 /* 5s */
 
 static void
-on_repo_fetched (SeafileSession *winguf,
+on_repo_fetched (WingufileSession *winguf,
                  TransferTask *tx_task,
                  SeafCloneManager *mgr);
 
@@ -125,7 +125,7 @@ clone_task_error_to_str (int error)
 }
 
 SeafCloneManager *
-winguf_clone_manager_new (SeafileSession *session)
+winguf_clone_manager_new (WingufileSession *session)
 {
     SeafCloneManager *mgr = g_new0 (SeafCloneManager, 1);
 
@@ -1382,7 +1382,7 @@ start_checkout (SeafRepo *repo, CloneTask *task)
 }
 
 static void
-on_repo_fetched (SeafileSession *winguf,
+on_repo_fetched (WingufileSession *winguf,
                  TransferTask *tx_task,
                  SeafCloneManager *mgr)
 {

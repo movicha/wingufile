@@ -4,7 +4,7 @@
 #define WT_MONITOR_COMMON_H
 
 SeafWTMonitor *
-winguf_wt_monitor_new (SeafileSession *winguf)
+winguf_wt_monitor_new (WingufileSession *winguf)
 {
     SeafWTMonitor *monitor = g_new0 (SeafWTMonitor, 1);
     SeafWTMonitorPriv *priv = g_new0 (SeafWTMonitorPriv, 1);

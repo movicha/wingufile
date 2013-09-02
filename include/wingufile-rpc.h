@@ -7,7 +7,7 @@
 /**
  * wingufile_get_session_info:
  *
- * Returns: a SeafileSessionInfo object.
+ * Returns: a WingufileSessionInfo object.
  */
 GObject *
 wingufile_get_session_info (GError **error);

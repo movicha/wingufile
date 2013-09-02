@@ -17,15 +17,15 @@ typedef struct {
     char *rsp_code;
     char *rsp_msg;
     char commit_id[41];
-} SeafileSyncRepoSlaveProcPriv;
+} WingufileSyncRepoSlaveProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, SeafileSyncRepoSlaveProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_SYNC_REPO_SLAVE_PROC, WingufileSyncRepoSlaveProcPriv))
 
 #define USE_PRIV \
-    SeafileSyncRepoSlaveProcPriv *priv = GET_PRIV(processor);
+    WingufileSyncRepoSlaveProcPriv *priv = GET_PRIV(processor);
 
-G_DEFINE_TYPE (SeafileSynRepoSlaveProc, wingufile_sync_repo_slave_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSynRepoSlaveProc, wingufile_sync_repo_slave_proc, CCNET_TYPE_PROCESSOR)
 
 static int
 sync_repo_slave_start (CcnetProcessor *processor, int argc, char **argv);
@@ -49,7 +49,7 @@ release_resource(CcnetProcessor *processor)
 }
 
 static void
-wingufile_sync_repo_slave_proc_class_init (SeafileSynRepoSlaveProcClass *klass)
+wingufile_sync_repo_slave_proc_class_init (WingufileSynRepoSlaveProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -57,11 +57,11 @@ wingufile_sync_repo_slave_proc_class_init (SeafileSynRepoSlaveProcClass *klass)
     proc_class->start = sync_repo_slave_start;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileSyncRepoSlaveProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileSyncRepoSlaveProcPriv));
 }
 
 static void
-wingufile_sync_repo_slave_proc_init (SeafileSynRepoSlaveProc *processor)
+wingufile_sync_repo_slave_proc_init (WingufileSynRepoSlaveProc *processor)
 {
 }
 

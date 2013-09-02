@@ -11,7 +11,7 @@
 #define SC_BAD_REPO         "402"
 #define SS_BAD_REPO         "Repo doesn't exist"
 
-G_DEFINE_TYPE (SeafileNotifysyncProc, wingufile_notifysync_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileNotifysyncProc, wingufile_notifysync_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -28,7 +28,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_notifysync_proc_class_init (SeafileNotifysyncProcClass *klass)
+wingufile_notifysync_proc_class_init (WingufileNotifysyncProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -39,7 +39,7 @@ wingufile_notifysync_proc_class_init (SeafileNotifysyncProcClass *klass)
 }
 
 static void
-wingufile_notifysync_proc_init (SeafileNotifysyncProc *processor)
+wingufile_notifysync_proc_init (WingufileNotifysyncProc *processor)
 {
 }
 

@@ -6,7 +6,7 @@
 #define INFINITE_QUOTA (gint64)-2
 
 struct _SeafQuotaManager {
-    struct _SeafileSession *session;
+    struct _WingufileSession *session;
 
     gint64 default_quota;
     gboolean calc_share_usage;
@@ -14,7 +14,7 @@ struct _SeafQuotaManager {
 typedef struct _SeafQuotaManager SeafQuotaManager;
 
 SeafQuotaManager *
-winguf_quota_manager_new (struct _SeafileSession *session);
+winguf_quota_manager_new (struct _WingufileSession *session);
 
 int
 winguf_quota_manager_init (SeafQuotaManager *mgr);

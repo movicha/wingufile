@@ -31,7 +31,7 @@
 #define SC_BAD_REPO         "406"
 #define SS_BAD_REPO         "Repo doesn't exist"
 
-G_DEFINE_TYPE (SeafileCheckTxProc, wingufile_check_tx_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileCheckTxProc, wingufile_check_tx_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_response (CcnetProcessor *processor,
@@ -46,7 +46,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_check_tx_proc_class_init (SeafileCheckTxProcClass *klass)
+wingufile_check_tx_proc_class_init (WingufileCheckTxProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -57,7 +57,7 @@ wingufile_check_tx_proc_class_init (SeafileCheckTxProcClass *klass)
 }
 
 static void
-wingufile_check_tx_proc_init (SeafileCheckTxProc *processor)
+wingufile_check_tx_proc_init (WingufileCheckTxProc *processor)
 {
 }
 
@@ -66,7 +66,7 @@ static int
 start (CcnetProcessor *processor, int argc, char **argv)
 {
     char buf[256];
-    SeafileCheckTxProc *proc = (SeafileCheckTxProc *)processor;
+    WingufileCheckTxProc *proc = (WingufileCheckTxProc *)processor;
     TransferTask *task = proc->task;
 
     if (argc != 1) {
@@ -151,7 +151,7 @@ handle_response (CcnetProcessor *processor,
                  char *code, char *code_msg,
                  char *content, int clen)
 {
-    SeafileCheckTxProc *proc = (SeafileCheckTxProc *)processor;
+    WingufileCheckTxProc *proc = (WingufileCheckTxProc *)processor;
     TransferTask *task = proc->task;
 
     if (strncmp(code, SC_OK, 3) == 0) {

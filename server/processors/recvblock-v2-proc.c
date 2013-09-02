@@ -37,13 +37,13 @@ static void handle_update (CcnetProcessor *processor,
 static void recv_block_cb (CEvent *event, void *vprocessor);
 static void release_resource (CcnetProcessor *processor);
 
-G_DEFINE_TYPE (SeafileRecvblockV2Proc, wingufile_recvblock_v2_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileRecvblockV2Proc, wingufile_recvblock_v2_proc, CCNET_TYPE_PROCESSOR)
 
 #define RECVBLOCK_PROC
 #include "processors/blocktx-common-impl-v2.h"
 
 static void
-wingufile_recvblock_v2_proc_class_init (SeafileRecvblockV2ProcClass *klass)
+wingufile_recvblock_v2_proc_class_init (WingufileRecvblockV2ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -56,7 +56,7 @@ wingufile_recvblock_v2_proc_class_init (SeafileRecvblockV2ProcClass *klass)
 }
 
 static void
-wingufile_recvblock_v2_proc_init (SeafileRecvblockV2Proc *processor)
+wingufile_recvblock_v2_proc_init (WingufileRecvblockV2Proc *processor)
 {
 }
 

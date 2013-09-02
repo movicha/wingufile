@@ -305,7 +305,7 @@ should_ignore_file(const char *filename, void *data)
 }
 
 SeafRepoManager*
-winguf_repo_manager_new (SeafileSession *winguf)
+winguf_repo_manager_new (WingufileSession *winguf)
 {
     SeafRepoManager *mgr = g_new0 (SeafRepoManager, 1);
 
@@ -1264,7 +1264,7 @@ collect_repo_token (SeafDBRow *row, void *data)
     peer_name = winguf_db_row_get_column_text (row, 6);
     sync_time = winguf_db_row_get_column_int64 (row, 7);
 
-    SeafileRepoTokenInfo *repo_token_info;
+    WingufileRepoTokenInfo *repo_token_info;
     repo_token_info = g_object_new (WINGUFILE_TYPE_REPO_TOKEN_INFO,
                                     "repo_id", repo_id,
                                     "repo_owner", repo_owner,
@@ -1285,7 +1285,7 @@ static void
 fill_in_token_info (GList *info_list)
 {
     GList *ptr;
-    SeafileRepoTokenInfo *info;
+    WingufileRepoTokenInfo *info;
     SeafRepo *repo;
     char *repo_name;
 
@@ -1947,7 +1947,7 @@ static gboolean
 get_group_repos_cb (SeafDBRow *row, void *data)
 {
     GList **p_list = data;
-    SeafileSharedRepo *srepo = NULL;
+    WingufileSharedRepo *srepo = NULL;
     
     const char *repo_id = winguf_db_row_get_column_text (row, 0);
     int group_id = winguf_db_row_get_column_int (row, 1);
@@ -1971,7 +1971,7 @@ get_group_repos_cb (SeafDBRow *row, void *data)
 static void
 fill_in_repo_info (GList *shared_repos)
 {
-    SeafileSharedRepo *srepo;
+    WingufileSharedRepo *srepo;
     GList *ptr;
     SeafRepo *repo = NULL;
     SeafCommit *commit = NULL;
@@ -2132,7 +2132,7 @@ static gboolean
 collect_public_repos (SeafDBRow *row, void *data)
 {
     GList **ret = (GList **)data;
-    SeafileSharedRepo *srepo;
+    WingufileSharedRepo *srepo;
     const char *repo_id, *owner, *permission;
 
     repo_id = winguf_db_row_get_column_text (row, 0);

@@ -26,7 +26,7 @@ block_backend_fs_new (const char *block_dir, const char *tmp_dir);
 
 
 SeafBlockManager *
-winguf_block_manager_new (struct _SeafileSession *winguf,
+winguf_block_manager_new (struct _WingufileSession *winguf,
                         const char *winguf_dir)
 {
     SeafBlockManager *mgr;

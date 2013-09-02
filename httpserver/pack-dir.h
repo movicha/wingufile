@@ -6,6 +6,6 @@
  */
 char *pack_dir (const char *dirname,
                 const char *root_id,
-                SeafileCrypt *crypt,
+                WingufileCrypt *crypt,
                 gboolean is_windows);
 #endif

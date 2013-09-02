@@ -5,7 +5,7 @@
 
 #include <glib.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 struct _SeafRepo;
 struct _CcnetGroup;
 
@@ -13,12 +13,12 @@ typedef struct _SeafInfoManager SeafInfoManager;
 typedef struct _SeafInfoManagerPriv SeafInfoManagerPriv;
 
 struct _SeafInfoManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     SeafInfoManagerPriv *priv;
 };
 
-SeafInfoManager *winguf_info_manager_new (struct _SeafileSession *winguf);
+SeafInfoManager *winguf_info_manager_new (struct _WingufileSession *winguf);
 int winguf_info_manager_init (SeafInfoManager *mgr);
 int winguf_info_manager_start (SeafInfoManager *mgr);
 

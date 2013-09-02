@@ -7,16 +7,16 @@
 #include "transfer-mgr.h"
 
 #define WINGUFILE_TYPE_GETBLOCK_PROC                  (wingufile_getblock_proc_get_type ())
-#define WINGUFILE_GETBLOCK_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_GETBLOCK_PROC, SeafileGetblockProc))
+#define WINGUFILE_GETBLOCK_PROC(obj)                  (G_TYPE_CHECK_INSTANCE_CAST ((obj), WINGUFILE_TYPE_GETBLOCK_PROC, WingufileGetblockProc))
 #define WINGUFILE_IS_GETBLOCK_PROC(obj)               (G_TYPE_CHECK_INSTANCE_TYPE ((obj), WINGUFILE_TYPE_GETBLOCK_PROC))
-#define WINGUFILE_GETBLOCK_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_GETBLOCK_PROC, SeafileGetblockProcClass))
+#define WINGUFILE_GETBLOCK_PROC_CLASS(klass)          (G_TYPE_CHECK_CLASS_CAST ((klass), WINGUFILE_TYPE_GETBLOCK_PROC, WingufileGetblockProcClass))
 #define IS_WINGUFILE_GETBLOCK_PROC_CLASS(klass)       (G_TYPE_CHECK_CLASS_TYPE ((klass), WINGUFILE_TYPE_GETBLOCK_PROC))
-#define WINGUFILE_GETBLOCK_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_GETBLOCK_PROC, SeafileGetblockProcClass))
+#define WINGUFILE_GETBLOCK_PROC_GET_CLASS(obj)        (G_TYPE_INSTANCE_GET_CLASS ((obj), WINGUFILE_TYPE_GETBLOCK_PROC, WingufileGetblockProcClass))
 
-typedef struct _SeafileGetblockProc SeafileGetblockProc;
-typedef struct _SeafileGetblockProcClass SeafileGetblockProcClass;
+typedef struct _WingufileGetblockProc WingufileGetblockProc;
+typedef struct _WingufileGetblockProcClass WingufileGetblockProcClass;
 
-struct _SeafileGetblockProc {
+struct _WingufileGetblockProc {
     CcnetProcessor parent_instance;
 
     TransferTask  *tx_task;
@@ -29,15 +29,15 @@ struct _SeafileGetblockProc {
     int            pending_blocks;
 };
 
-struct _SeafileGetblockProcClass {
+struct _WingufileGetblockProcClass {
     CcnetProcessorClass parent_class;
 };
 
 GType wingufile_getblock_proc_get_type ();
 
-int wingufile_getblock_proc_get_block (SeafileGetblockProc *proc,
+int wingufile_getblock_proc_get_block (WingufileGetblockProc *proc,
                                      int block_idx);
 
-gboolean wingufile_getblock_proc_is_ready (SeafileGetblockProc *proc);
+gboolean wingufile_getblock_proc_is_ready (WingufileGetblockProc *proc);
 
 #endif

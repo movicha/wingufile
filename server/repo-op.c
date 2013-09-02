@@ -462,7 +462,7 @@ winguf_repo_manager_post_file (SeafRepoManager *mgr,
     unsigned char sha1[20];
     char buf[SEAF_PATH_MAX];
     char *root_id = NULL;
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     SeafDirent *new_dent = NULL;
     char hex[41];
     int ret = 0;
@@ -780,7 +780,7 @@ winguf_repo_manager_post_multi_files (SeafRepoManager *mgr,
     unsigned char sha1[20];
     GString *buf = g_string_new (NULL);
     char *root_id = NULL;
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     char hex[41];
     int ret = 0;
 
@@ -1853,7 +1853,7 @@ winguf_repo_manager_put_file (SeafRepoManager *mgr,
     unsigned char sha1[20];
     char buf[SEAF_PATH_MAX];
     char *root_id = NULL;
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     SeafDirent *new_dent = NULL;
     char hex[41];
     char *old_file_id = NULL, *fullpath = NULL;
@@ -1987,7 +1987,7 @@ winguf_repo_manager_update_dir (SeafRepoManager *mgr,
     char *parent = NULL, *dirname = NULL;
     SeafDirent *new_dent = NULL;
     char *root_id = NULL;
-    char *commit_desc = "Auto merge by Seafile system";
+    char *commit_desc = "Auto merge by Wingufile system";
     int ret = 0;
 
     GET_REPO_OR_FAIL(repo, repo_id);
@@ -3017,7 +3017,7 @@ winguf_repo_manager_calc_files_last_modified (SeafRepoManager *mgr,
 
     g_hash_table_iter_init (&iter, data.last_modified_hash);
     while (g_hash_table_iter_next (&iter, &key, &value)) {
-        SeafileFileLastModifiedInfo *info;
+        WingufileFileLastModifiedInfo *info;
         gint64 last_modified = *(gint64 *)value;
         info = g_object_new (WINGUFILE_TYPE_FILE_LAST_MODIFIED_INFO,
                              "file_name", key,
@@ -3129,8 +3129,8 @@ add_deleted_entry (GHashTable *entries,
                    SeafCommit *parent)
 {
     char *path = g_strconcat (base, dent->name, NULL);
-    SeafileDeletedEntry *entry;
-    Seafile *file;
+    WingufileDeletedEntry *entry;
+    Wingufile *file;
 
     if (g_hash_table_lookup (entries, path) != NULL) {
         /* g_debug ("found dup deleted entry for %s.\n", path); */
@@ -3300,7 +3300,7 @@ collect_deleted (SeafCommit *commit, void *vdata, gboolean *stop)
 static gboolean
 remove_existing (gpointer key, gpointer value, gpointer user_data)
 {
-    SeafileDeletedEntry *e = value;
+    WingufileDeletedEntry *e = value;
     SeafCommit *head = user_data;
     guint32 mode = wingufile_deleted_entry_get_mode(e), mode_out = 0;
     char *path = key;

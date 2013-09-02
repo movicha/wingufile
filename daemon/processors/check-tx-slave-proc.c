@@ -20,7 +20,7 @@
 #define SC_NO_BRANCH        "404"
 #define SS_NO_BRANCH        "Branch not found"
 
-G_DEFINE_TYPE (SeafileCheckTxSlaveProc, wingufile_check_tx_slave_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileCheckTxSlaveProc, wingufile_check_tx_slave_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -37,7 +37,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_check_tx_slave_proc_class_init (SeafileCheckTxSlaveProcClass *klass)
+wingufile_check_tx_slave_proc_class_init (WingufileCheckTxSlaveProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
     proc_class->name = "check-tx-slave-proc";
@@ -47,7 +47,7 @@ wingufile_check_tx_slave_proc_class_init (SeafileCheckTxSlaveProcClass *klass)
 }
 
 static void
-wingufile_check_tx_slave_proc_init (SeafileCheckTxSlaveProc *processor)
+wingufile_check_tx_slave_proc_init (WingufileCheckTxSlaveProc *processor)
 {
 }
 

@@ -11,7 +11,7 @@
 #include "sync-repo-common.h"
 
 
-G_DEFINE_TYPE (SeafileSynRepoSlaveProc, wingufile_sync_repo_slave_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileSynRepoSlaveProc, wingufile_sync_repo_slave_proc, CCNET_TYPE_PROCESSOR)
 
 static int
 sync_repo_slave_start (CcnetProcessor *processor, int argc, char **argv);
@@ -21,7 +21,7 @@ send_repo_branch_info (CcnetProcessor *processor, const char *repo_id,
                        const char *branch);
 
 static void
-wingufile_sync_repo_slave_proc_class_init (SeafileSynRepoSlaveProcClass *klass)
+wingufile_sync_repo_slave_proc_class_init (WingufileSynRepoSlaveProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -30,7 +30,7 @@ wingufile_sync_repo_slave_proc_class_init (SeafileSynRepoSlaveProcClass *klass)
 }
 
 static void
-wingufile_sync_repo_slave_proc_init (SeafileSynRepoSlaveProc *processor)
+wingufile_sync_repo_slave_proc_init (WingufileSynRepoSlaveProc *processor)
 {
 }
 

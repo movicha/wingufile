@@ -128,12 +128,12 @@ msgstr "系统自动合并修改"
 
 #: ../gui/gtk/wingufile-applet.c:161
 #, c-format
-msgid "Seafile is already running\n"
-msgstr "Seafile 已经运行, 请不要重复启动\n"
+msgid "Wingufile is already running\n"
+msgstr "Wingufile 已经运行, 请不要重复启动\n"
 
 #: ../gui/gtk/trayicon.c:117 ../gui/win/wingufile-applet.c:76
 msgid "Auto sync is disabled"
-msgstr "Seafile 同步已暂停"
+msgstr "Wingufile 同步已暂停"
 
 #: ../gui/win/init-ccnet.c:194
 msgid "free"
@@ -144,8 +144,8 @@ msgid "free space unknown"
 msgstr "空闲空间大小未知"
 
 #: ../gui/win/init-ccnet.c:295 ../gui/win/init-ccnet.c:296
-msgid "Seafile help.txt"
-msgstr "Seafile使用帮助.txt"
+msgid "Wingufile help.txt"
+msgstr "Wingufile使用帮助.txt"
 
 #: ../gui/win/init-ccnet.c:316
 msgid "Choose a folder"
@@ -157,11 +157,11 @@ msgstr "请先选择一个文件夹"
 
 #: ../gui/win/init-ccnet.c:406 ../gui/win/init-ccnet.c:416
 msgid "Initialzation is not finished. Really quit?"
-msgstr "Seafile 初始化仍未完成。确认要退出吗？"
+msgstr "Wingufile 初始化仍未完成。确认要退出吗？"
 
 #: ../gui/win/wingufile-applet.c:60
-msgid "Seafile is started"
-msgstr "Seafile 已启动"
+msgid "Wingufile is started"
+msgstr "Wingufile 已启动"
 
 #: ../gui/win/wingufile-applet.c:60
 msgid "Click the icon to open admin console"
@@ -176,11 +176,11 @@ msgid "Failed to enable auto sync"
 msgstr "开启同步失败"
 
 #: ../gui/win/wingufile-applet.c:520
-msgid "Seafile is already running"
-msgstr "Seafile 已经运行，请不要重复启动"
+msgid "Wingufile is already running"
+msgstr "Wingufile 已经运行，请不要重复启动"
 
-#~ msgid "Seafile Initialization"
-#~ msgstr "Seafile 初始化"
+#~ msgid "Wingufile Initialization"
+#~ msgstr "Wingufile 初始化"
 
 #~ msgid "Courier"
 #~ msgstr "宋体"

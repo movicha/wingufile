@@ -60,7 +60,7 @@ struct unpack_trees_options {
     struct index_state *src_index;
     struct index_state result;
 
-    SeafileCrypt *crypt;
+    WingufileCrypt *crypt;
 };
 
 extern int unpack_trees(unsigned n, struct tree_desc *t,

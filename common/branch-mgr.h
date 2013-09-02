@@ -26,14 +26,14 @@ void winguf_branch_unref (SeafBranch *branch);
 typedef struct _SeafBranchManager SeafBranchManager;
 typedef struct _SeafBranchManagerPriv SeafBranchManagerPriv;
 
-struct _SeafileSession;
+struct _WingufileSession;
 struct _SeafBranchManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     SeafBranchManagerPriv *priv;
 };
 
-SeafBranchManager *winguf_branch_manager_new (struct _SeafileSession *winguf);
+SeafBranchManager *winguf_branch_manager_new (struct _WingufileSession *winguf);
 int winguf_branch_manager_init (SeafBranchManager *mgr);
 
 int

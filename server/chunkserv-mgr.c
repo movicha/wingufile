@@ -11,7 +11,7 @@
 #define CHUNKSERVER_DB "chunkserver.db"
 
 SeafCSManager *
-winguf_cs_manager_new (SeafileSession *winguf)
+winguf_cs_manager_new (WingufileSession *winguf)
 {
     SeafCSManager *mgr = g_new0 (SeafCSManager, 1);
 

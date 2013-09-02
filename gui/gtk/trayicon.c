@@ -24,7 +24,7 @@
 #endif
 
 
-struct SeafileTrayIconPriv {
+struct WingufileTrayIconPriv {
 #ifdef HAVE_APP_INDICATOR
     AppIndicator        *icon;
 #else
@@ -39,21 +39,21 @@ struct SeafileTrayIconPriv {
 };
 
 #define GET_PRIV(o)  \
-    (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_TRAY_ICON, SeafileTrayIconPriv))
+    (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_TRAY_ICON, WingufileTrayIconPriv))
 
-G_DEFINE_TYPE (SeafileTrayIcon, wingufile_tray_icon, G_TYPE_OBJECT);
+G_DEFINE_TYPE (WingufileTrayIcon, wingufile_tray_icon, G_TYPE_OBJECT);
 
 static void
 tray_icon_popup_menu_cb (GtkStatusIcon     *tray_icon,
                          guint              button,
                          guint              activate_time,
-                         SeafileTrayIcon   *icon);
+                         WingufileTrayIcon   *icon);
 
 
 void
-wingufile_trayicon_set_icon (SeafileTrayIcon *icon, const char *name)
+wingufile_trayicon_set_icon (WingufileTrayIcon *icon, const char *name)
 {
-    SeafileTrayIconPriv *priv = GET_PRIV (icon);
+    WingufileTrayIconPriv *priv = GET_PRIV (icon);
 
 #ifdef HAVE_APP_INDICATOR
     const char *desktop;
@@ -69,21 +69,21 @@ wingufile_trayicon_set_icon (SeafileTrayIcon *icon, const char *name)
 }
 
 static void
-tray_icon_quit_cb (GtkAction *action, SeafileTrayIcon *icon)
+tray_icon_quit_cb (GtkAction *action, WingufileTrayIcon *icon)
 {
     on_quit ();
 }
 
 static void
 restart_menu_cb (GtkAction       *action,
-                 SeafileTrayIcon *icon)
+                 WingufileTrayIcon *icon)
 {
     reset_trayicon_and_tip(icon);
     restart_all();
 }
 
 static void
-open_browser_cb (GtkAction *action, SeafileTrayIcon *icon)
+open_browser_cb (GtkAction *action, WingufileTrayIcon *icon)
 {
     open_web_browser(SEAF_HTTP_ADDR);
 }
@@ -92,9 +92,9 @@ static void
 tray_icon_popup_menu_cb (GtkStatusIcon     *tray_icon,
                          guint              button,
                          guint              activate_time,
-                         SeafileTrayIcon   *icon)
+                         WingufileTrayIcon   *icon)
 {
-    SeafileTrayIconPriv *priv = GET_PRIV (icon);
+    WingufileTrayIconPriv *priv = GET_PRIV (icon);
 
     gtk_menu_popup (GTK_MENU (priv->popup_menu),
                     NULL, NULL,
@@ -104,10 +104,10 @@ tray_icon_popup_menu_cb (GtkStatusIcon     *tray_icon,
                     activate_time);
 }
 
-void reset_trayicon_and_tip(SeafileTrayIcon *icon)
+void reset_trayicon_and_tip(WingufileTrayIcon *icon)
 {
     char *name;
-    char *tip = "Seafile";
+    char *tip = "Wingufile";
     
     if (!applet->client->connected) {
         name = ICON_STATUS_DOWN;
@@ -155,21 +155,21 @@ set_auto_sync_cb (void *result, void *data, GError *error)
 }
 
 static void
-disable_auto_sync (GtkAction *action, SeafileTrayIcon *icon)
+disable_auto_sync (GtkAction *action, WingufileTrayIcon *icon)
 {
     wingufile_disable_auto_sync();
 }
 
 static void
-enable_auto_sync (GtkAction *action, SeafileTrayIcon *icon)
+enable_auto_sync (GtkAction *action, WingufileTrayIcon *icon)
 {
     wingufile_enable_auto_sync();
 }
 
 static void
-tray_icon_create_menu (SeafileTrayIcon *icon)
+tray_icon_create_menu (WingufileTrayIcon *icon)
 {
-    SeafileTrayIconPriv *priv = GET_PRIV (icon);
+    WingufileTrayIconPriv *priv = GET_PRIV (icon);
     GtkBuilder *builder;
     gchar *filename;
 
@@ -206,27 +206,27 @@ tray_icon_create_menu (SeafileTrayIcon *icon)
 static void
 wingufile_trayicon_finalize (GObject *object)
 {
-    SeafileTrayIconPriv *priv = GET_PRIV (object);
+    WingufileTrayIconPriv *priv = GET_PRIV (object);
 
     g_object_unref (priv->icon);
 }
 
 static void
-wingufile_tray_icon_class_init (SeafileTrayIconClass *klass)
+wingufile_tray_icon_class_init (WingufileTrayIconClass *klass)
 {
     GObjectClass *object_class = G_OBJECT_CLASS (klass);
 
     object_class->finalize = wingufile_trayicon_finalize;
 
-    g_type_class_add_private (object_class, sizeof (SeafileTrayIconPriv));
+    g_type_class_add_private (object_class, sizeof (WingufileTrayIconPriv));
 }
 
 
 static void
-wingufile_tray_icon_init (SeafileTrayIcon *icon)
+wingufile_tray_icon_init (WingufileTrayIcon *icon)
 {
-    SeafileTrayIconPriv *priv = G_TYPE_INSTANCE_GET_PRIVATE (icon,
-        WINGUFILE_TYPE_TRAY_ICON, SeafileTrayIconPriv);
+    WingufileTrayIconPriv *priv = G_TYPE_INSTANCE_GET_PRIVATE (icon,
+        WINGUFILE_TYPE_TRAY_ICON, WingufileTrayIconPriv);
 
     icon->priv = priv;
 
@@ -265,13 +265,13 @@ wingufile_tray_icon_init (SeafileTrayIcon *icon)
                       icon);
 #endif
 
-    notify_init("Seafile");
+    notify_init("Wingufile");
 }
 
-SeafileTrayIcon *
+WingufileTrayIcon *
 wingufile_trayicon_new (GtkWindow *window)
 {
-    SeafileTrayIcon *icon;
+    WingufileTrayIcon *icon;
 
     icon = g_object_new (WINGUFILE_TYPE_TRAY_ICON, NULL);
 
@@ -281,7 +281,7 @@ wingufile_trayicon_new (GtkWindow *window)
 }
 
 static GtkStatusIcon *
-wingufile_trayicon_get_gtk_icon (SeafileTrayIcon *icon)
+wingufile_trayicon_get_gtk_icon (WingufileTrayIcon *icon)
 {
 #ifdef HAVE_APP_INDICATOR
     const char *desktop;
@@ -295,7 +295,7 @@ wingufile_trayicon_get_gtk_icon (SeafileTrayIcon *icon)
 #endif
 }
 
-void wingufile_trayicon_notify (SeafileTrayIcon *icon, char *title, char *buf)
+void wingufile_trayicon_notify (WingufileTrayIcon *icon, char *title, char *buf)
 {
     NotifyNotification *n;
     GtkStatusIcon *gtk_icon = wingufile_trayicon_get_gtk_icon(icon);
@@ -311,7 +311,7 @@ void wingufile_trayicon_notify (SeafileTrayIcon *icon, char *title, char *buf)
     }
 #else
     n = notify_notification_new_with_status_icon (title, buf,
-                                                  "Seafile", gtk_icon);
+                                                  "Wingufile", gtk_icon);
 #endif
 
     notify_notification_set_timeout (n, 2000);
@@ -320,7 +320,7 @@ void wingufile_trayicon_notify (SeafileTrayIcon *icon, char *title, char *buf)
 }
 
 void
-wingufile_trayicon_set_tooltip (SeafileTrayIcon *icon,
+wingufile_trayicon_set_tooltip (WingufileTrayIcon *icon,
                               const char *tooltip)
 {
 #ifdef HAVE_APP_INDICATOR

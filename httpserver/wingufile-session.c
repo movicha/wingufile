@@ -22,7 +22,7 @@
  * encoding. Otherwise, the UTF-8 way would be used.
  */
 void
-load_zip_encoding_config (SeafileSession *session)
+load_zip_encoding_config (WingufileSession *session)
 {
     char *encoding;
     GError *error = NULL;
@@ -36,7 +36,7 @@ load_zip_encoding_config (SeafileSession *session)
     }
 }
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new(const char *wingufile_dir,
                     CcnetClient *ccnet_session)
 {
@@ -45,7 +45,7 @@ wingufile_session_new(const char *wingufile_dir,
     char *config_file_path;
     struct stat st;
     GKeyFile *config;
-    SeafileSession *session = NULL;
+    WingufileSession *session = NULL;
 
     if (!ccnet_session)
         return NULL;
@@ -55,13 +55,13 @@ wingufile_session_new(const char *wingufile_dir,
     config_file_path = g_build_filename (abs_wingufile_dir, "wingufile.conf", NULL);
 
     if (g_lstat(abs_wingufile_dir, &st) < 0 || !S_ISDIR(st.st_mode)) {
-        g_warning ("Seafile data dir %s does not exist and is unable to create\n",
+        g_warning ("Wingufile data dir %s does not exist and is unable to create\n",
                    abs_wingufile_dir);
         goto onerror;
     }
 
     if (g_lstat(tmp_file_dir, &st) < 0 || !S_ISDIR(st.st_mode)) {
-        g_warning ("Seafile tmp dir %s does not exist and is unable to create\n",
+        g_warning ("Wingufile tmp dir %s does not exist and is unable to create\n",
                    tmp_file_dir);
         goto onerror;
     }
@@ -75,7 +75,7 @@ wingufile_session_new(const char *wingufile_dir,
         goto onerror;
     }
 
-    session = g_new0(SeafileSession, 1);
+    session = g_new0(WingufileSession, 1);
     session->winguf_dir = abs_wingufile_dir;
     session->tmp_file_dir = tmp_file_dir;
     session->session = ccnet_session;
@@ -114,7 +114,7 @@ onerror:
 }
 
 int
-wingufile_session_init (SeafileSession *session)
+wingufile_session_init (WingufileSession *session)
 {
     if (winguf_commit_manager_init (session->commit_mgr) < 0)
         return -1;
@@ -132,7 +132,7 @@ wingufile_session_init (SeafileSession *session)
 }
 
 int
-wingufile_session_start (SeafileSession *session)
+wingufile_session_start (WingufileSession *session)
 {
     return 0;
 }

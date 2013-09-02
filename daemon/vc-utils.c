@@ -199,7 +199,7 @@ unlink_entry (struct cache_entry *ce, struct unpack_trees_options *o)
 
 int
 compare_file_content (const char *path, SeafStat *st, const unsigned char *ce_sha1,
-                      SeafileCrypt *crypt)
+                      WingufileCrypt *crypt)
 {
     CDCFileDescriptor cdc;
     unsigned char sha1[20];
@@ -731,7 +731,7 @@ void
 fill_wingufile_blocks (const unsigned char *sha1, BlockList *bl)
 {
     char file_id[41];
-    Seafile *wingufile;
+    Wingufile *wingufile;
     int i;
 
     rawdata_to_hex (sha1, file_id, 20);

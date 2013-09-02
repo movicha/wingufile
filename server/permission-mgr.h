@@ -5,19 +5,19 @@
 
 #include <glib.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 typedef struct _SeafPermManager SeafPermManager;
 typedef struct _SeafPermManagerPriv SeafPermManagerPriv;
 
 struct _SeafPermManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     SeafPermManagerPriv *priv;
 };
 
 SeafPermManager*
-winguf_perm_manager_new (struct _SeafileSession *winguf);
+winguf_perm_manager_new (struct _WingufileSession *winguf);
 
 int
 winguf_perm_manager_init (SeafPermManager *mgr);

@@ -8,7 +8,7 @@
 #include <string.h>
 
 char *
-wingufile_session_get_tmp_file_path (SeafileSession *session,
+wingufile_session_get_tmp_file_path (WingufileSession *session,
                                    const char *basename,
                                    char path[])
 {
@@ -27,7 +27,7 @@ wingufile_session_get_tmp_file_path (SeafileSession *session,
 #define SQLITE_DB_NAME "wingufile.db"
 
 static int
-sqlite_db_start (SeafileSession *session)
+sqlite_db_start (WingufileSession *session)
 {
     char *db_path;
 
@@ -42,7 +42,7 @@ sqlite_db_start (SeafileSession *session)
 }
 
 static int
-mysql_db_start (SeafileSession *session)
+mysql_db_start (WingufileSession *session)
 {
     char *host, *user, *passwd, *db, *unix_socket;
     GError *error = NULL;
@@ -90,7 +90,7 @@ mysql_db_start (SeafileSession *session)
 }
 
 static int
-pgsql_db_start (SeafileSession *session)
+pgsql_db_start (WingufileSession *session)
 {
     char *host, *user, *passwd, *db, *unix_socket;
     GError *error = NULL;
@@ -138,7 +138,7 @@ pgsql_db_start (SeafileSession *session)
 }
 
 int
-load_database_config (SeafileSession *session)
+load_database_config (WingufileSession *session)
 {
     char *type;
     GError *error = NULL;

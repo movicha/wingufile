@@ -14,11 +14,11 @@
 #include "../common/wingufile-crypt.h"
 
 typedef struct _SeafFSManager SeafFSManager;
-typedef struct _Seafile Seafile;
+typedef struct _Wingufile Wingufile;
 typedef struct _SeafDir SeafDir;
 typedef struct _SeafDirent SeafDirent;
 
-struct _Seafile {
+struct _Wingufile {
     char        file_id[41];
     guint64     file_size;
     guint32     n_blocks;
@@ -27,10 +27,10 @@ struct _Seafile {
 };
 
 void
-wingufile_ref (Seafile *wingufile);
+wingufile_ref (Wingufile *wingufile);
 
 void
-wingufile_unref (Seafile *wingufile);
+wingufile_unref (Wingufile *wingufile);
 
 typedef enum {
     SEAF_METADATA_TYPE_INVALID,
@@ -105,12 +105,12 @@ block_list_insert (BlockList *bl, const char *block_id);
 BlockList *
 block_list_difference (BlockList *bl1, BlockList *bl2);
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 typedef struct _SeafFSManagerPriv SeafFSManagerPriv;
 
 struct _SeafFSManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
     struct SeafObjStore *obj_store;
 
@@ -118,7 +118,7 @@ struct _SeafFSManager {
 };
 
 SeafFSManager *
-winguf_fs_manager_new (struct _SeafileSession *winguf,
+winguf_fs_manager_new (struct _WingufileSession *winguf,
                      const char *winguf_dir);
 
 int
@@ -140,7 +140,7 @@ winguf_fs_manager_checkout_file (SeafFSManager *mgr,
                                const char *file_id, 
                                const char *file_path,
                                guint32 mode,
-                               struct SeafileCrypt *crypt,
+                               struct WingufileCrypt *crypt,
                                const char *conflict_suffix,
                                gboolean force_conflict,
                                gboolean *conflicted);
@@ -155,12 +155,12 @@ int
 winguf_fs_manager_index_blocks (SeafFSManager *mgr,
                               const char *file_path,
                               unsigned char sha1[],
-                              SeafileCrypt *crypt);
+                              WingufileCrypt *crypt);
 
 uint32_t
 winguf_fs_manager_get_type (SeafFSManager *mgr, const char *id);
 
-Seafile *
+Wingufile *
 winguf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id);
 
 SeafDir *
@@ -204,7 +204,7 @@ winguf_fs_manager_get_fs_size (SeafFSManager *mgr, const char *root_id);
 #ifndef WINGUFILE_SERVER
 int
 wingufile_write_chunk (CDCDescriptor *chunk,
-                     SeafileCrypt *crypt,
+                     WingufileCrypt *crypt,
                      uint8_t *checksum,
                      gboolean write_data);
 #endif /* WINGUFILE_SERVER */

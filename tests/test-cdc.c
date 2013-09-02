@@ -74,7 +74,7 @@ int test_chunks (CDCFileDescriptor *file_descriptor)
 }
 
 int test_write_chunk (CDCDescriptor *chunk_descr,
-                      struct SeafileCrypt *crypt,
+                      struct WingufileCrypt *crypt,
                       uint8_t *checksum,
                       gboolean write_data)
 {

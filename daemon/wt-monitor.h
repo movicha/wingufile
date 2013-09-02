@@ -9,15 +9,15 @@ typedef struct WTStatus {
 
 typedef struct SeafWTMonitorPriv SeafWTMonitorPriv;
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 typedef struct SeafWTMonitor {
-    struct _SeafileSession      *winguf;
+    struct _WingufileSession      *winguf;
     SeafWTMonitorPriv   *priv;
 } SeafWTMonitor;
 
 SeafWTMonitor *
-winguf_wt_monitor_new (struct _SeafileSession *winguf);
+winguf_wt_monitor_new (struct _WingufileSession *winguf);
 
 int
 winguf_wt_monitor_start (SeafWTMonitor *monitor);

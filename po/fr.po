@@ -123,8 +123,8 @@ msgstr "Fusion automatique par wingufile"
 
 #: ../gui/gtk/wingufile-applet.c:161
 #, c-format
-msgid "Seafile is already running\n"
-msgstr "Seafile est déjà en fonctionnement\n"
+msgid "Wingufile is already running\n"
+msgstr "Wingufile est déjà en fonctionnement\n"
 
 #: ../gui/gtk/trayicon.c:117 ../gui/win/wingufile-applet.c:76
 msgid "Auto sync is disabled"
@@ -139,8 +139,8 @@ msgid "free space unknown"
 msgstr "Espace libre inconnu"
 
 #: ../gui/win/init-ccnet.c:295 ../gui/win/init-ccnet.c:296
-msgid "Seafile help.txt"
-msgstr "Seafile help.txt"
+msgid "Wingufile help.txt"
+msgstr "Wingufile help.txt"
 
 #: ../gui/win/init-ccnet.c:316
 msgid "Choose a folder"
@@ -155,8 +155,8 @@ msgid "Initialzation is not finished. Really quit?"
 msgstr "L'initialisation n'est pas finie. Êtes vous sûr de vouloir quitter ?."
 
 #: ../gui/win/wingufile-applet.c:60
-msgid "Seafile is started"
-msgstr "Seafile est démaré"
+msgid "Wingufile is started"
+msgstr "Wingufile est démaré"
 
 #: ../gui/win/wingufile-applet.c:60
 msgid "Click the icon to open admin console"
@@ -171,11 +171,11 @@ msgid "Failed to enable auto sync"
 msgstr "Impossible d'activer la synchro auto"
 
 #: ../gui/win/wingufile-applet.c:520
-msgid "Seafile is already running"
-msgstr "Seafile est déjà en fonctionnement"
+msgid "Wingufile is already running"
+msgstr "Wingufile est déjà en fonctionnement"
 
-#~ msgid "Seafile Initialization"
-#~ msgstr "Seafile 初始化"
+#~ msgid "Wingufile Initialization"
+#~ msgstr "Wingufile 初始化"
 
 #~ msgid "Courier"
 #~ msgstr "宋体"

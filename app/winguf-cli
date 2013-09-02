@@ -20,7 +20,7 @@ Subcommands:
 Detail
 ======
 
-Seafile client stores all its configure information in a config dir. The default location is `~/.ccnet`. All the commands below accept an option `-c <config-dir>`.
+Wingufile client stores all its configure information in a config dir. The default location is `~/.ccnet`. All the commands below accept an option `-c <config-dir>`.
 
 init
 ----
@@ -333,7 +333,7 @@ def winguf_download(args):
 
     url = args.server
     if not url:
-        print "Seafile server url need to be presented"
+        print "Wingufile server url need to be presented"
         sys.exit(1)
 
     download_dir = wingufile_worktree
@@ -403,7 +403,7 @@ def winguf_sync(args):
 
     url = args.server
     if not url:
-        print "Seafile server url is required"
+        print "Wingufile server url is required"
         sys.exit(1)
 
     folder = args.folder

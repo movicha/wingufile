@@ -6,7 +6,7 @@
 #include <glib.h>
 #include "db.h"
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 typedef struct _CloneTask CloneTask;
 typedef struct _SeafCloneManager SeafCloneManager;
@@ -61,14 +61,14 @@ const char *
 clone_task_error_to_str (int error);
 
 struct _SeafCloneManager {
-    struct _SeafileSession  *winguf;
+    struct _WingufileSession  *winguf;
     sqlite3                 *db;
     GHashTable              *tasks;
     struct CcnetTimer       *check_timer;
 };
 
 SeafCloneManager *
-winguf_clone_manager_new (struct _SeafileSession *session);
+winguf_clone_manager_new (struct _WingufileSession *session);
 
 int
 winguf_clone_manager_init (SeafCloneManager *mgr);

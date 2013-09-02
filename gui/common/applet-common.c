@@ -139,10 +139,10 @@ init_wingufile ()
     char *parent_dir = g_path_get_dirname (applet->wingufile_dir);
     char *parent_name = g_path_get_basename (parent_dir);
 
-    if (parent_name && (strcmp(parent_name, "Seafile") == 0)) {
+    if (parent_name && (strcmp(parent_name, "Wingufile") == 0)) {
         /* For wingufile version >= 0.9.4 in windows
-              applet->wingufile_dir:       C:/Seafile/wingufile-data
-              applet->wingufile_worktree:  C:/Seafile
+              applet->wingufile_dir:       C:/Wingufile/wingufile-data
+              applet->wingufile_worktree:  C:/Wingufile
          */
         applet->wingufile_worktree = g_strdup(parent_dir);
     } else {
@@ -208,7 +208,7 @@ handle_wingufile_notification (char *type, char *content)
         
     } else if (strcmp(type, "repo.deleted_on_relay") == 0) {
         snprintf (buf, sizeof(buf), "\"%s\" %s", content, _("is unsynced. \nReason: Deleted on server"));
-        trayicon_notify ("Seafile", buf);
+        trayicon_notify ("Wingufile", buf);
         
     } else if (strcmp(type, "sync.done") == 0) {
         /* format: repo_name \t repo_id \t description */
@@ -251,7 +251,7 @@ handle_wingufile_notification (char *type, char *content)
 
         memcpy (applet->last_synced_repo, repo_id, strlen(repo_id) + 1);
         snprintf (buf, sizeof(buf), "\"%s\" %s", repo_name, _("failed to sync. \nAccess denied to service"));
-        trayicon_notify ("Seafile", buf);
+        trayicon_notify ("Wingufile", buf);
     } else if (strcmp(type, "sync.quota_full") == 0) {
         /* format: <repo_name\trepo_id> */
         char *p = strchr(content, '\t');
@@ -264,7 +264,7 @@ handle_wingufile_notification (char *type, char *content)
 
         memcpy (applet->last_synced_repo, repo_id, strlen(repo_id) + 1);
         snprintf (buf, sizeof(buf), "\"%s\" %s", repo_name, _("failed to sync.\nThe library owner's storage space is used up."));
-        trayicon_notify ("Seafile", buf);
+        trayicon_notify ("Wingufile", buf);
     }
 #ifdef __APPLE__
     else if (strcmp(type, "repo.setwktree") == 0) {
@@ -481,7 +481,7 @@ start_ccnet ()
 /* Kill ccnet/winguf/web, and restart them. */
 void restart_all (void)
 {
-    trayicon_set_tip ("Seafile");
+    trayicon_set_tip ("Wingufile");
     
     applet_message ("Restarting ccnet ...\n");
     stop_open_browser_timer();

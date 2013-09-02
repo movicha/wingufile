@@ -5,19 +5,19 @@
 
 #include <glib.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 typedef struct _SeafShareManager SeafShareManager;
 typedef struct _SeafShareManagerPriv SeafShareManagerPriv;
 typedef struct _ShareRepoInfo ShareRepoInfo;
 
 struct _SeafShareManager {
-    struct _SeafileSession *winguf;
+    struct _WingufileSession *winguf;
 
 };
 
 SeafShareManager*
-winguf_share_manager_new (struct _SeafileSession *winguf);
+winguf_share_manager_new (struct _WingufileSession *winguf);
 
 int
 winguf_share_manager_start (SeafShareManager *mgr);

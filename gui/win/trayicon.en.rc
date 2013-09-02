@@ -30,7 +30,7 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_SEAFILE_ICON        ICON                    "wingufile.ico"
+IDI_WINGUFILE_ICON        ICON                    "wingufile.ico"
 IDI_STATUS_UP           ICON                    "ccnet_daemon_up.ico"
 IDI_STATUS_DOWN         ICON                    "ccnet_daemon_down.ico"
 IDI_STATUS_TRANSFER_1   ICON                    "wingufile_transfer_1.ico"
@@ -53,7 +53,7 @@ BEGIN
         MENUITEM "Disable auto sync",           IDM_DISABLE_AUTO_SYNC
         MENUITEM "Enable auto sync",            IDM_ENABLE_AUTO_SYNC
         MENUITEM SEPARATOR
-        MENUITEM "Restart Seafile(&R)",         IDM_RESTART
+        MENUITEM "Restart Wingufile(&R)",         IDM_RESTART
         MENUITEM SEPARATOR
         MENUITEM "Quit(&X)",                    IDM_EXIT
     END
@@ -115,28 +115,28 @@ END
 IDD_WIN7_TIP DIALOGEX 0, 0, 329, 236
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_APPWINDOW
-CAPTION "Seafile"
+CAPTION "Wingufile"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Finish",ID_FINISH,260,214,50,14
     CONTROL         142,IDC_STATIC,"Static",SS_BITMAP,0,46,333,151
-    LTEXT           "You are using Windows 7. Tray icons are hidden by system on Windows 7, which makes it inconvinient to use Seafile. We Sugguest you set the icon of Seafile to 'Show icon and notification'.",IDC_STATIC,15,10,273,27
+    LTEXT           "You are using Windows 7. Tray icons are hidden by system on Windows 7, which makes it inconvinient to use Wingufile. We Sugguest you set the icon of Wingufile to 'Show icon and notification'.",IDC_STATIC,15,10,273,27
 END
 
 IDD_INIT_SEAFILE DIALOGEX 200, 80, 327, 207
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 EXSTYLE WS_EX_TOOLWINDOW | WS_EX_APPWINDOW
-CAPTION "Seafile Initialization"
+CAPTION "Wingufile Initialization"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "Next",IDOK,206,184,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,261,184,50,14
     CONTROL         "",-1,"Static",SS_BLACKFRAME | SS_SUNKEN,0,175,327,1
     CONTROL         "",-1,"Static",SS_BLACKFRAME | SS_SUNKEN,0,36,327,1
-    LTEXT           "Please choose a folder.\n\nWe will create a Seafile subfolder in it. When you download a library, it will be saved there by default.",IDC_STATIC_SEAFILE,53,66,227,41
+    LTEXT           "Please choose a folder.\n\nWe will create a Wingufile subfolder in it. When you download a library, it will be saved there by default.",IDC_STATIC_SEAFILE,53,66,227,41
     LTEXT           "Choose a folder",IDC_STATIC_TITLE,23,13,101,14,0,WS_EX_TRANSPARENT
-    PUSHBUTTON      "Choose another folder...",IDC_BUTTON_CHOOSE_SEAFILE_DIR,189,119,85,14
-    EDITTEXT        IDC_EDIT_SEAFILE_DIR,53,119,123,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Choose another folder...",IDC_BUTTON_CHOOSE_WINGUFILE_DIR,189,119,85,14
+    EDITTEXT        IDC_EDIT_WINGUFILE_DIR,53,119,123,14,ES_AUTOHSCROLL | ES_READONLY
     CONTROL         144,-1,"Static",SS_BITMAP,0,0,329,36
 END
 

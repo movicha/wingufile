@@ -5,7 +5,7 @@
 #include "chunkserv-mgr.h"
 #include "putcs-proc.h"
 
-G_DEFINE_TYPE (SeafilePutcsProc, wingufile_putcs_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufilePutcsProc, wingufile_putcs_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 
@@ -17,7 +17,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_putcs_proc_class_init (SeafilePutcsProcClass *klass)
+wingufile_putcs_proc_class_init (WingufilePutcsProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -27,7 +27,7 @@ wingufile_putcs_proc_class_init (SeafilePutcsProcClass *klass)
 }
 
 static void
-wingufile_putcs_proc_init (SeafilePutcsProc *processor)
+wingufile_putcs_proc_init (WingufilePutcsProc *processor)
 {
 }
 

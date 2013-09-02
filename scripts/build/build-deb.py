@@ -227,7 +227,7 @@ class Ccnet(Project):
 
         self.append_cflags(macros)
 
-class Seafile(Project):
+class Wingufile(Project):
     name = 'wingufile'
     def __init__(self):
         Project.__init__(self)
@@ -326,7 +326,7 @@ def validate_args(usage, options):
 def show_build_info():
     '''Print all conf information. Confirm before continue.'''
     info('------------------------------------------')
-    info('Seafile debian package: BUILD INFO')
+    info('Wingufile debian package: BUILD INFO')
     info('------------------------------------------')
     info('wingufile:          %s' % conf[CONF_WINGUFILE_VERSION])
     info('ccnet:            %s' % conf[CONF_CCNET_VERSION])
@@ -413,7 +413,7 @@ def parse_args():
 
 def setup_build_env():
     '''Setup environment variables, such as export PATH=$BUILDDDIR/bin:$PATH'''
-    prefix = os.path.join(Seafile().projdir, 'debian', 'wingufile', 'usr')
+    prefix = os.path.join(Wingufile().projdir, 'debian', 'wingufile', 'usr')
 
     prepend_env_value('DEB_CPPFLAGS_APPEND',
                      '-DWINGUFILE_CLIENT_VERSION=\\"%s\\"' % conf[CONF_VERSION],
@@ -453,7 +453,7 @@ def main():
 
     libwingurpc = libwingurpc()
     ccnet = Ccnet()
-    wingufile = Seafile()
+    wingufile = Wingufile()
 
     libwingurpc.uncompress()
     ccnet.uncompress()

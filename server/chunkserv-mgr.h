@@ -4,16 +4,16 @@
 #include <glib.h>
 #include <db.h>
 
-struct _SeafileSession;
+struct _WingufileSession;
 
 struct _SeafCSManager {
-    struct _SeafileSession      *winguf;
+    struct _WingufileSession      *winguf;
     GHashTable          *chunk_servers;
     sqlite3             *db;
 };
 typedef struct _SeafCSManager SeafCSManager;
 
-SeafCSManager*  winguf_cs_manager_new (struct _SeafileSession *winguf);
+SeafCSManager*  winguf_cs_manager_new (struct _WingufileSession *winguf);
 int             winguf_cs_manager_start (SeafCSManager *mgr);
 
 int             winguf_cs_manager_add_chunk_server (SeafCSManager *mgr, const char *cs_id);

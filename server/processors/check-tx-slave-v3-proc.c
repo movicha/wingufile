@@ -73,15 +73,15 @@ typedef struct {
     char *rsp_msg;
     char head_id[41];
     int has_branch;
-} SeafileCheckTxSlaveV3ProcPriv;
+} WingufileCheckTxSlaveV3ProcPriv;
 
 #define GET_PRIV(o)  \
-   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_CHECK_TX_SLAVE_V3_PROC, SeafileCheckTxSlaveV3ProcPriv))
+   (G_TYPE_INSTANCE_GET_PRIVATE ((o), WINGUFILE_TYPE_CHECK_TX_SLAVE_V3_PROC, WingufileCheckTxSlaveV3ProcPriv))
 
 #define USE_PRIV \
-    SeafileCheckTxSlaveV3ProcPriv *priv = GET_PRIV(processor);
+    WingufileCheckTxSlaveV3ProcPriv *priv = GET_PRIV(processor);
 
-G_DEFINE_TYPE (SeafileCheckTxSlaveV3Proc, wingufile_check_tx_slave_v3_proc, CCNET_TYPE_PROCESSOR)
+G_DEFINE_TYPE (WingufileCheckTxSlaveV3Proc, wingufile_check_tx_slave_v3_proc, CCNET_TYPE_PROCESSOR)
 
 static int start (CcnetProcessor *processor, int argc, char **argv);
 static void handle_update (CcnetProcessor *processor,
@@ -108,7 +108,7 @@ release_resource(CcnetProcessor *processor)
 
 
 static void
-wingufile_check_tx_slave_v3_proc_class_init (SeafileCheckTxSlaveV3ProcClass *klass)
+wingufile_check_tx_slave_v3_proc_class_init (WingufileCheckTxSlaveV3ProcClass *klass)
 {
     CcnetProcessorClass *proc_class = CCNET_PROCESSOR_CLASS (klass);
 
@@ -117,11 +117,11 @@ wingufile_check_tx_slave_v3_proc_class_init (SeafileCheckTxSlaveV3ProcClass *kla
     proc_class->handle_update = handle_update;
     proc_class->release_resource = release_resource;
 
-    g_type_class_add_private (klass, sizeof (SeafileCheckTxSlaveV3ProcPriv));
+    g_type_class_add_private (klass, sizeof (WingufileCheckTxSlaveV3ProcPriv));
 }
 
 static void
-wingufile_check_tx_slave_v3_proc_init (SeafileCheckTxSlaveV3Proc *processor)
+wingufile_check_tx_slave_v3_proc_init (WingufileCheckTxSlaveV3Proc *processor)
 {
 }
 
@@ -155,7 +155,7 @@ decrypt_token (CcnetProcessor *processor)
     USE_PRIV;
     int hex_len, encrypted_len, token_len; 
     char *encrypted_token = NULL;
-    SeafileCrypt *crypt = NULL;
+    WingufileCrypt *crypt = NULL;
     unsigned char key[16], iv[16];
     char *token = NULL;
     int ret = 0;

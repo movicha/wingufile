@@ -39,11 +39,11 @@ struct _SeafFSManagerPriv {
     GHashTable      *bl_cache;
 };
 
-typedef struct SeafileOndisk {
+typedef struct WingufileOndisk {
     guint32          type;
     guint64          file_size;
     unsigned char    block_ids[0];
-} __attribute__((gcc_struct, __packed__)) SeafileOndisk;
+} __attribute__((gcc_struct, __packed__)) WingufileOndisk;
 
 typedef struct DirentOndisk {
     guint32 mode;
@@ -66,7 +66,7 @@ write_wingufile (SeafFSManager *fs_mgr,
 #endif  /* WINGUFILE_SERVER */
 
 SeafFSManager *
-winguf_fs_manager_new (SeafileSession *winguf,
+winguf_fs_manager_new (WingufileSession *winguf,
                      const char *winguf_dir)
 {
     SeafFSManager *mgr = g_new0 (SeafFSManager, 1);
@@ -106,7 +106,7 @@ winguf_fs_manager_init (SeafFSManager *mgr)
 static int
 checkout_block (const char *block_id,
                 int wfd,
-                SeafileCrypt *crypt)
+                WingufileCrypt *crypt)
 {
     SeafBlockManager *block_mgr = winguf->block_mgr;
     BlockHandle *handle;
@@ -213,12 +213,12 @@ winguf_fs_manager_checkout_file (SeafFSManager *mgr,
                                const char *file_id, 
                                const char *file_path,
                                guint32 mode,
-                               SeafileCrypt *crypt,
+                               WingufileCrypt *crypt,
                                const char *conflict_suffix,
                                gboolean force_conflict,
                                gboolean *conflicted)
 {
-    Seafile *wingufile;
+    Wingufile *wingufile;
     char *blk_id;
     int wfd;
     int i;
@@ -296,14 +296,14 @@ write_wingufile (SeafFSManager *fs_mgr,
                CDCFileDescriptor *cdc)
 {
     char wingufile_id[41];
-    SeafileOndisk *ondisk;
+    WingufileOndisk *ondisk;
     int ondisk_size;
     int ret = 0;
 
     rawdata_to_hex (cdc->file_sum, wingufile_id, 20);
 
-    ondisk_size = sizeof(SeafileOndisk) + cdc->block_nr * 20;
-    ondisk = (SeafileOndisk *)g_new0 (char, ondisk_size);
+    ondisk_size = sizeof(WingufileOndisk) + cdc->block_nr * 20;
+    ondisk = (WingufileOndisk *)g_new0 (char, ondisk_size);
 
     ondisk->type = htonl(SEAF_METADATA_TYPE_FILE);
     ondisk->file_size = hton64 (cdc->file_size);
@@ -373,7 +373,7 @@ do_write_chunk (uint8_t *checksum, const char *buf, int len)
 /* write the chunk and store its checksum */
 int
 wingufile_write_chunk (CDCDescriptor *chunk,
-                     SeafileCrypt *crypt,
+                     WingufileCrypt *crypt,
                      uint8_t *checksum,
                      gboolean write_data)
 {
@@ -426,7 +426,7 @@ int
 winguf_fs_manager_index_blocks (SeafFSManager *mgr,
                               const char *file_path,
                               unsigned char sha1[],
-                              SeafileCrypt *crypt)
+                              WingufileCrypt *crypt)
 {
     SeafStat sb;
     CDCFileDescriptor cdc;
@@ -466,14 +466,14 @@ winguf_fs_manager_index_blocks (SeafFSManager *mgr,
     return 0;
 }
 
-Seafile *
+Wingufile *
 wingufile_from_data (const char *id, const void *data, int len)
 {
-    const SeafileOndisk *ondisk = data;
-    Seafile *wingufile;
+    const WingufileOndisk *ondisk = data;
+    Wingufile *wingufile;
     int id_list_len, n_blocks;
 
-    if (len < sizeof(SeafileOndisk)) {
+    if (len < sizeof(WingufileOndisk)) {
         g_warning ("[fs mgr] Corrupt wingufile object %s.\n", id);
         return NULL;
     }
@@ -483,14 +483,14 @@ wingufile_from_data (const char *id, const void *data, int len)
         return NULL;
     }
 
-    id_list_len = len - sizeof(SeafileOndisk);
+    id_list_len = len - sizeof(WingufileOndisk);
     if (id_list_len % 20 != 0) {
         g_warning ("[fs mgr] Corrupt wingufile object %s.\n", id);
         return NULL;
     }
     n_blocks = id_list_len / 20;
 
-    wingufile = g_new0 (Seafile, 1);
+    wingufile = g_new0 (Wingufile, 1);
 
     memcpy (wingufile->file_id, id, 41);
     wingufile->file_size = ntoh64 (ondisk->file_size);
@@ -511,20 +511,20 @@ wingufile_from_data (const char *id, const void *data, int len)
 }
 
 void *
-wingufile_to_data (Seafile *wingufile, int *len)
+wingufile_to_data (Wingufile *wingufile, int *len)
 {
     /* XXX: not implemented yet. */
     return NULL;
 }
 
 void
-wingufile_ref (Seafile *wingufile)
+wingufile_ref (Wingufile *wingufile)
 {
     ++wingufile->ref_count;
 }
 
 static void
-wingufile_free (Seafile *wingufile)
+wingufile_free (Wingufile *wingufile)
 {
     int i;
 
@@ -538,7 +538,7 @@ wingufile_free (Seafile *wingufile)
 }
 
 void
-wingufile_unref (Seafile *wingufile)
+wingufile_unref (Wingufile *wingufile)
 {
     if (!wingufile)
         return;
@@ -547,12 +547,12 @@ wingufile_unref (Seafile *wingufile)
         wingufile_free (wingufile);
 }
 
-Seafile *
+Wingufile *
 winguf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id)
 {
     void *data;
     int len;
-    Seafile *wingufile;
+    Wingufile *wingufile;
 
 #if 0
     wingufile = g_hash_table_lookup (mgr->priv->wingufile_cache, file_id);
@@ -563,7 +563,7 @@ winguf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id)
 #endif
 
     if (memcmp (file_id, EMPTY_SHA1, 40) == 0) {
-        wingufile = g_new0 (Seafile, 1);
+        wingufile = g_new0 (Wingufile, 1);
         memset (wingufile->file_id, '0', 40);
         wingufile->ref_count = 1;
         return wingufile;
@@ -1064,7 +1064,7 @@ fill_blocklist (SeafFSManager *mgr, const char *obj_id, int type,
                 void *user_data, gboolean *stop)
 {
     BlockList *bl = user_data;
-    Seafile *wingufile;
+    Wingufile *wingufile;
     int i;
 
     if (type == SEAF_METADATA_TYPE_FILE) {
@@ -1106,7 +1106,7 @@ winguf_fs_manager_object_exists (SeafFSManager *mgr, const char *id)
 gint64
 winguf_fs_manager_get_file_size (SeafFSManager *mgr, const char *file_id)
 {
-    Seafile *file;
+    Wingufile *file;
     gint64 file_size;
 
     file = winguf_fs_manager_get_wingufile (winguf->fs_mgr, file_id);

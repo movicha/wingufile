@@ -30,10 +30,10 @@
 
 struct _CcnetClient;
 
-typedef struct _SeafileSession SeafileSession;
+typedef struct _WingufileSession WingufileSession;
 
 
-struct _SeafileSession {
+struct _WingufileSession {
     struct _CcnetClient *session;
 
     SearpcClient        *ccnetrpc_client;
@@ -84,23 +84,23 @@ struct _SeafileSession {
     int                  sync_thread_pool_size;
 };
 
-extern SeafileSession *winguf;
+extern WingufileSession *winguf;
 
-SeafileSession *
+WingufileSession *
 wingufile_session_new(const char *wingufile_dir,
                     struct _CcnetClient *ccnet_session);
 int
-wingufile_session_init (SeafileSession *session);
+wingufile_session_init (WingufileSession *session);
 
 int
-wingufile_session_start (SeafileSession *session);
+wingufile_session_start (WingufileSession *session);
 
 char *
-wingufile_session_get_tmp_file_path (SeafileSession *session,
+wingufile_session_get_tmp_file_path (WingufileSession *session,
                                    const char *basename,
                                    char path[]);
 
 int
-wingufile_session_set_monitor (SeafileSession *session, const char *peer_id);
+wingufile_session_set_monitor (WingufileSession *session, const char *peer_id);
 
 #endif /* WINGUFILE_H */

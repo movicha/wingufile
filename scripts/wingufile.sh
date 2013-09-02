@@ -6,8 +6,8 @@
 # Required-Stop:     $local_fs
 # Default-Start:     1 2 3 4 5
 # Default-Stop:
-# Short-Description: Starts Seafile Server
-# Description:       starts Seafile Server
+# Short-Description: Starts Wingufile Server
+# Description:       starts Wingufile Server
 ### END INIT INFO
 
 echo ""
@@ -82,7 +82,7 @@ function check_component_running() {
 
 function validate_already_running () {
     if pid=$(pgrep -f "wingufile-controller -c ${default_ccnet_conf_dir}" 2>/dev/null); then
-        echo "Seafile controller is already running, pid $pid"
+        echo "Wingufile controller is already running, pid $pid"
         echo
         exit 1;
     fi
@@ -110,7 +110,7 @@ function start_wingufile_server () {
         exit 1;
     fi
 
-    echo "Seafile server started"
+    echo "Wingufile server started"
     echo
 }
 
