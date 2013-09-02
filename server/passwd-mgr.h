@@ -14,10 +14,10 @@ struct _SeafPasswdManager {
 typedef struct _SeafPasswdManager SeafPasswdManager;
 
 SeafPasswdManager *
-seaf_passwd_manager_new (struct _SeafileSession *session);
+winguf_passwd_manager_new (struct _SeafileSession *session);
 
 int
-seaf_passwd_manager_start (SeafPasswdManager *mgr);
+winguf_passwd_manager_start (SeafPasswdManager *mgr);
 
 /**
  * Set @passwd for @user to access contents of @repo_id.
@@ -28,7 +28,7 @@ seaf_passwd_manager_start (SeafPasswdManager *mgr);
  * Returns 0 if @passwd is correct, -1 otherwise.
  */
 int
-seaf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
+winguf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
                                 const char *repo_id,
                                 const char *user,
                                 const char *passwd,
@@ -38,7 +38,7 @@ seaf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
  * Returns 0 if successfully unset user password, -1 otherwise.
  */
 int
-seaf_passwd_manager_unset_passwd (SeafPasswdManager *mgr,
+winguf_passwd_manager_unset_passwd (SeafPasswdManager *mgr,
                                   const char *repo_id,
                                   const char *user,
                                   GError **error);
@@ -48,7 +48,7 @@ seaf_passwd_manager_unset_passwd (SeafPasswdManager *mgr,
  * to access @repo_id.
  */
 gboolean
-seaf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
+winguf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
                                    const char *repo_id,
                                    const char *user);
 
@@ -56,19 +56,19 @@ seaf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
  * Returns decryption key for @repo_id, NULL if it's not set.
  */
 struct _SeafileCryptKey *
-seaf_passwd_manager_get_decrypt_key (SeafPasswdManager *mgr,
+winguf_passwd_manager_get_decrypt_key (SeafPasswdManager *mgr,
                                      const char *repo_id,
                                      const char *user);
 
 int
-seaf_passwd_manager_get_decrypt_key_raw (SeafPasswdManager *mgr,
+winguf_passwd_manager_get_decrypt_key_raw (SeafPasswdManager *mgr,
                                          const char *repo_id,
                                          const char *user,
                                          unsigned char *key_out,
                                          unsigned char *iv_out);
 
 char *
-seaf_passwd_manager_get_repo_passwd (SeafPasswdManager *mgr,
+winguf_passwd_manager_get_repo_passwd (SeafPasswdManager *mgr,
                                      const char *repo_id,
                                      const char *user);
 

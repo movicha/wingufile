@@ -818,9 +818,9 @@ class SeafileConfigurator(AbstractConfigurator):
 
     def generate(self):
         print 'Generating wingufile configuration ...\n'
-        seafserv_init = os.path.join(env_mgr.bin_dir, 'seaf-server-init')
+        wingufserv_init = os.path.join(env_mgr.bin_dir, 'winguf-server-init')
         argv = [
-            seafserv_init,
+            wingufserv_init,
             '--wingufile-dir', self.wingufile_dir,
             '--port', str(self.port),
             '--httpserver-port', str(self.httpserver_port),

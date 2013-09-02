@@ -30,14 +30,14 @@ LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_SEAFILE_ICON        ICON                    "seafile.ico"
+IDI_SEAFILE_ICON        ICON                    "wingufile.ico"
 IDI_STATUS_UP           ICON                    "ccnet_daemon_up.ico"
 IDI_STATUS_DOWN         ICON                    "ccnet_daemon_down.ico"
-IDI_STATUS_TRANSFER_1   ICON                    "seafile_transfer_1.ico"
-IDI_STATUS_TRANSFER_2   ICON                    "seafile_transfer_2.ico"
-IDI_STATUS_TRANSFER_3   ICON                    "seafile_transfer_3.ico"
-IDI_STATUS_TRANSFER_4   ICON                    "seafile_transfer_4.ico"
-IDI_STATUS_AUTO_SYNC_DISABLED ICON                    "seafile_auto_sync_disabled.ico"
+IDI_STATUS_TRANSFER_1   ICON                    "wingufile_transfer_1.ico"
+IDI_STATUS_TRANSFER_2   ICON                    "wingufile_transfer_2.ico"
+IDI_STATUS_TRANSFER_3   ICON                    "wingufile_transfer_3.ico"
+IDI_STATUS_TRANSFER_4   ICON                    "wingufile_transfer_4.ico"
+IDI_STATUS_AUTO_SYNC_DISABLED ICON                    "wingufile_auto_sync_disabled.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //

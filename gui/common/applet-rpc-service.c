@@ -7,10 +7,10 @@
 #include "opendir-proc.h"
 #include "applet-rpc-service.h"
 
-#include <searpc.h>
+#include <wingurpc.h>
 
-#include "searpc-signature.h"
-#include "searpc-marshal.h"
+#include "wingurpc-signature.h"
+#include "wingurpc-marshal.h"
 
 #include <ccnet/rpcserver-proc.h>
 
@@ -50,26 +50,26 @@ applet_start_rpc_service (CcnetClient *client)
     ccnet_register_service (client, "applet-opendir", "inner",
                             CCNET_TYPE_OPENDIR_PROC, NULL);
 
-    searpc_server_init (register_marshals);
+    wingurpc_server_init (register_marshals);
 
-    searpc_create_service ("applet-rpcserver");
+    wingurpc_create_service ("applet-rpcserver");
     ccnet_register_service (client, "applet-rpcserver", "rpc-inner",
                             CCNET_TYPE_RPCSERVER_PROC,
                             NULL);
 
-    searpc_server_register_function ("applet-rpcserver",
+    wingurpc_server_register_function ("applet-rpcserver",
                                      applet_get_auto_start,
                                      "applet_get_auto_start",
-                                     searpc_signature_int__void());
+                                     wingurpc_signature_int__void());
 
-    searpc_server_register_function ("applet-rpcserver",
+    wingurpc_server_register_function ("applet-rpcserver",
                                      applet_set_auto_start,
                                      "applet_set_auto_start",
-                                     searpc_signature_int__string());
+                                     wingurpc_signature_int__string());
 
-    searpc_server_register_function ("applet-rpcserver",
+    wingurpc_server_register_function ("applet-rpcserver",
                                      applet_open_dir,
                                      "applet_open_dir",
-                                     searpc_signature_int__string());
+                                     wingurpc_signature_int__string());
 }
 

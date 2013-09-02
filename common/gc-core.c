@@ -42,7 +42,7 @@ alloc_gc_index ()
     size = (size_t) MAX(total_blocks << 2, 1 << 13);
     size = MIN (size, MAX_BF_SIZE);
 
-    seaf_message ("GC index size is %u Byte.\n", (int)size >> 3);
+    winguf_message ("GC index size is %u Byte.\n", (int)size >> 3);
 
     return bloom_create (size, 3, 0);
 }
@@ -77,9 +77,9 @@ add_blocks_to_index (SeafFSManager *mgr, GCData *data, const char *file_id)
     Seafile *wingufile;
     int i;
 
-    wingufile = seaf_fs_manager_get_wingufile (mgr, file_id);
+    wingufile = winguf_fs_manager_get_wingufile (mgr, file_id);
     if (!wingufile) {
-        seaf_warning ("Failed to find file %s.\n", file_id);
+        winguf_warning ("Failed to find file %s.\n", file_id);
         return -1;
     }
 
@@ -152,10 +152,10 @@ traverse_commit (SeafCommit *commit, void *vdata, gboolean *stop)
         data->traversed_head = TRUE;
 #endif
 
-    seaf_debug ("Traversed commit %.8s.\n", commit->commit_id);
+    winguf_debug ("Traversed commit %.8s.\n", commit->commit_id);
     ++data->traversed_commits;
 
-    ret = seaf_fs_manager_traverse_tree (seaf->fs_mgr,
+    ret = winguf_fs_manager_traverse_tree (winguf->fs_mgr,
                                          commit->root_id,
                                          fs_callback,
                                          data, data->ignore_errors);
@@ -173,11 +173,11 @@ populate_gc_index_for_repo (SeafRepo *repo, Bloom *index, gboolean ignore_errors
     GCData *data;
     int ret = 0;
 
-    seaf_message ("Populating index for repo %.8s.\n", repo->id);
+    winguf_message ("Populating index for repo %.8s.\n", repo->id);
 
-    branches = seaf_branch_manager_get_branch_list (seaf->branch_mgr, repo->id);
+    branches = winguf_branch_manager_get_branch_list (winguf->branch_mgr, repo->id);
     if (branches == NULL) {
-        seaf_warning ("[GC] Failed to get branch list of repo %s.\n", repo->id);
+        winguf_warning ("[GC] Failed to get branch list of repo %s.\n", repo->id);
         return -1;
     }
 
@@ -187,14 +187,14 @@ populate_gc_index_for_repo (SeafRepo *repo, Bloom *index, gboolean ignore_errors
 #ifndef WINGUFILE_SERVER
     data->no_history = TRUE;
     if (data->no_history) {
-        char *remote_head = seaf_repo_manager_get_repo_property (repo->manager,
+        char *remote_head = winguf_repo_manager_get_repo_property (repo->manager,
                                                                  repo->id,
                                                                  REPO_REMOTE_HEAD);
         if (remote_head)
             memcpy (data->remote_end_commit, remote_head, 41);
         g_free (remote_head);
 
-        char *local_head = seaf_repo_manager_get_repo_property (repo->manager,
+        char *local_head = winguf_repo_manager_get_repo_property (repo->manager,
                                                                 repo->id,
                                                                 REPO_LOCAL_HEAD);
         if (local_head)
@@ -204,21 +204,21 @@ populate_gc_index_for_repo (SeafRepo *repo, Bloom *index, gboolean ignore_errors
 #endif
 
 #ifdef WINGUFILE_SERVER
-    gint64 truncate_time = seaf_repo_manager_get_repo_truncate_time (repo->manager,
+    gint64 truncate_time = winguf_repo_manager_get_repo_truncate_time (repo->manager,
                                                                      repo->id);
     if (truncate_time > 0) {
-        seaf_repo_manager_set_repo_valid_since (repo->manager,
+        winguf_repo_manager_set_repo_valid_since (repo->manager,
                                                 repo->id,
                                                 truncate_time);
     } else if (truncate_time == 0) {
         /* Only the head commit is valid after GC if no history is kept. */
-        SeafCommit *head = seaf_commit_manager_get_commit (seaf->commit_mgr,
+        SeafCommit *head = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                                            repo->head->commit_id);
         if (head)
-            seaf_repo_manager_set_repo_valid_since (repo->manager,
+            winguf_repo_manager_set_repo_valid_since (repo->manager,
                                                     repo->id,
                                                     head->ctime);
-        seaf_commit_unref (head);
+        winguf_commit_unref (head);
     }
 
     data->truncate_time = truncate_time;
@@ -227,19 +227,19 @@ populate_gc_index_for_repo (SeafRepo *repo, Bloom *index, gboolean ignore_errors
 
     for (ptr = branches; ptr != NULL; ptr = ptr->next) {
         branch = ptr->data;
-        gboolean res = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+        gboolean res = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                                  branch->commit_id,
                                                                  traverse_commit,
                                                                  data,
                                                                  ignore_errors);
-        seaf_branch_unref (branch);
+        winguf_branch_unref (branch);
         if (!res && !ignore_errors) {
             ret = -1;
             break;
         }
     }
 
-    seaf_message ("Traversed %d commits, %"G_GINT64_FORMAT" blocks.\n",
+    winguf_message ("Traversed %d commits, %"G_GINT64_FORMAT" blocks.\n",
                   data->traversed_commits, data->traversed_blocks);
     reachable_blocks += data->traversed_blocks;
 
@@ -259,22 +259,22 @@ populate_gc_index_for_head (const char *head_id, Bloom *index)
     gboolean ret;
 
     /* We just need to traverse the head for clone tasks. */
-    head = seaf_commit_manager_get_commit (seaf->commit_mgr, head_id);
+    head = winguf_commit_manager_get_commit (winguf->commit_mgr, head_id);
     if (!head) {
-        seaf_warning ("Failed to find clone head %s.\n", head_id);
+        winguf_warning ("Failed to find clone head %s.\n", head_id);
         return -1;
     }
 
     data = g_new0 (GCData, 1);
     data->index = index;
 
-    ret = seaf_fs_manager_traverse_tree (seaf->fs_mgr,
+    ret = winguf_fs_manager_traverse_tree (winguf->fs_mgr,
                                          head->root_id,
                                          fs_callback,
                                          data, FALSE);
 
     g_free (data);
-    seaf_commit_unref (head);
+    winguf_commit_unref (head);
     return ret;
 }
 #endif
@@ -293,7 +293,7 @@ check_block_liveness (const char *block_id, void *vdata)
     if (!bloom_test (index, block_id)) {
         ++removed_blocks;
         if (!data->dry_run)
-            seaf_block_manager_remove_block (seaf->block_mgr, block_id);
+            winguf_block_manager_remove_block (winguf->block_mgr, block_id);
     }
 
     return TRUE;
@@ -306,15 +306,15 @@ gc_core_run (int dry_run, int ignore_errors)
     GList *repos = NULL, *clone_heads = NULL, *ptr;
     int ret;
 
-    total_blocks = seaf_block_manager_get_block_number (seaf->block_mgr);
+    total_blocks = winguf_block_manager_get_block_number (winguf->block_mgr);
     removed_blocks = 0;
 
     if (total_blocks == 0) {
-        seaf_message ("No blocks. Skip GC.\n");
+        winguf_message ("No blocks. Skip GC.\n");
         return 0;
     }
 
-    seaf_message ("GC started. Total block number is %"G_GUINT64_FORMAT".\n", total_blocks);
+    winguf_message ("GC started. Total block number is %"G_GUINT64_FORMAT".\n", total_blocks);
 
     /*
      * Store the index of live blocks in bloom filter to save memory.
@@ -324,41 +324,41 @@ gc_core_run (int dry_run, int ignore_errors)
      */
     index = alloc_gc_index ();
     if (!index) {
-        seaf_warning ("GC: Failed to allocate index.\n");
+        winguf_warning ("GC: Failed to allocate index.\n");
         return -1;
     }
 
-    seaf_message ("Populating index.\n");
+    winguf_message ("Populating index.\n");
 
     /* If we meet any error when filling in the index, we should bail out.
      */
 #ifdef WINGUFILE_SERVER
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1, ignore_errors);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1, ignore_errors);
     if (!repos) {
-        seaf_warning ("Failed to get repo list or no repos.\n");
+        winguf_warning ("Failed to get repo list or no repos.\n");
         return -1;
     }
 #else
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1);
 #endif
 
     for (ptr = repos; ptr != NULL; ptr = ptr->next) {
         ret = populate_gc_index_for_repo ((SeafRepo *)ptr->data, index,
                                           ignore_errors);
 #ifdef WINGUFILE_SERVER
-        seaf_repo_unref ((SeafRepo *)ptr->data);
+        winguf_repo_unref ((SeafRepo *)ptr->data);
 #endif
         if (ret < 0 && !ignore_errors)
             goto out;
     }
 
 #ifndef WINGUFILE_SERVER
-    /* If seaf-daemon exits while downloading a new repo, the downloaded new
+    /* If winguf-daemon exits while downloading a new repo, the downloaded new
      * blocks for that repo won't be refered by any repo_id. So after restart
      * those blocks will be GC'ed. To prevent this, we get a list of commit
      * head ids for thoes new repos.
      */
-    clone_heads = seaf_transfer_manager_get_clone_heads (seaf->transfer_mgr);
+    clone_heads = winguf_transfer_manager_get_clone_heads (winguf->transfer_mgr);
     for (ptr = clone_heads; ptr != NULL; ptr = ptr->next) {
         ret = populate_gc_index_for_head ((char *)ptr->data, index);
         g_free (ptr->data);
@@ -368,29 +368,29 @@ gc_core_run (int dry_run, int ignore_errors)
 #endif
 
     if (!dry_run)
-        seaf_message ("Scanning and deleting unused blocks.\n");
+        winguf_message ("Scanning and deleting unused blocks.\n");
     else
-        seaf_message ("Scanning unused blocks.\n");
+        winguf_message ("Scanning unused blocks.\n");
 
     CheckBlocksData data;
     data.index = index;
     data.dry_run = dry_run;
 
-    ret = seaf_block_manager_foreach_block (seaf->block_mgr,
+    ret = winguf_block_manager_foreach_block (winguf->block_mgr,
                                             check_block_liveness,
                                             &data);
     if (ret < 0) {
-        seaf_warning ("GC: Failed to clean dead blocks.\n");
+        winguf_warning ("GC: Failed to clean dead blocks.\n");
         goto out;
     }
 
     if (!dry_run)
-        seaf_message ("GC finished. %"G_GUINT64_FORMAT" blocks total, "
+        winguf_message ("GC finished. %"G_GUINT64_FORMAT" blocks total, "
                       "about %"G_GUINT64_FORMAT" reachable blocks, "
                       "%"G_GUINT64_FORMAT" blocks are removed.\n",
                       total_blocks, reachable_blocks, removed_blocks);
     else
-        seaf_message ("GC finished. %"G_GUINT64_FORMAT" blocks total, "
+        winguf_message ("GC finished. %"G_GUINT64_FORMAT" blocks total, "
                       "about %"G_GUINT64_FORMAT" reachable blocks, "
                       "%"G_GUINT64_FORMAT" blocks can be removed.\n",
                       total_blocks, reachable_blocks, removed_blocks);

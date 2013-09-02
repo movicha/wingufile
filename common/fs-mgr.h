@@ -55,25 +55,25 @@ struct _SeafDir {
 };
 
 SeafDir *
-seaf_dir_new (const char *id, GList *entries, gint64 ctime);
+winguf_dir_new (const char *id, GList *entries, gint64 ctime);
 
 void 
-seaf_dir_free (SeafDir *dir);
+winguf_dir_free (SeafDir *dir);
 
 SeafDir *
-seaf_dir_from_data (const char *dir_id, const uint8_t *data, int len);
+winguf_dir_from_data (const char *dir_id, const uint8_t *data, int len);
 
 int 
-seaf_dir_save (SeafFSManager *fs_mgr, SeafDir *dir);
+winguf_dir_save (SeafFSManager *fs_mgr, SeafDir *dir);
 
 int
-seaf_metadata_type_from_data (const uint8_t *data, int len);
+winguf_metadata_type_from_data (const uint8_t *data, int len);
 
 SeafDirent *
-seaf_dirent_new (const char *sha1, int mode, const char *name);
+winguf_dirent_new (const char *sha1, int mode, const char *name);
 
 SeafDirent *
-seaf_dirent_dup (SeafDirent *dent);
+winguf_dirent_dup (SeafDirent *dent);
 
 typedef struct {
     /* TODO: GHashTable may be inefficient when we have large number of IDs. */
@@ -110,7 +110,7 @@ struct _SeafileSession;
 typedef struct _SeafFSManagerPriv SeafFSManagerPriv;
 
 struct _SeafFSManager {
-    struct _SeafileSession *seaf;
+    struct _SeafileSession *winguf;
 
     struct SeafObjStore *obj_store;
 
@@ -118,25 +118,25 @@ struct _SeafFSManager {
 };
 
 SeafFSManager *
-seaf_fs_manager_new (struct _SeafileSession *seaf,
-                     const char *seaf_dir);
+winguf_fs_manager_new (struct _SeafileSession *winguf,
+                     const char *winguf_dir);
 
 int
-seaf_fs_manager_init (SeafFSManager *mgr);
+winguf_fs_manager_init (SeafFSManager *mgr);
 
 #ifndef WINGUFILE_SERVER
 
 char *
-seaf_fs_manager_checkin (SeafFSManager *mgr,
+winguf_fs_manager_checkin (SeafFSManager *mgr,
                          const char *path);
 
 int 
-seaf_fs_manager_checkout (SeafFSManager *mgr,
+winguf_fs_manager_checkout (SeafFSManager *mgr,
                           const char *root_id,
                           const char *output_path);
 
 int 
-seaf_fs_manager_checkout_file (SeafFSManager *mgr, 
+winguf_fs_manager_checkout_file (SeafFSManager *mgr, 
                                const char *file_id, 
                                const char *file_path,
                                guint32 mode,
@@ -152,27 +152,27 @@ seaf_fs_manager_checkout_file (SeafFSManager *mgr,
  * Returns sha1 id for the wingufile/symlink object in @sha1 parameter.
  */
 int
-seaf_fs_manager_index_blocks (SeafFSManager *mgr,
+winguf_fs_manager_index_blocks (SeafFSManager *mgr,
                               const char *file_path,
                               unsigned char sha1[],
                               SeafileCrypt *crypt);
 
 uint32_t
-seaf_fs_manager_get_type (SeafFSManager *mgr, const char *id);
+winguf_fs_manager_get_type (SeafFSManager *mgr, const char *id);
 
 Seafile *
-seaf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id);
+winguf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id);
 
 SeafDir *
-seaf_fs_manager_get_seafdir (SeafFSManager *mgr, const char *dir_id);
+winguf_fs_manager_get_wingufdir (SeafFSManager *mgr, const char *dir_id);
 
 /* Make sure entries in the returned dir is sorted in descending order.
  */
 SeafDir *
-seaf_fs_manager_get_seafdir_sorted (SeafFSManager *mgr, const char *dir_id);
+winguf_fs_manager_get_wingufdir_sorted (SeafFSManager *mgr, const char *dir_id);
 
 int
-seaf_fs_manager_populate_blocklist (SeafFSManager *mgr,
+winguf_fs_manager_populate_blocklist (SeafFSManager *mgr,
                                     const char *root_id,
                                     BlockList *bl);
 
@@ -186,20 +186,20 @@ typedef gboolean (*TraverseFSTreeCallback) (SeafFSManager *mgr,
                                             gboolean *stop);
 
 int
-seaf_fs_manager_traverse_tree (SeafFSManager *mgr,
+winguf_fs_manager_traverse_tree (SeafFSManager *mgr,
                                const char *root_id,
                                TraverseFSTreeCallback callback,
                                void *user_data,
                                gboolean skip_errors);
 
 gboolean
-seaf_fs_manager_object_exists (SeafFSManager *mgr, const char *id);
+winguf_fs_manager_object_exists (SeafFSManager *mgr, const char *id);
 
 gint64
-seaf_fs_manager_get_file_size (SeafFSManager *mgr, const char *file_id);
+winguf_fs_manager_get_file_size (SeafFSManager *mgr, const char *file_id);
 
 gint64
-seaf_fs_manager_get_fs_size (SeafFSManager *mgr, const char *root_id);
+winguf_fs_manager_get_fs_size (SeafFSManager *mgr, const char *root_id);
 
 #ifndef WINGUFILE_SERVER
 int
@@ -213,28 +213,28 @@ uint32_t
 calculate_chunk_size (uint64_t total_size);
 
 int
-seaf_fs_manager_count_fs_files (SeafFSManager *mgr, const char *root_id);
+winguf_fs_manager_count_fs_files (SeafFSManager *mgr, const char *root_id);
 
 SeafDir *
-seaf_fs_manager_get_seafdir_by_path(SeafFSManager *mgr,
+winguf_fs_manager_get_wingufdir_by_path(SeafFSManager *mgr,
                                     const char *root_id,
                                     const char *path,
                                     GError **error);
 char *
-seaf_fs_manager_get_wingufile_id_by_path (SeafFSManager *mgr,
+winguf_fs_manager_get_wingufile_id_by_path (SeafFSManager *mgr,
                                         const char *root_id,
                                         const char *path,
                                         GError **error);
 
 char *
-seaf_fs_manager_path_to_obj_id (SeafFSManager *mgr,
+winguf_fs_manager_path_to_obj_id (SeafFSManager *mgr,
                                  const char *root_id,
                                  const char *path,
                                  guint32 *mode,
                                  GError **error);
 
 char *
-seaf_fs_manager_get_seafdir_id_by_path (SeafFSManager *mgr,
+winguf_fs_manager_get_wingufdir_id_by_path (SeafFSManager *mgr,
                                         const char *root_id,
                                         const char *path,
                                         GError **error);

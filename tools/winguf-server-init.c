@@ -10,7 +10,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 
-#include "../common/seaf-db.h"
+#include "../common/winguf-db.h"
 
 static int
 save_config_file (GKeyFile *key_file, const char *path)
@@ -51,7 +51,7 @@ static const struct option long_opts[] = {
     { 0, 0, 0, 0 },
 };
 
-struct seaf_server_config {
+struct winguf_server_config {
     char *db_host;
     char *db_root_passwd;
     char *db_name;
@@ -62,7 +62,7 @@ struct seaf_server_config {
     char *httpserver_port;
 }; 
 
-static struct seaf_server_config config = {
+static struct winguf_server_config config = {
     "localhost",
     NULL,
     "wingufile-meta",
@@ -75,7 +75,7 @@ static struct seaf_server_config config = {
     
 void usage(int code) {
     fprintf (stderr,
-"\nUsage: seaf-server-init [OPTIONS]\n"
+"\nUsage: winguf-server-init [OPTIONS]\n"
 "Initialize your wingufile server configuration\n\n"
 "Required arguments are:\n\n" 
 "  -h, --help             output help and quit\n"
@@ -161,11 +161,11 @@ int main (int argc, char **argv)
         SeafDB *db_root;
             
         if (use_mysql)
-            db_root = seaf_db_new_mysql (config.db_host, "root",
+            db_root = winguf_db_new_mysql (config.db_host, "root",
                                          config.db_root_passwd,
                                          NULL, config.db_socket);
         else
-            db_root = seaf_db_new_pgsql (config.db_host, "root",
+            db_root = winguf_db_new_pgsql (config.db_host, "root",
                                          config.db_root_passwd,
                                          NULL, config.db_socket);
 
@@ -177,7 +177,7 @@ int main (int argc, char **argv)
         /* Create database for Seafile server. */
         snprintf (sql, sizeof(sql), "CREATE DATABASE IF NOT EXISTS `%s`",
               config.db_name);
-        ret = seaf_db_query (db_root, sql);
+        ret = winguf_db_query (db_root, sql);
         if (ret < 0) {
             fprintf (stderr, "Failed to create database %s.\n", config.db_name);
         return 1;
@@ -190,7 +190,7 @@ int main (int argc, char **argv)
         /* Create database for Seahub. */
         snprintf (sql, sizeof(sql), "CREATE DATABASE IF NOT EXISTS `%s` character set utf8",
                   config.winguhub_db_name);
-        ret = seaf_db_query (db_root, sql);
+        ret = winguf_db_query (db_root, sql);
         if (ret < 0) {
             fprintf (stderr, "Failed to create database %s.\n",
                      config.winguhub_db_name);

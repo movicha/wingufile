@@ -41,7 +41,7 @@ conf = {}
 
 # key names in the conf dictionary.
 CONF_VERSION            = 'version'
-CONF_LIBSEARPC_VERSION  = 'libsearpc_version'
+CONF_libwingurpc_VERSION  = 'libwingurpc_version'
 CONF_CCNET_VERSION      = 'ccnet_version'
 CONF_WINGUFILE_VERSION    = 'wingufile_version'
 CONF_SRCDIR             = 'srcdir'
@@ -169,7 +169,7 @@ class Project(object):
         self.projdir = os.path.join(conf[CONF_BUILDDIR], '%s-%s' % (self.name, self.version))
 
     def get_version(self):
-        # libsearpc and ccnet can have different versions from wingufile.
+        # libwingurpc and ccnet can have different versions from wingufile.
         raise NotImplementedError
 
     def get_source_commit_id(self):
@@ -208,11 +208,11 @@ class Project(object):
             if run(cmd, cwd=self.projdir) != 0:
                 error('error when running command:\n\t%s\n' % cmd)
 
-class Libsearpc(Project):
-    name = 'libsearpc'
+class libwingurpc(Project):
+    name = 'libwingurpc'
 
     def get_version(self):
-        return conf[CONF_LIBSEARPC_VERSION]
+        return conf[CONF_libwingurpc_VERSION]
 
 class Ccnet(Project):
     name = 'ccnet'
@@ -252,7 +252,7 @@ def check_targz_src(proj, version, srcdir):
 def validate_args(usage, options):
     required_args = [
         CONF_VERSION,
-        CONF_LIBSEARPC_VERSION,
+        CONF_libwingurpc_VERSION,
         CONF_CCNET_VERSION,
         CONF_WINGUFILE_VERSION,
         CONF_SRCDIR,
@@ -273,18 +273,18 @@ def validate_args(usage, options):
             error('%s is not a valid version' % version, usage=usage)
 
     version = get_option(CONF_VERSION)
-    libsearpc_version = get_option(CONF_LIBSEARPC_VERSION)
+    libwingurpc_version = get_option(CONF_libwingurpc_VERSION)
     ccnet_version = get_option(CONF_CCNET_VERSION)
     wingufile_version = get_option(CONF_WINGUFILE_VERSION)
 
     check_project_version(version)
-    check_project_version(libsearpc_version)
+    check_project_version(libwingurpc_version)
     check_project_version(ccnet_version)
     check_project_version(wingufile_version)
 
     # [ srcdir ]
     srcdir = get_option(CONF_SRCDIR)
-    check_targz_src('libsearpc', libsearpc_version, srcdir)
+    check_targz_src('libwingurpc', libwingurpc_version, srcdir)
     check_targz_src('ccnet', ccnet_version, srcdir)
     check_targz_src('wingufile', wingufile_version, srcdir)
 
@@ -310,7 +310,7 @@ def validate_args(usage, options):
     nostrip = get_option(CONF_NO_STRIP)
 
     conf[CONF_VERSION] = version
-    conf[CONF_LIBSEARPC_VERSION] = libsearpc_version
+    conf[CONF_libwingurpc_VERSION] = libwingurpc_version
     conf[CONF_CCNET_VERSION] = ccnet_version
     conf[CONF_WINGUFILE_VERSION] = wingufile_version
 
@@ -330,7 +330,7 @@ def show_build_info():
     info('------------------------------------------')
     info('wingufile:          %s' % conf[CONF_WINGUFILE_VERSION])
     info('ccnet:            %s' % conf[CONF_CCNET_VERSION])
-    info('libsearpc:        %s' % conf[CONF_LIBSEARPC_VERSION])
+    info('libwingurpc:        %s' % conf[CONF_libwingurpc_VERSION])
     info('builddir:         %s' % conf[CONF_BUILDDIR])
     info('outputdir:        %s' % conf[CONF_OUTPUTDIR])
     info('source dir:       %s' % conf[CONF_SRCDIR])
@@ -363,10 +363,10 @@ def parse_args():
                       nargs=1,
                       help='the version to build. Must be digits delimited by dots, like 1.3.0')
 
-    parser.add_option(long_opt(CONF_LIBSEARPC_VERSION),
-                      dest=CONF_LIBSEARPC_VERSION,
+    parser.add_option(long_opt(CONF_libwingurpc_VERSION),
+                      dest=CONF_libwingurpc_VERSION,
                       nargs=1,
-                      help='the version of libsearpc as specified in its "configure.ac". Must be digits delimited by dots, like 1.3.0')
+                      help='the version of libwingurpc as specified in its "configure.ac". Must be digits delimited by dots, like 1.3.0')
 
     parser.add_option(long_opt(CONF_CCNET_VERSION),
                       dest=CONF_CCNET_VERSION,
@@ -427,7 +427,7 @@ def setup_build_env():
     prepend_env_value('PATH', os.path.join(prefix, 'bin'))
     prepend_env_value('PKG_CONFIG_PATH', os.path.join(prefix, 'lib', 'pkgconfig'))
 
-    os.environ['LIBSEARPC_SOURCE_DIR'] = Libsearpc().projdir
+    os.environ['libwingurpc_SOURCE_DIR'] = libwingurpc().projdir
     os.environ['CCNET_SOURCE_DIR'] = Ccnet().projdir
 
 def move_deb():
@@ -451,15 +451,15 @@ def main():
     parse_args()
     setup_build_env()
 
-    libsearpc = Libsearpc()
+    libwingurpc = libwingurpc()
     ccnet = Ccnet()
     wingufile = Seafile()
 
-    libsearpc.uncompress()
+    libwingurpc.uncompress()
     ccnet.uncompress()
     wingufile.uncompress()
 
-    libsearpc.build()
+    libwingurpc.build()
     ccnet.build()
     wingufile.build()
 

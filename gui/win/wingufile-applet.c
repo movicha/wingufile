@@ -101,17 +101,17 @@ start_web_server ()
 int
 start_wingufile_daemon ()
 {
-    applet_message ("Starting seaf-daemon ...\n");
+    applet_message ("Starting winguf-daemon ...\n");
     applet_message ("data dir:      %s\n", applet->wingufile_dir);
     applet_message ("worktree dir:  %s\n", applet->wingufile_worktree);
 
     char buf[4096];
 
-    snprintf (buf, sizeof(buf), "seaf-daemon.exe -c \"%s\" -d \"%s\" -w \"%s\"",
+    snprintf (buf, sizeof(buf), "winguf-daemon.exe -c \"%s\" -d \"%s\" -w \"%s\"",
               applet->config_dir, applet->wingufile_dir, applet->wingufile_worktree);
 
     if (win32_spawn_process (buf, NULL) < 0) {
-        applet_warning ("Failed to start seaf-daemon\n");
+        applet_warning ("Failed to start winguf-daemon\n");
         applet_exit(-1);
     }
 
@@ -134,7 +134,7 @@ get_win_run_key (HKEY *pKey)
     const char *key_run = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
     LONG result = RegOpenKeyEx(
         /* We don't use HKEY_LOCAL_MACHINE here because that requires
-         * seaf-daemon to run with admin privilege. */
+         * winguf-daemon to run with admin privilege. */
                                HKEY_CURRENT_USER,
                                key_run,
                                0L,KEY_WRITE | KEY_READ,
@@ -241,7 +241,7 @@ static UINT_PTR open_browser_timer_id = 0;
  *  After spawning the ccnet.exe process;
  *
  *  1. Connect to daemon
- *  2. spawn seaf-daemon, sefile-web
+ *  2. spawn winguf-daemon, sefile-web
  *  3. start rpc server & rpc client
  *  4. open browser when 13420 port can be connected
  */
@@ -446,7 +446,7 @@ tray_socket_cb (UINT message, WPARAM wParam, LPARAM lParam)
 
 /**
    Since we'll spawn various child processes, including
-   ccnet/seaf-daemon/ccnetweb, we need first setup the current working
+   ccnet/winguf-daemon/ccnetweb, we need first setup the current working
    directory. Without this setup, auto start when system boots up would not
    work.
 **/
@@ -704,7 +704,7 @@ start_heartbeat_monitor_timer (int timeout_ms, void *data)
 
 gboolean is_wingufile_daemon_running ()
 {
-    return process_is_running ("seaf-daemon");
+    return process_is_running ("winguf-daemon");
 }
 
 void

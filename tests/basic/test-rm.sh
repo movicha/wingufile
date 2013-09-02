@@ -14,7 +14,7 @@ mkdir -p ${worktree}/wt1
 
 gnome-terminal -e "${ccnet} -c ${conf1} -D all -f - --no-multicast"
 sleep 3
-gnome-terminal -e "${seaf_daemon} -c ${conf1} -w ${worktree}/wt1 -l -"
+gnome-terminal -e "${winguf_daemon} -c ${conf1} -w ${worktree}/wt1 -l -"
 sleep 3
 
 # create a repo

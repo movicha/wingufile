@@ -6,51 +6,51 @@
 #include "wingufile-session.h"
 #include "share-mgr.h"
 
-#include "seaf-db.h"
+#include "winguf-db.h"
 
 SeafShareManager *
-seaf_share_manager_new (SeafileSession *seaf)
+winguf_share_manager_new (SeafileSession *winguf)
 {
     SeafShareManager *mgr = g_new0 (SeafShareManager, 1);
 
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
 
     return mgr;
 }
 
 int
-seaf_share_manager_start (SeafShareManager *mgr)
+winguf_share_manager_start (SeafShareManager *mgr)
 {
-    SeafDB *db = mgr->seaf->db;
+    SeafDB *db = mgr->winguf->db;
     const char *sql;
 
-    int db_type = seaf_db_type (db);
+    int db_type = winguf_db_type (db);
     if (db_type == SEAF_DB_TYPE_MYSQL) {
         sql = "CREATE TABLE IF NOT EXISTS SharedRepo "
             "(repo_id CHAR(37) , from_email VARCHAR(512), to_email VARCHAR(512), "
             "permission CHAR(15), INDEX (repo_id)) ENGINE=INNODB";
 
-        if (seaf_db_query (db, sql) < 0)
+        if (winguf_db_query (db, sql) < 0)
             return -1;
     } else if (db_type == SEAF_DB_TYPE_SQLITE) {
         sql = "CREATE TABLE IF NOT EXISTS SharedRepo "
             "(repo_id CHAR(37) , from_email VARCHAR(512), to_email VARCHAR(512), "
             "permission CHAR(15))";
-        if (seaf_db_query (db, sql) < 0)
+        if (winguf_db_query (db, sql) < 0)
             return -1;
         sql = "CREATE INDEX IF NOT EXISTS RepoIdIndex on SharedRepo (repo_id)";
-        if (seaf_db_query (db, sql) < 0)
+        if (winguf_db_query (db, sql) < 0)
             return -1;
     } else if (db_type == SEAF_DB_TYPE_PGSQL) {
         sql = "CREATE TABLE IF NOT EXISTS SharedRepo "
             "(repo_id CHAR(36) , from_email VARCHAR(512), to_email VARCHAR(512), "
             "permission VARCHAR(15))";
-        if (seaf_db_query (db, sql) < 0)
+        if (winguf_db_query (db, sql) < 0)
             return -1;
 
         if (!pgsql_index_exists (db, "sharedrepo_repoid_idx")) {
             sql = "CREATE INDEX sharedrepo_repoid_idx ON SharedRepo (repo_id)";
-            if (seaf_db_query (db, sql) < 0)
+            if (winguf_db_query (db, sql) < 0)
                 return -1;
         }
     }
@@ -59,7 +59,7 @@ seaf_share_manager_start (SeafShareManager *mgr)
 }
 
 int
-seaf_share_manager_add_share (SeafShareManager *mgr, const char *repo_id,
+winguf_share_manager_add_share (SeafShareManager *mgr, const char *repo_id,
                               const char *from_email, const char *to_email,
                               const char *permission)
 {
@@ -70,20 +70,20 @@ seaf_share_manager_add_share (SeafShareManager *mgr, const char *repo_id,
               "SELECT repo_id from SharedRepo WHERE repo_id='%s' AND "
               "from_email='%s' AND to_email='%s'", repo_id, from_email,
               to_email);
-    if (seaf_db_check_for_existence (mgr->seaf->db, sql, &db_err))
+    if (winguf_db_check_for_existence (mgr->winguf->db, sql, &db_err))
         return 0;
 
     snprintf (sql, sizeof(sql),
               "INSERT INTO SharedRepo VALUES ('%s', '%s', '%s', '%s')", repo_id,
               from_email, to_email, permission);
-    if (seaf_db_query (mgr->seaf->db, sql) < 0)
+    if (winguf_db_query (mgr->winguf->db, sql) < 0)
         return -1;
 
     return 0;
 }
 
 int
-seaf_share_manager_set_permission (SeafShareManager *mgr, const char *repo_id,
+winguf_share_manager_set_permission (SeafShareManager *mgr, const char *repo_id,
                                    const char *from_email, const char *to_email,
                                    const char *permission)
 {
@@ -93,7 +93,7 @@ seaf_share_manager_set_permission (SeafShareManager *mgr, const char *repo_id,
               "UPDATE SharedRepo SET permission='%s' WHERE "
               "repo_id='%s' AND from_email='%s' AND to_email='%s'",
               permission, repo_id, from_email, to_email);
-    return seaf_db_query (mgr->seaf->db, sql);
+    return winguf_db_query (mgr->winguf->db, sql);
 }
 
 static gboolean
@@ -105,9 +105,9 @@ collect_repos (SeafDBRow *row, void *data)
     const char *permission;
     SeafileSharedRepo *srepo;
     
-    repo_id = seaf_db_row_get_column_text (row, 0);
-    email = seaf_db_row_get_column_text (row, 1);
-    permission = seaf_db_row_get_column_text (row, 2);
+    repo_id = winguf_db_row_get_column_text (row, 0);
+    email = winguf_db_row_get_column_text (row, 1);
+    permission = winguf_db_row_get_column_text (row, 2);
 
     srepo = g_object_new (WINGUFILE_TYPE_SHARED_REPO,
                           "share_type", "personal",
@@ -131,14 +131,14 @@ fill_in_repo_info (GList *shared_repos)
 
     for (ptr = shared_repos; ptr; ptr = ptr->next) {
         srepo = ptr->data;
-        repo = seaf_repo_manager_get_repo (seaf->repo_mgr,
+        repo = winguf_repo_manager_get_repo (winguf->repo_mgr,
                                            wingufile_shared_repo_get_repo_id(srepo));
         if (!repo)
             continue;
-        commit = seaf_commit_manager_get_commit (seaf->commit_mgr,
+        commit = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                                  repo->head->commit_id);
         if (!commit) {
-            seaf_repo_unref (repo);
+            winguf_repo_unref (repo);
             continue;
         }
         g_object_set (srepo,
@@ -147,13 +147,13 @@ fill_in_repo_info (GList *shared_repos)
                       "encrypted", repo->encrypted,
                       "last_modified", commit->ctime,
                       NULL);
-        seaf_repo_unref (repo);
-        seaf_commit_unref (commit);
+        winguf_repo_unref (repo);
+        winguf_commit_unref (commit);
     }
 }
 
 GList*
-seaf_share_manager_list_share_repos (SeafShareManager *mgr, const char *email,
+winguf_share_manager_list_share_repos (SeafShareManager *mgr, const char *email,
                                      const char *type, int start, int limit)
 {
     GList *ret = NULL, *p;
@@ -206,7 +206,7 @@ seaf_share_manager_list_share_repos (SeafShareManager *mgr, const char *email,
         }
     }
 
-    if (seaf_db_foreach_selected_row (mgr->seaf->db, sql,
+    if (winguf_db_foreach_selected_row (mgr->winguf->db, sql,
                                       collect_repos, &ret) < 0) {
         g_warning ("[share mgr] DB error when get shared repo id and email "
                    "for %s.\n", email);
@@ -222,7 +222,7 @@ seaf_share_manager_list_share_repos (SeafShareManager *mgr, const char *email,
 }
 
 GList*
-seaf_share_manager_list_org_share_repos (SeafShareManager *mgr,
+winguf_share_manager_list_org_share_repos (SeafShareManager *mgr,
                                          int org_id,
                                          const char *email,
                                          const char *type,
@@ -282,7 +282,7 @@ seaf_share_manager_list_org_share_repos (SeafShareManager *mgr,
         }
     }
 
-    if (seaf_db_foreach_selected_row (mgr->seaf->db, sql,
+    if (winguf_db_foreach_selected_row (mgr->winguf->db, sql,
                                       collect_repos, &ret) < 0) {
         g_warning ("[share mgr] DB error when get shared repo id and email "
                    "for %s.\n", email);
@@ -303,14 +303,14 @@ collect_shared_to (SeafDBRow *row, void *data)
     GList **plist = data;
     const char *to_email;
 
-    to_email = seaf_db_row_get_column_text (row, 0);
+    to_email = winguf_db_row_get_column_text (row, 0);
     *plist = g_list_prepend (*plist, g_strdup(to_email));
 
     return TRUE;
 }
 
 GList *
-seaf_share_manager_list_shared_to (SeafShareManager *mgr,
+winguf_share_manager_list_shared_to (SeafShareManager *mgr,
                                    const char *owner,
                                    const char *repo_id)
 {
@@ -321,7 +321,7 @@ seaf_share_manager_list_shared_to (SeafShareManager *mgr,
               "SELECT to_email FROM SharedRepo WHERE "
               "from_email='%s' AND repo_id='%s'",
               owner, repo_id);
-    if (seaf_db_foreach_selected_row (mgr->seaf->db, sql,
+    if (winguf_db_foreach_selected_row (mgr->winguf->db, sql,
                                       collect_shared_to, &ret) < 0) {
         g_warning ("[share mgr] DB error when list shared to.\n");
         string_list_free (ret);
@@ -332,7 +332,7 @@ seaf_share_manager_list_shared_to (SeafShareManager *mgr,
 }
 
 int
-seaf_share_manager_remove_share (SeafShareManager *mgr, const char *repo_id,
+winguf_share_manager_remove_share (SeafShareManager *mgr, const char *repo_id,
                                  const char *from_email, const char *to_email)
 {
     char sql[512];
@@ -341,14 +341,14 @@ seaf_share_manager_remove_share (SeafShareManager *mgr, const char *repo_id,
               "DELETE FROM SharedRepo WHERE repo_id = '%s' AND from_email ="
               " '%s' AND to_email = '%s'", repo_id, from_email, to_email);
     
-    if (seaf_db_query (mgr->seaf->db, sql) < 0)
+    if (winguf_db_query (mgr->winguf->db, sql) < 0)
         return -1;
 
     return 0;
 }
 
 int
-seaf_share_manager_remove_repo (SeafShareManager *mgr, const char *repo_id)
+winguf_share_manager_remove_repo (SeafShareManager *mgr, const char *repo_id)
 {
     char sql[512];
 
@@ -356,14 +356,14 @@ seaf_share_manager_remove_repo (SeafShareManager *mgr, const char *repo_id)
               "DELETE FROM SharedRepo WHERE repo_id = '%s'", 
               repo_id);
     
-    if (seaf_db_query (mgr->seaf->db, sql) < 0)
+    if (winguf_db_query (mgr->winguf->db, sql) < 0)
         return -1;
 
     return 0;
 }
 
 char *
-seaf_share_manager_check_permission (SeafShareManager *mgr,
+winguf_share_manager_check_permission (SeafShareManager *mgr,
                                      const char *repo_id,
                                      const char *email)
 {
@@ -372,5 +372,5 @@ seaf_share_manager_check_permission (SeafShareManager *mgr,
     snprintf (sql, sizeof(sql),
               "SELECT permission FROM SharedRepo WHERE repo_id='%s' AND to_email='%s'",
               repo_id, email);
-    return seaf_db_get_string (mgr->seaf->db, sql);
+    return winguf_db_get_string (mgr->winguf->db, sql);
 }

@@ -111,7 +111,7 @@ start_watch_dir_change(SeafWTMonitorPriv *priv, HANDLE dir_handle)
             /* if failed at the first watch, free the aux buffer */
             g_free(aux);
 
-        seaf_warning("Failed to ReadDirectoryChangesW, "
+        winguf_warning("Failed to ReadDirectoryChangesW, "
                      "error code %lu", GetLastError());
     } else {
         if (first_alloc)
@@ -147,7 +147,7 @@ start_watch_cmd_pipe (SeafWTMonitorPriv *priv, OVERLAPPED *ol_in)
          ol);                   /* overlapped */
 
     if (!sts && (GetLastError() != ERROR_IO_PENDING)) {
-        seaf_warning ("failed to ReadFile, error code %lu\n",
+        winguf_warning ("failed to ReadFile, error code %lu\n",
                       GetLastError());
         if (!ol_in)
             /* free the overlapped struct if failed at the first watch */
@@ -189,7 +189,7 @@ add_handle_to_iocp (SeafWTMonitorPriv *priv, HANDLE hAdd)
          1);                    /* Num of concurrent threads */
 
     if (!priv->iocp_handle) {
-        seaf_warning ("failed to create/add iocp, error code %lu",
+        winguf_warning ("failed to create/add iocp, error code %lu",
                       GetLastError());
         return FALSE;
     }
@@ -211,7 +211,7 @@ add_all_to_iocp (SeafWTMonitorPriv *priv)
 {
     if (!add_handle_to_iocp(priv, (HANDLE)priv->cmd_pipe[0])) {
 
-        seaf_warning("Failed to add cmd_pipe to iocp, "
+        winguf_warning("Failed to add cmd_pipe to iocp, "
                      "error code %lu", GetLastError());
         return FALSE;
     }
@@ -223,14 +223,14 @@ add_all_to_iocp (SeafWTMonitorPriv *priv)
     g_hash_table_iter_init (&iter, priv->handle_hash);
     while (g_hash_table_iter_next (&iter, &key, &value)) {
         if (!add_handle_to_iocp(priv, (HANDLE)value)) {
-            seaf_warning("Failed to add dir handle to iocp, "
+            winguf_warning("Failed to add dir handle to iocp, "
                          "repo %s, error code %lu", (char *)key,
                          GetLastError());
             continue;
         }
     }
 
-    seaf_debug("Done: add_all_to_iocp\n");
+    winguf_debug("Done: add_all_to_iocp\n");
     return TRUE;
 }
 
@@ -257,7 +257,7 @@ get_handle_of_path(const wchar_t *path)
 
     if (dir_handle == INVALID_HANDLE_VALUE) {
         char *path_utf8 = g_utf16_to_utf8 (path, -1, NULL, NULL, NULL);
-        seaf_warning("failed to create dir handle for path %s, "
+        winguf_warning("failed to create dir handle for path %s, "
                      "error code %lu", path_utf8, GetLastError());
         g_free (path_utf8);
         return NULL;
@@ -294,10 +294,10 @@ static HANDLE add_watch (const char* repo_id)
     HANDLE dir_handle = NULL;
     wchar_t *path = NULL;
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
 
     if (!repo) {
-        seaf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
+        winguf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
         return NULL;
     }
 
@@ -306,10 +306,10 @@ static HANDLE add_watch (const char* repo_id)
 
     dir_handle = get_handle_of_path (path);
     if (!dir_handle) {
-        seaf_warning ("failed to open handle for worktree "
+        winguf_warning ("failed to open handle for worktree "
                       "of repo  %s\n", repo_id);
     } else {
-        seaf_debug ("opened handle for worktree %s\n", path);
+        winguf_debug ("opened handle for worktree %s\n", path);
     }
 
     g_free (path);
@@ -338,7 +338,7 @@ wt_monitor_job (void *vmonitor)
      */
 
     if (!add_all_to_iocp(priv)) {
-        seaf_warning("Failed to add all to iocp\n");
+        winguf_warning("Failed to add all to iocp\n");
         return NULL;
     }
     
@@ -354,7 +354,7 @@ wt_monitor_job (void *vmonitor)
         static int retry;
 
         if (!ret) {
-            seaf_warning ("GetQueuedCompletionStatus failed, "
+            winguf_warning ("GetQueuedCompletionStatus failed, "
                           "error code %lu", GetLastError());
 
             if (retry++ < 3)
@@ -370,13 +370,13 @@ wt_monitor_job (void *vmonitor)
             /* Triggered by a cmd pipe event */
 
             if (bytesRead != sizeof(WatchCommand)) {
-                seaf_warning ("broken cmd from pipe: get"
+                winguf_warning ("broken cmd from pipe: get"
                               " %d(expected: %d) bytes\n",
                               (int)bytesRead, sizeof(WatchCommand));
                 continue;
             }
 
-            seaf_debug ("recevied a pipe cmd, type %d for repo %s\n",
+            winguf_debug ("recevied a pipe cmd, type %d for repo %s\n",
                         priv->cmd.type, priv->cmd.repo_id);
 
             handle_watch_command (priv, &priv->cmd);
@@ -401,12 +401,12 @@ wt_monitor_job (void *vmonitor)
             if (status) {
                 g_atomic_int_set (&status->last_changed, (gint)time(NULL));
 
-                seaf_debug("worktree change detected, repo %s\n", repo_id);
+                winguf_debug("worktree change detected, repo %s\n", repo_id);
 
                 reset_overlapped(ol);
                 if (!start_watch_dir_change(priv, hTriggered)) {
 
-                    seaf_warning ("start_watch_dir_change failed"
+                    winguf_warning ("start_watch_dir_change failed"
                                   "for repo %s, error code %lu\n",
                                   repo_id, GetLastError());
                 }

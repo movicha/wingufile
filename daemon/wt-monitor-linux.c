@@ -64,17 +64,17 @@ process_event (SeafWTMonitorPriv *priv, int in_fd)
 
     rc = ioctl (in_fd, FIONREAD, &buf_size);
     if (rc < 0) {
-        seaf_warning ("Cannot get inotify event buf size: %s.\n", strerror(errno));
+        winguf_warning ("Cannot get inotify event buf size: %s.\n", strerror(errno));
         return FALSE;
     }
     event_buf = g_new (char, buf_size);
 
     n = readn (in_fd, event_buf, buf_size);
     if (n < 0) {
-        seaf_warning ("Failed to read inotify fd: %s.\n", strerror(errno));
+        winguf_warning ("Failed to read inotify fd: %s.\n", strerror(errno));
         return FALSE;
     } else if (n != buf_size) {
-        seaf_warning ("Read incomplete inotify event struct.\n");
+        winguf_warning ("Read incomplete inotify event struct.\n");
         return FALSE;
     }
 
@@ -84,28 +84,28 @@ process_event (SeafWTMonitorPriv *priv, int in_fd)
         offset += sizeof(struct inotify_event) + event->len;
 
         if (event->mask & (IN_CREATE | IN_MOVED_TO)) {
-            seaf_debug ("%s is added.\n", event->name);
+            winguf_debug ("%s is added.\n", event->name);
 
             mapping = g_hash_table_lookup (priv->mapping_hash,
                                            (gpointer)(long)in_fd);
             dir = g_hash_table_lookup (mapping->wd_to_path,
                                        (gpointer)(long)event->wd);
             if (!dir) {
-                seaf_warning ("Cannot find path from wd.\n");
+                winguf_warning ("Cannot find path from wd.\n");
                 goto out;
             }
 
             full_path = g_build_filename (dir, event->name, NULL);
 
             if (stat (full_path, &sb) < 0) {
-                seaf_warning ("Failed to stat %s: %s.\n",
+                winguf_warning ("Failed to stat %s: %s.\n",
                               full_path, strerror(errno));
                 g_free (full_path);
                 goto out;
             }
 
             if (lstat (full_path, &sb2) < 0) {
-                seaf_warning ("Failed to lstat %s: %s.\n",
+                winguf_warning ("Failed to lstat %s: %s.\n",
                               full_path, strerror(errno));
                 g_free (full_path);
                 goto out;
@@ -130,7 +130,7 @@ process_event (SeafWTMonitorPriv *priv, int in_fd)
                 ret = TRUE;
 
             if (S_ISDIR (sb.st_mode)) {
-                seaf_debug ("Watching dir %s when it's added.\n", full_path);
+                winguf_debug ("Watching dir %s when it's added.\n", full_path);
                 add_watch_recursive (mapping, in_fd, full_path);
             }
 
@@ -171,14 +171,14 @@ wt_monitor_job (void *vmonitor)
         if (rc < 0 && errno == EINTR) {
             continue;
         } else if (rc < 0) {
-            seaf_warning ("[wt mon] select error: %s.\n", strerror(errno));
+            winguf_warning ("[wt mon] select error: %s.\n", strerror(errno));
             break;
         }
 
         if (FD_ISSET (priv->cmd_pipe[0], &fds)) {
             n = pipereadn (priv->cmd_pipe[0], &cmd, sizeof(cmd));
             if (n != sizeof(cmd)) {
-                seaf_warning ("[wt mon] failed to read command.\n");
+                winguf_warning ("[wt mon] failed to read command.\n");
                 continue;
             }
             handle_watch_command (priv, &cmd);
@@ -238,16 +238,16 @@ add_watch_recursive (WatchPathMapping *mapping, int in_fd, const char *path)
     int wd;
 
     if (stat (path, &st) < 0) {
-        seaf_warning ("[wt mon] fail to stat %s: %s\n", path, strerror(errno));
+        winguf_warning ("[wt mon] fail to stat %s: %s\n", path, strerror(errno));
         return 0;
     }
 
     if (S_ISDIR (st.st_mode)) {
-        seaf_debug ("Watching %s.\n", path);
+        winguf_debug ("Watching %s.\n", path);
 
         wd = inotify_add_watch (in_fd, path, (uint32_t)WATCH_MASK);
         if (wd < 0) {
-            seaf_warning ("[wt mon] fail to add watch to %s: %s.\n",
+            winguf_warning ("[wt mon] fail to add watch to %s: %s.\n",
                           path, strerror(errno));
             return 0;
         }
@@ -256,7 +256,7 @@ add_watch_recursive (WatchPathMapping *mapping, int in_fd, const char *path)
 
         dir = opendir (path);
         if (!dir) {
-            seaf_warning ("[wt mon] fail to open dir %s: %s.\n",
+            winguf_warning ("[wt mon] fail to open dir %s: %s.\n",
                           path, strerror(errno));
             return 0;
         }
@@ -288,15 +288,15 @@ add_watch (SeafWTMonitorPriv *priv, const char *repo_id)
     char path[SEAF_PATH_MAX];
     WatchPathMapping *mapping;
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
-        seaf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
+        winguf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
         return -1;
     }
 
     inotify_fd = inotify_init ();
     if (inotify_fd < 0) {
-        seaf_warning ("[wt mon] inotify_init failed: %s.\n", strerror(errno));
+        winguf_warning ("[wt mon] inotify_init failed: %s.\n", strerror(errno));
         return -1;
     }
 
@@ -365,9 +365,9 @@ refresh_watch (SeafWTMonitorPriv *priv, int inotify_fd, const char *repo_id)
     char path[SEAF_PATH_MAX];
     WatchPathMapping *mapping;
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
-        seaf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
+        winguf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
         return -1;
     }
 

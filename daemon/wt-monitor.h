@@ -12,27 +12,27 @@ typedef struct SeafWTMonitorPriv SeafWTMonitorPriv;
 struct _SeafileSession;
 
 typedef struct SeafWTMonitor {
-    struct _SeafileSession      *seaf;
+    struct _SeafileSession      *winguf;
     SeafWTMonitorPriv   *priv;
 } SeafWTMonitor;
 
 SeafWTMonitor *
-seaf_wt_monitor_new (struct _SeafileSession *seaf);
+winguf_wt_monitor_new (struct _SeafileSession *winguf);
 
 int
-seaf_wt_monitor_start (SeafWTMonitor *monitor);
+winguf_wt_monitor_start (SeafWTMonitor *monitor);
 
 int
-seaf_wt_monitor_watch_repo (SeafWTMonitor *monitor, const char *repo_id);
+winguf_wt_monitor_watch_repo (SeafWTMonitor *monitor, const char *repo_id);
 
 int
-seaf_wt_monitor_unwatch_repo (SeafWTMonitor *monitor, const char *repo_id);
+winguf_wt_monitor_unwatch_repo (SeafWTMonitor *monitor, const char *repo_id);
 
 int
-seaf_wt_monitor_refresh_repo (SeafWTMonitor *monitor, const char *repo_id);
+winguf_wt_monitor_refresh_repo (SeafWTMonitor *monitor, const char *repo_id);
 
 WTStatus *
-seaf_wt_monitor_get_worktree_status (SeafWTMonitor *monitor,
+winguf_wt_monitor_get_worktree_status (SeafWTMonitor *monitor,
                                      const char *repo_id);
 
 #endif

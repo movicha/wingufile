@@ -45,57 +45,57 @@ struct _SeafRepo {
 gboolean is_repo_id_valid (const char *id);
 
 SeafRepo* 
-seaf_repo_new (const char *id, const char *name, const char *desc);
+winguf_repo_new (const char *id, const char *name, const char *desc);
 
 void
-seaf_repo_free (SeafRepo *repo);
+winguf_repo_free (SeafRepo *repo);
 
 void
-seaf_repo_ref (SeafRepo *repo);
+winguf_repo_ref (SeafRepo *repo);
 
 void
-seaf_repo_unref (SeafRepo *repo);
+winguf_repo_unref (SeafRepo *repo);
 
 typedef struct _SeafRepoManager SeafRepoManager;
 typedef struct _SeafRepoManagerPriv SeafRepoManagerPriv;
 
 struct _SeafRepoManager {
-    struct _SeafileSession *seaf;
+    struct _SeafileSession *winguf;
 
     SeafRepoManagerPriv *priv;
 };
 
 SeafRepoManager* 
-seaf_repo_manager_new (struct _SeafileSession *seaf);
+winguf_repo_manager_new (struct _SeafileSession *winguf);
 
 int
-seaf_repo_manager_init (SeafRepoManager *mgr);
+winguf_repo_manager_init (SeafRepoManager *mgr);
 
 int
-seaf_repo_manager_start (SeafRepoManager *mgr);
+winguf_repo_manager_start (SeafRepoManager *mgr);
 
 int
-seaf_repo_manager_add_repo (SeafRepoManager *mgr, SeafRepo *repo);
+winguf_repo_manager_add_repo (SeafRepoManager *mgr, SeafRepo *repo);
 
 int
-seaf_repo_manager_del_repo (SeafRepoManager *mgr, SeafRepo *repo);
+winguf_repo_manager_del_repo (SeafRepoManager *mgr, SeafRepo *repo);
 
 SeafRepo* 
-seaf_repo_manager_get_repo (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_get_repo (SeafRepoManager *manager, const gchar *id);
 
 SeafRepo* 
-seaf_repo_manager_get_repo_prefix (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_get_repo_prefix (SeafRepoManager *manager, const gchar *id);
 
 gboolean
-seaf_repo_manager_repo_exists (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_repo_exists (SeafRepoManager *manager, const gchar *id);
 
 gboolean
-seaf_repo_manager_repo_exists_prefix (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_repo_exists_prefix (SeafRepoManager *manager, const gchar *id);
 
 GList* 
-seaf_repo_manager_get_repo_list (SeafRepoManager *mgr, int start, int limit);
+winguf_repo_manager_get_repo_list (SeafRepoManager *mgr, int start, int limit);
 
 GList *
-seaf_repo_manager_get_repo_id_list (SeafRepoManager *mgr);
+winguf_repo_manager_get_repo_id_list (SeafRepoManager *mgr);
 
 #endif

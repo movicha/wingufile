@@ -6,7 +6,7 @@ AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 	-I$(top_builddir)/lib \
 	-I$(top_srcdir)/common \
 	@CCNET_CFLAGS@ \
-	@SEARPC_CFLAGS@ \
+	@WINGURPC_CFLAGS@ \
 	@GLIB2_CFLAGS@ \
 	@GNOME_KEYRING_CFLAGS@ \
 	@MSVC_CFLAGS@ \
@@ -14,7 +14,7 @@ AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 
 bin_PROGRAMS = 
 if !SERVER_ONLY
-bin_PROGRAMS += seaf-daemon
+bin_PROGRAMS += winguf-daemon
 endif
 
 proc_headers = $(addprefix processors/, \
@@ -82,7 +82,7 @@ endif
 
 common_src = \
 	transfer-mgr.c \
-	../common/unpack-trees.c ../common/seaf-tree-walk.c \
+	../common/unpack-trees.c ../common/winguf-tree-walk.c \
 	merge.c merge-recursive.c vc-utils.c \
 	status.c sync-mgr.c wingufile-session.c \
 	../common/wingufile-crypt.c ../common/diff-simple.c $(wt_monitor_src) \
@@ -93,7 +93,7 @@ common_src = \
 	../common/log.c ../common/avl/avl.c ../common/object-list.c \
 	../common/rpc-service.c \
 	gc.c ../common/gc-core.c ../common/vc-common.c \
-	../common/seaf-utils.c \
+	../common/winguf-utils.c \
 	../common/obj-store.c \
 	../common/obj-backend-fs.c \
 	../common/block-mgr.c \
@@ -131,29 +131,29 @@ common_src = \
 	processors/checkbl-proc.c
 
 
-seaf_daemon_SOURCES = seaf-daemon.c $(common_src)
+winguf_daemon_SOURCES = winguf-daemon.c $(common_src)
 
-seaf_daemon_LDADD = $(top_builddir)/lib/libwingufile_common.la \
+winguf_daemon_LDADD = $(top_builddir)/lib/libwingufile_common.la \
 	@LIB_INTL@ \
 	@GLIB2_LIBS@  @GOBJECT_LIBS@ -lssl @LIB_RT@ @LIB_UUID@ -lsqlite3 -levent \
 	$(top_builddir)/common/cdc/libcdc.la \
 	$(top_builddir)/common/index/libindex.la ${LIB_WS32} \
-	@SEARPC_LIBS@ @CCNET_LIBS@ @GNOME_KEYRING_LIBS@
+	@WINGURPC_LIBS@ @CCNET_LIBS@ @GNOME_KEYRING_LIBS@
 
-seaf_daemon_LDFLAGS = @STATIC_COMPILE@ @CONSOLE@
+winguf_daemon_LDFLAGS = @STATIC_COMPILE@ @CONSOLE@
 
-# seaf_tool_CFLAGS = $(AM_CFLAGS) -DSEAF_TOOL
+# winguf_tool_CFLAGS = $(AM_CFLAGS) -DSEAF_TOOL
 
-# seaf_tool_SOURCES = seaf-tool.c $(common_src) 
+# winguf_tool_SOURCES = winguf-tool.c $(common_src) 
 
-# seaf_tool_LDADD = $(seaf_daemon_LDADD)
+# winguf_tool_LDADD = $(winguf_daemon_LDADD)
 
-# seaf_tool_LDFLAGS = @STATIC_COMPILE@ # @CONSOLE@
+# winguf_tool_LDFLAGS = @STATIC_COMPILE@ # @CONSOLE@
 
-#check_PROGRAMS = seaf-test
+#check_PROGRAMS = winguf-test
 
-#seaf_test_SOURCES = \
-#	seaf-test.c transfer-mgr.c \
+#winguf_test_SOURCES = \
+#	winguf-test.c transfer-mgr.c \
 #	merge.c merge-recursive.c vc-utils.c \
 #	status.c sync-mgr.c wingufile-session.c \
 #	../common/wingufile-crypt.c ../common/diff-simple.c ${wt_monitor_src} \
@@ -162,8 +162,8 @@ seaf_daemon_LDFLAGS = @STATIC_COMPILE@ @CONSOLE@
 #	repo-mgr.c ../common/commit-mgr.c \
 #	../common/log.c ../common/avl/avl.c ../common/object-list.c \
 #	../common/rpc-service.c \
-#	../common/gc.c ../common/vc-common.c ../common/seaf-utils.c \
-#	../common/unpack-trees.c ../common/seaf-tree-walk.c \
+#	../common/gc.c ../common/vc-common.c ../common/winguf-utils.c \
+#	../common/unpack-trees.c ../common/winguf-tree-walk.c \
 #	../common/mq-mgr.c \
 #	../common/obj-store.c \
 #	../common/obj-backend-fs.c \
@@ -185,15 +185,15 @@ seaf_daemon_LDFLAGS = @STATIC_COMPILE@ @CONSOLE@
 #	processors/getcommit-v2-proc.c \
 #	processors/sendcommit-v2-proc.c
 
-#seaf_test_CPPFLAGS = -DDEBUG_UNPACK_TREES -DSEAF_TEST
-#seaf_test_LDADD = @CCNET_LIBS@ \
+#winguf_test_CPPFLAGS = -DDEBUG_UNPACK_TREES -DSEAF_TEST
+#winguf_test_LDADD = @CCNET_LIBS@ \
 #	@LIB_INTL@ \
 #	$(top_builddir)/lib/libwingufile_common.la \
 #	@GLIB2_LIBS@  @GOBJECT_LIBS@ -lssl @LIB_RT@ @LIB_UUID@ -lsqlite3 -levent \
 #	$(top_builddir)/common/cdc/libcdc.la \
 #	$(top_builddir)/common/index/libindex.la ${LIB_WS32} \
-#	@SEARPC_LIBS@ @LIB_DIRWATCH@
+#	@WINGURPC_LIBS@ @LIB_DIRWATCH@
 
-#seaf_test_LDFLAGS = @STATIC_COMPILE@  @CONSOLE@
+#winguf_test_LDFLAGS = @STATIC_COMPILE@  @CONSOLE@
 
-#TESTS = seaf-test
+#TESTS = winguf-test

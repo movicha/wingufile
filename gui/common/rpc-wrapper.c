@@ -7,7 +7,7 @@
 #include "utils.h"
 #include "wingufile-applet.h"
 
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 
 void 
@@ -20,7 +20,7 @@ applet_init_ccnet_rpc (CcnetClient *sync_client)
 void 
 applet_init_wingufile_rpc (CcnetClient *client)
 {
-    /* async searpc client, for invoking wingufile rpc */    
+    /* async wingurpc client, for invoking wingufile rpc */    
     applet->wingufile_rpc_client = ccnet_create_async_rpc_client (
         client, NULL, "wingufile-rpcserver");
 }

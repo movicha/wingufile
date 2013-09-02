@@ -2,7 +2,7 @@
 # coding: UTF-8
 
 '''This scirpt builds the wingufile debian source tarball. In this tarball,
-libsearpc and ccnet is also included.
+libwingurpc and ccnet is also included.
 
 '''
 import sys
@@ -35,7 +35,7 @@ conf = {}
 
 # key names in the conf dictionary.
 CONF_VERSION            = 'version'
-CONF_LIBSEARPC_VERSION  = 'libsearpc_version'
+CONF_libwingurpc_VERSION  = 'libwingurpc_version'
 CONF_CCNET_VERSION      = 'ccnet_version'
 CONF_WINGUFILE_VERSION    = 'wingufile_version'
 CONF_SRCDIR             = 'srcdir'
@@ -198,9 +198,9 @@ def uncompress_wingufile():
     if conf[CONF_VERSION] != conf[CONF_WINGUFILE_VERSION]:
         shutil.move(src, dst)
 
-def uncompress_libsearpc():
-    tarball = os.path.join(conf[CONF_SRCDIR], 'libsearpc-%s.tar.gz' % conf[CONF_LIBSEARPC_VERSION])
-    dst_dir = os.path.join(conf[CONF_BUILDDIR], 'wingufile-%s' % conf[CONF_VERSION], 'libsearpc')
+def uncompress_libwingurpc():
+    tarball = os.path.join(conf[CONF_SRCDIR], 'libwingurpc-%s.tar.gz' % conf[CONF_libwingurpc_VERSION])
+    dst_dir = os.path.join(conf[CONF_BUILDDIR], 'wingufile-%s' % conf[CONF_VERSION], 'libwingurpc')
     must_mkdir(dst_dir)
     argv = [ 'tar', 'xf',
              tarball,
@@ -209,7 +209,7 @@ def uncompress_libsearpc():
          ]
 
     if run_argv(argv) != 0:
-        error('failed to uncompress libsearpc')
+        error('failed to uncompress libwingurpc')
 
 def uncompress_ccnet():
     tarball = os.path.join(conf[CONF_SRCDIR], 'ccnet-%s.tar.gz' % conf[CONF_CCNET_VERSION])
@@ -246,10 +246,10 @@ def parse_args():
                       nargs=1,
                       help='the version of wingufile. Must be digits delimited by dots, like 1.3.0')
 
-    parser.add_option(long_opt(CONF_LIBSEARPC_VERSION),
-                      dest=CONF_LIBSEARPC_VERSION,
+    parser.add_option(long_opt(CONF_libwingurpc_VERSION),
+                      dest=CONF_libwingurpc_VERSION,
                       nargs=1,
-                      help='the version of libsearpc as specified in its "configure.ac". Must be digits delimited by dots, like 1.3.0')
+                      help='the version of libwingurpc as specified in its "configure.ac". Must be digits delimited by dots, like 1.3.0')
 
     parser.add_option(long_opt(CONF_CCNET_VERSION),
                       dest=CONF_CCNET_VERSION,
@@ -289,7 +289,7 @@ def validate_args(usage, options):
     required_args = [
         CONF_VERSION,
         CONF_WINGUFILE_VERSION,
-        CONF_LIBSEARPC_VERSION,
+        CONF_libwingurpc_VERSION,
         CONF_CCNET_VERSION,
         CONF_SRCDIR,
     ]
@@ -309,18 +309,18 @@ def validate_args(usage, options):
             error('%s is not a valid version' % version, usage=usage)
 
     version = get_option(CONF_VERSION)
-    libsearpc_version = get_option(CONF_LIBSEARPC_VERSION)
+    libwingurpc_version = get_option(CONF_libwingurpc_VERSION)
     ccnet_version = get_option(CONF_CCNET_VERSION)
     wingufile_version = get_option(CONF_WINGUFILE_VERSION)
 
     check_project_version(version)
-    check_project_version(libsearpc_version)
+    check_project_version(libwingurpc_version)
     check_project_version(ccnet_version)
     check_project_version(wingufile_version)
 
     # [ srcdir ]
     srcdir = get_option(CONF_SRCDIR)
-    check_targz_src('libsearpc', libsearpc_version, srcdir)
+    check_targz_src('libwingurpc', libwingurpc_version, srcdir)
     check_targz_src('ccnet', ccnet_version, srcdir)
     check_targz_src('wingufile', wingufile_version, srcdir)
 
@@ -340,7 +340,7 @@ def validate_args(usage, options):
     keep = get_option(CONF_KEEP)
 
     conf[CONF_VERSION] = version
-    conf[CONF_LIBSEARPC_VERSION] = libsearpc_version
+    conf[CONF_libwingurpc_VERSION] = libwingurpc_version
     conf[CONF_CCNET_VERSION] = ccnet_version
     conf[CONF_WINGUFILE_VERSION] = wingufile_version
 
@@ -371,7 +371,7 @@ def show_build_info():
     info('------------------------------------------')
     info('wingufile:          %s' % conf[CONF_WINGUFILE_VERSION])
     info('ccnet:            %s' % conf[CONF_CCNET_VERSION])
-    info('libsearpc:        %s' % conf[CONF_LIBSEARPC_VERSION])
+    info('libwingurpc:        %s' % conf[CONF_libwingurpc_VERSION])
     info('builddir:         %s' % conf[CONF_BUILDDIR])
     info('outputdir:        %s' % conf[CONF_OUTPUTDIR])
     info('source dir:       %s' % conf[CONF_SRCDIR])
@@ -384,7 +384,7 @@ def show_build_info():
 def main():
     parse_args()
     uncompress_wingufile()
-    uncompress_libsearpc()
+    uncompress_libwingurpc()
     uncompress_ccnet()
     remove_debian_subdir()
     remove_unused_files()

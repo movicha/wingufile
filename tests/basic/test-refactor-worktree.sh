@@ -25,7 +25,7 @@ sleep 3
 if [ $1 = "debug" ]; then
     read tmp
 else
-    gnome-terminal -e "${seaf_daemon} -c ${conf1} -w ${worktree}/wt1 -l -"
+    gnome-terminal -e "${winguf_daemon} -c ${conf1} -w ${worktree}/wt1 -l -"
     sleep 3
 fi
 

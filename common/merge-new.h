@@ -26,6 +26,6 @@ typedef struct MergeOptions {
 } MergeOptions;
 
 int
-seaf_merge_trees (int n, const char *roots[], MergeOptions *opt);
+winguf_merge_trees (int n, const char *roots[], MergeOptions *opt);
 
 #endif

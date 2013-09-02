@@ -22,12 +22,12 @@ struct TokenManagerPriv {
 };
 
 SeafTokenManager *
-seaf_token_manager_new (struct _SeafileSession *session)
+winguf_token_manager_new (struct _SeafileSession *session)
 {
     SeafTokenManager *mgr = g_new0(SeafTokenManager, 1);
     struct TokenManagerPriv *priv = g_new0(struct TokenManagerPriv, 1);
 
-    mgr->seaf = session;
+    mgr->winguf = session;
     mgr->priv = priv;
 
     /* mgr->priv->token_hash = g_hash_table_new_full (g_str_hash, g_str_equal, */
@@ -37,7 +37,7 @@ seaf_token_manager_new (struct _SeafileSession *session)
 }
 
 char *
-seaf_token_manager_generate_token (SeafTokenManager *mgr,
+winguf_token_manager_generate_token (SeafTokenManager *mgr,
                                    const char *client_id,
                                    const char *repo_id)
 {
@@ -45,13 +45,13 @@ seaf_token_manager_generate_token (SeafTokenManager *mgr,
     char *sig_base64;
 
     g_string_append_printf (token, "%s\n%s\n%s\n%"G_GUINT64_FORMAT,
-                            seaf->session->base.id,
+                            winguf->session->base.id,
                             client_id,
                             repo_id,
                             (guint64)time(NULL));
 
     /* Create signature with my private key. */
-    sig_base64 = ccnet_sign_message (seaf->ccnetrpc_client, token->str);
+    sig_base64 = ccnet_sign_message (winguf->ccnetrpc_client, token->str);
     g_string_append_printf (token, "\n%s", sig_base64);
     g_free (sig_base64);
 
@@ -59,7 +59,7 @@ seaf_token_manager_generate_token (SeafTokenManager *mgr,
 }
 
 int
-seaf_token_manager_verify_token (SeafTokenManager *mgr,
+winguf_token_manager_verify_token (SeafTokenManager *mgr,
                                  SearpcClient *rpc_client,
                                  const char *peer_id,
                                  char *token,
@@ -97,7 +97,7 @@ seaf_token_manager_verify_token (SeafTokenManager *mgr,
     sep[0] = '\0';
 
     if (!rpc_client)
-        rpc_client = seaf->ccnetrpc_client;
+        rpc_client = winguf->ccnetrpc_client;
 
     /* Verify signature.
      * TODO: we should first check whether master_id is a master server.
@@ -137,7 +137,7 @@ out:
 
 #if 0
 void
-seaf_token_manager_invalidate_token (SeafTokenManager *mgr,
+winguf_token_manager_invalidate_token (SeafTokenManager *mgr,
                                      char *token)
 {
     char **keys;

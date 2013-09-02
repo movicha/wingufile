@@ -170,7 +170,7 @@ static int get_files_dirs_recursive(struct merge_options *o, SeafDir *tree,
 
             snprintf(base + baselen, SEAF_PATH_MAX, "%s/", dent->name);
             new_baselen = baselen + dent->name_len + 1;
-            subdir = seaf_fs_manager_get_seafdir(seaf->fs_mgr, dent->id);
+            subdir = winguf_fs_manager_get_wingufdir(winguf->fs_mgr, dent->id);
             if (!subdir) {
                 g_warning("Failed to get dir %s\n", dent->id);
                 return -1;
@@ -308,7 +308,7 @@ remove_path (const char *worktree, const char *name, unsigned int ctime, unsigne
     path = g_build_path(PATH_SEPERATOR, worktree, name, NULL);
 
     /* file doesn't exist in work tree */
-    if (seaf_stat (path, &st) < 0) {
+    if (winguf_stat (path, &st) < 0) {
         g_free (path);
         return 0;
     }
@@ -371,7 +371,7 @@ static int remove_file(struct merge_options *o, int clean,
 inline static int file_exists(const char *f)
 {
     SeafStat sb;
-    return (seaf_stat (f, &sb) == 0);
+    return (winguf_stat (f, &sb) == 0);
 }
 
 #if 0
@@ -427,7 +427,7 @@ static int create_leading_directories(int base_len,
         }
         buf[my_offset] = 0;
 
-        if (seaf_stat (buf, &st) == 0 && S_ISDIR(st.st_mode)) {
+        if (winguf_stat (buf, &st) == 0 && S_ISDIR(st.st_mode)) {
             continue;
         } else if (S_ISREG(st.st_mode)) {
             time_t t = time(NULL);
@@ -440,7 +440,7 @@ static int create_leading_directories(int base_len,
             n = snprintf (&buf[my_offset], SEAF_PATH_MAX - my_offset,
                           " (%s %s)", conflict_suffix, time_buf);
             my_offset += n;
-            if (seaf_stat (buf, &st) == 0 && S_ISDIR(st.st_mode))
+            if (winguf_stat (buf, &st) == 0 && S_ISDIR(st.st_mode))
                 continue;
         }
         
@@ -468,7 +468,7 @@ static int make_room_for_path(struct index_state *index, const char *path,
         return -1;
     }
 
-    if (seaf_stat (*new_path, &st) == 0 && S_ISDIR(st.st_mode)) {
+    if (winguf_stat (*new_path, &st) == 0 && S_ISDIR(st.st_mode)) {
         if (g_rmdir (*new_path) < 0) {
             g_warning ("failed to remove directory %s.\n", *new_path);
             /* Don't return error since we can handle conflict later. */
@@ -547,7 +547,7 @@ static int update_file_flags(struct merge_options *o,
          * Note that file is clean only when it's added by others.
          */
         if (update_cache && o->recover_merge && 
-            seaf_stat(real_path, &st) == 0 && S_ISREG(st.st_mode)) {
+            winguf_stat(real_path, &st) == 0 && S_ISREG(st.st_mode)) {
             if (compare_file_content (real_path, &st, sha, 
                                       o->crypt) == 0) {
                 goto update_cache;
@@ -566,7 +566,7 @@ static int update_file_flags(struct merge_options *o,
 
         gboolean conflicted;
         rawdata_to_hex(sha, file_id, 20);
-        if (seaf_fs_manager_checkout_file(seaf->fs_mgr, 
+        if (winguf_fs_manager_checkout_file(winguf->fs_mgr, 
                                           file_id,
                                           real_path,
                                           mode,
@@ -741,7 +741,7 @@ static int process_df_entry(struct merge_options *o,
         clean_merge = 0;
         /* Modify/delete; deleted side may have put a directory in the way */
         if (b_sha) {
-            if (seaf_stat (real_path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            if (winguf_stat (real_path, &st) == 0 && S_ISDIR(st.st_mode)) {
                 /* D/F conflict. */
                 /* If b is an empty dir, don't check it out. */
                 if (S_ISDIR(b_mode))
@@ -770,7 +770,7 @@ static int process_df_entry(struct merge_options *o,
     } else if (!o_sha && !!a_sha != !!b_sha) {
         /* directory -> (directory, file) */
         if (b_sha) {
-            if (seaf_stat (real_path, &st) == 0 && S_ISDIR(st.st_mode)) {
+            if (winguf_stat (real_path, &st) == 0 && S_ISDIR(st.st_mode)) {
                 /* D/F conflict. */
                 clean_merge = 0;
 
@@ -884,9 +884,9 @@ int merge_recursive(struct merge_options *o,
 
     *clean = 1;
 
-    head = seaf_fs_manager_get_seafdir (seaf->fs_mgr, h1_root);
-    remote = seaf_fs_manager_get_seafdir (seaf->fs_mgr, h2_root);
-    common = seaf_fs_manager_get_seafdir (seaf->fs_mgr, ca_root);
+    head = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, h1_root);
+    remote = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, h2_root);
+    common = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, ca_root);
     if (!head || !remote || !common) {
         g_warning ("Invalid commits!\n");
         return -1;
@@ -941,9 +941,9 @@ int merge_recursive(struct merge_options *o,
     }
 
 out:
-    seaf_dir_free (head);
-    seaf_dir_free (remote);
-    seaf_dir_free (common);
+    winguf_dir_free (head);
+    winguf_dir_free (remote);
+    winguf_dir_free (common);
     return ret;
 }
 

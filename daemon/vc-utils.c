@@ -29,12 +29,12 @@ int
 commit_trees_cb (struct cache_tree *it, struct cache_entry **cache,
                  int entries, const char *base, int baselen)
 {
-    SeafDir *seaf_dir;
+    SeafDir *winguf_dir;
     GList *dirents = NULL;
     int i;
 
     for (i = 0; i < entries; i++) {
-        SeafDirent *seaf_dent;
+        SeafDirent *winguf_dent;
         char *dirname;
         struct cache_entry *ce = cache[i];
         struct cache_tree_sub *sub;
@@ -65,10 +65,10 @@ commit_trees_cb (struct cache_tree *it, struct cache_entry **cache,
             dirname = g_strndup(path + baselen, entlen);
 
             rawdata_to_hex (sha1, hex, 20);
-            seaf_dent = seaf_dirent_new (hex, mode, dirname);
+            winguf_dent = winguf_dirent_new (hex, mode, dirname);
             g_free(dirname);
 
-            dirents = g_list_prepend (dirents, seaf_dent);
+            dirents = g_list_prepend (dirents, winguf_dent);
         } else {
             sha1 = ce->sha1;
             mode = ce->ce_mode;
@@ -76,10 +76,10 @@ commit_trees_cb (struct cache_tree *it, struct cache_entry **cache,
 
             dirname = g_strndup(path + baselen, entlen);
             rawdata_to_hex (sha1, hex, 20);
-            seaf_dent = seaf_dirent_new (hex, mode, dirname);
+            winguf_dent = winguf_dirent_new (hex, mode, dirname);
             g_free(dirname);
 
-            dirents = g_list_prepend (dirents, seaf_dent);
+            dirents = g_list_prepend (dirents, winguf_dent);
         }
 
 #if DEBUG
@@ -91,10 +91,10 @@ commit_trees_cb (struct cache_tree *it, struct cache_entry **cache,
     /* Sort dirents in descending order. */
     dirents = g_list_sort (dirents, compare_dirents);
 
-    seaf_dir = seaf_dir_new (NULL, dirents, 0);
-    hex_to_rawdata (seaf_dir->dir_id, it->sha1, 20);
+    winguf_dir = winguf_dir_new (NULL, dirents, 0);
+    hex_to_rawdata (winguf_dir->dir_id, it->sha1, 20);
 
-    seaf_dir_save (seaf->fs_mgr, seaf_dir);
+    winguf_dir_save (winguf->fs_mgr, winguf_dir);
 
 #if DEBUG
     for (p = dirents; p; p = p->next) {
@@ -103,7 +103,7 @@ commit_trees_cb (struct cache_tree *it, struct cache_entry **cache,
     }
 #endif
 
-    seaf_dir_free (seaf_dir);
+    winguf_dir_free (winguf_dir);
     return 0;
 }
 
@@ -153,7 +153,7 @@ unlink_entry (struct cache_entry *ce, struct unpack_trees_options *o)
 
     if (!S_ISDIR(ce->ce_mode)) {
         /* file doesn't exist in work tree */
-        if (seaf_stat (path, &st) < 0 || !S_ISREG(st.st_mode)) {
+        if (winguf_stat (path, &st) < 0 || !S_ISREG(st.st_mode)) {
             return 0;
         }
 
@@ -170,7 +170,7 @@ unlink_entry (struct cache_entry *ce, struct unpack_trees_options *o)
             return -1;
         }
     } else {
-        if (seaf_stat (path, &st) < 0 || !S_ISDIR(st.st_mode))
+        if (winguf_stat (path, &st) < 0 || !S_ISDIR(st.st_mode))
             return 0;
 
         if (g_rmdir (path) < 0) {
@@ -259,7 +259,7 @@ case_conflict_exists (const char *dir_path, const char *new_dname)
 
     dir = g_dir_open (dir_path, 0, &error);
     if (!dir && error) {
-        seaf_warning ("Failed to open dir %s: %s.\n", dir_path, error->message);
+        winguf_warning ("Failed to open dir %s: %s.\n", dir_path, error->message);
         g_error_free (error);
         return FALSE;
     }
@@ -359,10 +359,10 @@ build_case_conflict_free_path (const char *worktree,
 
         path = g_build_path ("/", buf->str, ptr, NULL);
         /* If path doesn't exist, case conflict is not possible. */
-        if (seaf_stat (path, &st) < 0) {
+        if (winguf_stat (path, &st) < 0) {
             if (i != n_comps - 1) {
                 if (g_mkdir (path, 0777) < 0) {
-                    seaf_warning ("Failed to create dir %s.\n", path);
+                    winguf_warning ("Failed to create dir %s.\n", path);
                     g_free (path);
                     goto error;
                 }
@@ -411,7 +411,7 @@ build_case_conflict_free_path (const char *worktree,
         case_conflict_free_path = g_build_path ("/", buf->str, dname, NULL);
         if (i != n_comps - 1) {
             if (g_mkdir (case_conflict_free_path, 0777) < 0) {
-                seaf_warning ("Failed to create dir %s.\n", case_conflict_free_path);
+                winguf_warning ("Failed to create dir %s.\n", case_conflict_free_path);
                 g_free (path);
                 g_free (dname);
                 g_free (case_conflict_free_path);
@@ -468,7 +468,7 @@ build_checkout_path (const char *worktree, const char *ce_name, int len)
             break;
         path[offset] = 0;
 
-        if (seaf_stat (path, &st) == 0 && S_ISDIR(st.st_mode))
+        if (winguf_stat (path, &st) == 0 && S_ISDIR(st.st_mode))
             continue;
         
         if (ccnet_mkdir (path, 0777) < 0) {
@@ -514,7 +514,7 @@ checkout_entry (struct cache_entry *ce,
         /* In case that we're replacing an empty dir with a file,
          * we need first to remove the empty dir.
          */
-        if (seaf_stat (path, &st) == 0 && S_ISDIR(st.st_mode)) {
+        if (winguf_stat (path, &st) == 0 && S_ISDIR(st.st_mode)) {
             if (g_rmdir (path) < 0) {
                 g_warning ("Failed to remove dir %s: %s\n", path, strerror(errno));
                 /* Don't quit since we can handle conflict later. */
@@ -533,7 +533,7 @@ checkout_entry (struct cache_entry *ce,
         return 0;
     }
 
-    if (!o->reset && seaf_stat (path, &st) == 0 && S_ISREG(st.st_mode) &&
+    if (!o->reset && winguf_stat (path, &st) == 0 && S_ISREG(st.st_mode) &&
         (ce->ce_ctime.sec != st.st_ctime || ce->ce_mtime.sec != st.st_mtime))
     {
         /* If we're recovering an interrupted merge, we don't know whether
@@ -557,7 +557,7 @@ checkout_entry (struct cache_entry *ce,
     /* then checkout the file. */
     gboolean conflicted = FALSE;
     rawdata_to_hex (ce->sha1, file_id, 20);
-    if (seaf_fs_manager_checkout_file (seaf->fs_mgr, file_id,
+    if (winguf_fs_manager_checkout_file (winguf->fs_mgr, file_id,
                                        path, ce->ce_mode,
                                        o->crypt,
                                        conflict_suffix,
@@ -589,7 +589,7 @@ update_cache:
      * or conflicts. The timestamp of the entry will remain 0 if error
      * or conflicted.
      */
-    seaf_stat (path, &st);
+    winguf_stat (path, &st);
     fill_stat_cache_info (ce, &st);
 
     g_free (path);
@@ -735,7 +735,7 @@ fill_wingufile_blocks (const unsigned char *sha1, BlockList *bl)
     int i;
 
     rawdata_to_hex (sha1, file_id, 20);
-    wingufile = seaf_fs_manager_get_wingufile (seaf->fs_mgr, file_id);
+    wingufile = winguf_fs_manager_get_wingufile (winguf->fs_mgr, file_id);
     if (!wingufile) {
         g_warning ("Failed to find file %s.\n", file_id);
         return;

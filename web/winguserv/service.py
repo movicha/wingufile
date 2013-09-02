@@ -57,7 +57,7 @@ import sys
 import ccnet
 import wingufile
 from appletRpc import AppletRpcClient
-from pysearpc import SearpcError
+from pywingurpc import SearpcError
 
 if sys.platform == 'darwin' and 'LANG' not in os.environ:
     os.environ['LANG'] = 'en_US.UTF-8'
@@ -231,7 +231,7 @@ def remove_repos_on_relay(relay_id):
             wingufile_rpc.remove_repo(repo.id)
             
 def get_default_wingufile_worktree():
-    """get seaf-daemon default worktree"""
+    """get winguf-daemon default worktree"""
     wt = wingufile_rpc.get_config("wktree")
     return wt.rstrip('/\\').replace('/\\', os.path.sep)
 

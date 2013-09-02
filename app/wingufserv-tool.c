@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 #include <wingufile-object.h>
 
@@ -80,7 +80,7 @@ getcmd (char *name)
 void usage()
 {
     fputs (
-"Usage: seafserv-tool [--version ] [-c CONF_DIR] COMMAND [ARGS]\n"
+"Usage: wingufserv-tool [--version ] [-c CONF_DIR] COMMAND [ARGS]\n"
 "\n"
 "Available commands are:\n"
 "  add-server       Add a chunk server\n"
@@ -159,9 +159,9 @@ int main (int argc, char *argv[])
         exit(1);
     }
 
-    rpc_client = ccnet_create_rpc_client (client, NULL, "seafserv-rpcserver");
+    rpc_client = ccnet_create_rpc_client (client, NULL, "wingufserv-rpcserver");
     threaded_rpc_client = ccnet_create_rpc_client (client, NULL,
-                                                   "seafserv-threaded-rpcserver");
+                                                   "wingufserv-threaded-rpcserver");
 
     argc -= 2;
     argv += 2;
@@ -178,7 +178,7 @@ static int add_server (int argc, char **argv)
     GError *error = NULL;
 
     if (argc != 1) {
-        fprintf (stderr, "seafserv-tool add-server <peer id>\n");
+        fprintf (stderr, "wingufserv-tool add-server <peer id>\n");
         return -1;
     }
 
@@ -200,7 +200,7 @@ static int del_server (int argc, char **argv)
     GError *error = NULL;
 
     if (argc != 1) {
-        fprintf (stderr, "seafserv-tool del-server <peer id>\n");
+        fprintf (stderr, "wingufserv-tool del-server <peer id>\n");
         return -1;
     }
 
@@ -238,7 +238,7 @@ static int set_monitor (int argc, char **argv)
     GError *error = NULL;
 
     if (argc != 1) {
-        fprintf (stderr, "seafserv-tool set-monitor <peer id>\n");
+        fprintf (stderr, "wingufserv-tool set-monitor <peer id>\n");
         return -1;
     }
 
@@ -280,7 +280,7 @@ static int put_file (int argc, char **argv)
     int ret;
 
     if (argc != 5) {
-        fprintf (stderr, "[usage] seafserv-tool put-file <repo id> <file>"
+        fprintf (stderr, "[usage] wingufserv-tool put-file <repo id> <file>"
                  " <parent dir> <file name> <user> \n");
         return -1;
     }
@@ -312,7 +312,7 @@ static int set_user_quota (int argc, char **argv)
     gint64 quota;
 
     if (argc != 2) {
-        fprintf (stderr, "[usage] seafserv-tool set-user-quota <user> <quota>\n");
+        fprintf (stderr, "[usage] wingufserv-tool set-user-quota <user> <quota>\n");
         return -1;
     }
     user = argv[0];
@@ -334,7 +334,7 @@ static int set_org_quota (int argc, char **argv)
     gint64 quota;
 
     if (argc != 2) {
-        fprintf (stderr, "[usage] seafserv-tool set-org-quota <org-id> <quota>\n");
+        fprintf (stderr, "[usage] wingufserv-tool set-org-quota <org-id> <quota>\n");
         return -1;
     }
     org_id = atoi (argv[0]);
@@ -357,7 +357,7 @@ static int set_org_user_quota (int argc, char **argv)
     gint64 quota;
 
     if (argc != 3) {
-        fprintf (stderr, "[usage] seafserv-tool set-org-user-quota <org-id> <user> <quota>\n");
+        fprintf (stderr, "[usage] wingufserv-tool set-org-user-quota <org-id> <user> <quota>\n");
         return -1;
     }
     org_id = atoi (argv[0]);

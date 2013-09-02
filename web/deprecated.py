@@ -11,10 +11,10 @@ class PubReposFetch:
         if not peer or not inputs.op:
             raise web.seeother('/repos/fetch')
 
-        seafpub_rpc = get_seafpub_rpc (peer.props.id)
+        wingufpub_rpc = get_wingufpub_rpc (peer.props.id)
 
         # get repos info
-        all_repos = seafpub_rpc.get_repo_list(0, 100)
+        all_repos = wingufpub_rpc.get_repo_list(0, 100)
         repos = []
         op = inputs.op
         for repo in all_repos:
@@ -148,10 +148,10 @@ class pubrepos:
                                    lan_peer_id=peer_id,
                                    **default_options)
             
-        seafpub_rpc = get_seafpub_rpc(peer_id)
+        wingufpub_rpc = get_wingufpub_rpc(peer_id)
 
         # get repos info
-        repos = seafpub_rpc.get_repo_list(0, 100)
+        repos = wingufpub_rpc.get_repo_list(0, 100)
         for repo in repos:
             repo.is_broken = False
             if repo.props.size < 0 or repo.props.last_modify < 0:
@@ -211,20 +211,20 @@ def get_lan_peers():
 class pubrepo_operation:
 
     def perform_operation_get(self, op, peer_id, repo_id):
-        seafpub_rpc = get_seafpub_rpc (peer_id)
+        wingufpub_rpc = get_wingufpub_rpc (peer_id)
 
-        repo = seafpub_rpc.get_repo(repo_id)
+        repo = wingufpub_rpc.get_repo(repo_id)
         if not repo:
             raise web.seeother('/pubrepos/?peer=%s' % peer_id)
 
         if op == 'diff':
             inputs = web.webapi.input(old='', new='')
-            new_commit = seafpub_rpc.get_commit(inputs.new)
+            new_commit = wingufpub_rpc.get_commit(inputs.new)
             if inputs.old != '':
-                old_commit = seafpub_rpc.get_commit(inputs.old)
+                old_commit = wingufpub_rpc.get_commit(inputs.old)
             else:
                 old_commit = None
-            (new, removed, renamed, modified, conflict) = get_peer_diff(seafpub_rpc, repo_id, inputs.old, inputs.new)
+            (new, removed, renamed, modified, conflict) = get_peer_diff(wingufpub_rpc, repo_id, inputs.old, inputs.new)
             return render.pubrepo_diff(repo=repo,
                                        lan_peer_id=peer_id,
                                        new=new, removed=removed,
@@ -233,7 +233,7 @@ class pubrepo_operation:
                                        **default_options)
         elif op == 'dir':
             inputs = web.webapi.input(root_id='', commit_id='')
-            dirs = list_peer_dir(seafpub_rpc, inputs.root_id)
+            dirs = list_peer_dir(wingufpub_rpc, inputs.root_id)
             return render.pubrepo_dir(repo=repo,
                                       lan_peer_id=peer_id,
                                       dirs=dirs,
@@ -248,9 +248,9 @@ class pubrepo_operation:
 
 
     def perform_operation_post(self, op, peer_id, repo_id):
-        seafpub_rpc = get_seafpub_rpc (peer_id)
+        wingufpub_rpc = get_wingufpub_rpc (peer_id)
 
-        repo = seafpub_rpc.get_repo(repo_id)
+        repo = wingufpub_rpc.get_repo(repo_id)
         if not repo:
             raise web.seeother('/pubrepos/')
         raise web.seeother('/pubrepo/?peer=%s&repo=%s' % peer_id, repo_id)

@@ -11,7 +11,7 @@
 #include "wingufile-session.h"
 #include "recvcommit-v2-proc.h"
 #include "processors/objecttx-common.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 enum {
     INIT,
@@ -45,7 +45,7 @@ release_resource (CcnetProcessor *processor)
     USE_PRIV;
 
     if (priv->registered)
-        seaf_obj_store_unregister_async_write (seaf->commit_mgr->obj_store,
+        winguf_obj_store_unregister_async_write (winguf->commit_mgr->obj_store,
                                                priv->writer_id);
 
     CCNET_PROCESSOR_CLASS (wingufile_recvcommit_v2_proc_parent_class)->release_resource (processor);
@@ -82,13 +82,13 @@ recv_commit_start (CcnetProcessor *processor, int argc, char **argv)
     }
 
     session_token = argv[1];
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          processor->peer_id,
                                          session_token, NULL) == 0) {
         ccnet_processor_send_response (processor, SC_OK, SS_OK, NULL, 0);
         processor->state = RECV_OBJECT;
         priv->writer_id =
-            seaf_obj_store_register_async_write (seaf->commit_mgr->obj_store,
+            winguf_obj_store_register_async_write (winguf->commit_mgr->obj_store,
                                                  write_done_cb,
                                                  processor);
         priv->registered = TRUE;
@@ -121,7 +121,7 @@ save_commit (CcnetProcessor *processor, ObjectPack *pack, int len)
 {
     USE_PRIV;
 
-    return seaf_obj_store_async_write (seaf->commit_mgr->obj_store,
+    return winguf_obj_store_async_write (winguf->commit_mgr->obj_store,
                                        priv->writer_id,
                                        pack->id,
                                        pack->object,

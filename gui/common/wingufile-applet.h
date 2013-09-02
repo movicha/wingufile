@@ -3,7 +3,7 @@
 
 #include <glib.h>
 #include <time.h>
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 
 #define APP_NAME "Seafile"

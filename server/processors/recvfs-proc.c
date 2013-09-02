@@ -17,7 +17,7 @@
 #include "fs-mgr.h"
 #include "processors/objecttx-common.h"
 #include "recvfs-proc.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 #define CHECK_INTERVAL 100      /* 100ms */
 #define MAX_NUM_BATCH  64
@@ -88,11 +88,11 @@ release_resource(CcnetProcessor *processor)
     g_free (priv->obj_seg);
     
     if (priv->registered) {
-        seaf_obj_store_unregister_async_read (seaf->fs_mgr->obj_store,
+        winguf_obj_store_unregister_async_read (winguf->fs_mgr->obj_store,
                                               priv->reader_id);
-        seaf_obj_store_unregister_async_write (seaf->fs_mgr->obj_store,
+        winguf_obj_store_unregister_async_write (winguf->fs_mgr->obj_store,
                                                priv->writer_id);
-        seaf_obj_store_unregister_async_stat (seaf->fs_mgr->obj_store,
+        winguf_obj_store_unregister_async_stat (winguf->fs_mgr->obj_store,
                                               priv->stat_id);
     }
 
@@ -158,7 +158,7 @@ request_object_batch (CcnetProcessor *processor,
 }
 
 static int
-check_seafdir (CcnetProcessor *processor, SeafDir *dir)
+check_wingufdir (CcnetProcessor *processor, SeafDir *dir)
 {
     USE_PRIV;
     GList *ptr;
@@ -178,11 +178,11 @@ check_seafdir (CcnetProcessor *processor, SeafDir *dir)
             g_queue_push_tail (priv->dir_queue, g_strdup(dent->id));
         } else {
 #ifdef DEBUG
-            seaf_debug ("[recvfs] Inspect file %s.\n", dent->id);
+            winguf_debug ("[recvfs] Inspect file %s.\n", dent->id);
 #endif
 
             /* For file, we just need to check existence. */
-            if (seaf_obj_store_async_stat (seaf->fs_mgr->obj_store,
+            if (winguf_obj_store_async_stat (winguf->fs_mgr->obj_store,
                                            priv->stat_id,
                                            dent->id) < 0) {
                 g_warning ("[recvfs] Failed to start async stat of %s.\n",
@@ -206,7 +206,7 @@ bad:
 }
 
 static void
-on_seafdir_read (OSAsyncResult *res, void *cb_data)
+on_wingufdir_read (OSAsyncResult *res, void *cb_data)
 {
     CcnetProcessor *processor = cb_data;
     SeafDir *dir;
@@ -221,18 +221,18 @@ on_seafdir_read (OSAsyncResult *res, void *cb_data)
     }
 
 #ifdef DEBUG
-    seaf_debug ("[recvfs] Read seafdir %s.\n", res->obj_id);
+    winguf_debug ("[recvfs] Read wingufdir %s.\n", res->obj_id);
 #endif
 
-    dir = seaf_dir_from_data (res->obj_id, res->data, res->len);
+    dir = winguf_dir_from_data (res->obj_id, res->data, res->len);
     if (!dir) {
         g_warning ("[recvfs] Corrupt dir object %s.\n", res->obj_id);
         request_object_batch (processor, priv, res->obj_id);
         return;
     }
 
-    int ret = check_seafdir (processor, dir);
-    seaf_dir_free (dir);
+    int ret = check_wingufdir (processor, dir);
+    winguf_dir_free (dir);
     if (ret < 0)
         return;
 }
@@ -246,7 +246,7 @@ on_wingufile_stat (OSAsyncResult *res, void *cb_data)
     --(priv->inspect_objects);
 
 #ifdef DEBUG
-    seaf_debug ("[recvfs] Stat wingufile %s.\n", res->obj_id);
+    winguf_debug ("[recvfs] Stat wingufile %s.\n", res->obj_id);
 #endif
 
     if (!res->success)
@@ -267,7 +267,7 @@ on_fs_write (OSAsyncResult *res, void *cb_data)
     }
 
 #ifdef DEBUG
-    seaf_debug ("[recvfs] Wrote fs object %s.\n", res->obj_id);
+    winguf_debug ("[recvfs] Wrote fs object %s.\n", res->obj_id);
 #endif
 }
 
@@ -283,10 +283,10 @@ check_end_condition (CcnetProcessor *processor)
             break;
 
 #ifdef DEBUG
-        seaf_debug ("[recvfs] Inspect dir %s.\n", dir_id);
+        winguf_debug ("[recvfs] Inspect dir %s.\n", dir_id);
 #endif
 
-        if (seaf_obj_store_async_read (seaf->fs_mgr->obj_store,
+        if (winguf_obj_store_async_read (winguf->fs_mgr->obj_store,
                                        priv->reader_id,
                                        dir_id) < 0) {
             g_warning ("[recvfs] Failed to start async read of %s.\n", dir_id);
@@ -302,15 +302,15 @@ check_end_condition (CcnetProcessor *processor)
     }
 
     if (priv->checking_dirs > 100)
-        seaf_debug ("Number of checking dirs: %d.\n", priv->checking_dirs);
+        winguf_debug ("Number of checking dirs: %d.\n", priv->checking_dirs);
     if (priv->inspect_objects > 1000)
-        seaf_debug ("Number of inspect objects: %d.\n", priv->inspect_objects);
+        winguf_debug ("Number of inspect objects: %d.\n", priv->inspect_objects);
 
     /* Flush periodically. */
     request_object_batch_flush (processor, priv);
 
     if (priv->pending_objects == 0 && priv->inspect_objects == 0) {
-        seaf_debug ("Recv fs end.\n");
+        winguf_debug ("Recv fs end.\n");
         ccnet_processor_send_response (processor, SC_END, SS_END, NULL, 0);
         ccnet_processor_done (processor, TRUE);
         return FALSE;
@@ -324,13 +324,13 @@ register_async_io (CcnetProcessor *processor)
     USE_PRIV;
 
     priv->registered = TRUE;
-    priv->reader_id = seaf_obj_store_register_async_read (seaf->fs_mgr->obj_store,
-                                                          on_seafdir_read,
+    priv->reader_id = winguf_obj_store_register_async_read (winguf->fs_mgr->obj_store,
+                                                          on_wingufdir_read,
                                                           processor);
-    priv->stat_id = seaf_obj_store_register_async_stat (seaf->fs_mgr->obj_store,
+    priv->stat_id = winguf_obj_store_register_async_stat (winguf->fs_mgr->obj_store,
                                                           on_wingufile_stat,
                                                           processor);
-    priv->writer_id = seaf_obj_store_register_async_write (seaf->fs_mgr->obj_store,
+    priv->writer_id = winguf_obj_store_register_async_write (winguf->fs_mgr->obj_store,
                                                            on_fs_write,
                                                            processor);
 }
@@ -348,7 +348,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     }
 
     session_token = argv[0];
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          NULL,
                                          processor->peer_id,
                                          session_token, NULL) == 0) {
@@ -371,7 +371,7 @@ save_fs_object (CcnetProcessor *processor, ObjectPack *pack, int len)
 {
     USE_PRIV;
 
-    return seaf_obj_store_async_write (seaf->fs_mgr->obj_store,
+    return winguf_obj_store_async_write (winguf->fs_mgr->obj_store,
                                        priv->writer_id,
                                        pack->id,
                                        pack->object,
@@ -390,20 +390,20 @@ recv_fs_object (CcnetProcessor *processor, char *content, int clen)
         goto bad;
     }
 
-    seaf_debug ("[recvfs] Recv fs object %.8s.\n", pack->id);
+    winguf_debug ("[recvfs] Recv fs object %.8s.\n", pack->id);
 
     --priv->pending_objects;
 
-    type = seaf_metadata_type_from_data(pack->object, clen);
+    type = winguf_metadata_type_from_data(pack->object, clen);
     if (type == SEAF_METADATA_TYPE_DIR) {
         SeafDir *dir;
-        dir = seaf_dir_from_data (pack->id, pack->object, clen - 41);
+        dir = winguf_dir_from_data (pack->id, pack->object, clen - 41);
         if (!dir) {
             g_warning ("Bad directory object %s.\n", pack->id);
             goto bad;
         }
-        int ret = check_seafdir (processor, dir);
-        seaf_dir_free (dir);
+        int ret = check_wingufdir (processor, dir);
+        winguf_dir_free (dir);
         if (ret < 0)
             goto bad;
     } else if (type == SEAF_METADATA_TYPE_FILE) {
@@ -443,7 +443,7 @@ recv_fs_object_seg (CcnetProcessor *processor, char *content, int clen)
     priv->obj_seg = g_realloc (priv->obj_seg, priv->obj_seg_len + clen);
     memcpy (priv->obj_seg + priv->obj_seg_len, content, clen);
 
-    seaf_debug ("[recvfs] Get obj seg: <id= %40s, offset= %d, lenth= %d>\n",
+    winguf_debug ("[recvfs] Get obj seg: <id= %40s, offset= %d, lenth= %d>\n",
                 priv->obj_seg, priv->obj_seg_len, clen);
 
     priv->obj_seg_len += clen;
@@ -489,7 +489,7 @@ process_fsroot_list (CcnetProcessor *processor)
         }
 
 #ifdef DEBUG
-        seaf_debug ("[recvfs] Inspect object %s.\n", object_id);
+        winguf_debug ("[recvfs] Inspect object %s.\n", object_id);
 #endif
 
         g_queue_push_tail (priv->dir_queue, g_strdup(object_id));

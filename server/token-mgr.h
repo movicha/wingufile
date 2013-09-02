@@ -3,25 +3,25 @@
 #ifndef SEAF_TOKEN_MGR_H
 #define SEAF_TOKEN_MGR_H
 
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 struct _SeafileSession;
 struct TokenManagerPriv;
 
 struct _SeafTokenManager {
-    struct _SeafileSession  *seaf;
+    struct _SeafileSession  *winguf;
     struct TokenManagerPriv *priv;
 };
 typedef struct _SeafTokenManager SeafTokenManager;
 
 SeafTokenManager *
-seaf_token_manager_new (struct _SeafileSession *session);
+winguf_token_manager_new (struct _SeafileSession *session);
 
 /* Generate a token, signed by me.
  * This is called by a master server.
  */
 char *
-seaf_token_manager_generate_token (SeafTokenManager *mgr,
+winguf_token_manager_generate_token (SeafTokenManager *mgr,
                                    const char *client_id,
                                    const char *repo_id);
 
@@ -31,7 +31,7 @@ seaf_token_manager_generate_token (SeafTokenManager *mgr,
  * If the token is valid, repo id will be stored in @ret_repo_id.
  */
 int
-seaf_token_manager_verify_token (SeafTokenManager *mgr,
+winguf_token_manager_verify_token (SeafTokenManager *mgr,
                                  SearpcClient *rpc_client,
                                  const char *peer_id,
                                  char *token,
@@ -42,7 +42,7 @@ seaf_token_manager_verify_token (SeafTokenManager *mgr,
  * This function should only be called after the token has been verified.
  */
 void
-seaf_token_manager_invalidate_token (SeafTokenManager *mgr,
+winguf_token_manager_invalidate_token (SeafTokenManager *mgr,
                                      char *token);
 #endif
 

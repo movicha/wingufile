@@ -32,7 +32,7 @@ Table of Contents
 ===============
 
   mkdir ~/wingufile-client
-  ./seaf-cli init -d ~/wingufile-client
+  ./winguf-cli init -d ~/wingufile-client
 
 
 2.2 Start wingufile client
@@ -40,7 +40,7 @@ Table of Contents
 
 
 
-  ./seaf-cli start
+  ./winguf-cli start
 
 
 
@@ -51,9 +51,9 @@ Table of Contents
 
    Then:
 
-   seaf-cli download -l "the id of the library" -s  "the url + port of server" -d "the folder where the library folder will be downloaded" -u "username on server" [-p "password"]
+   winguf-cli download -l "the id of the library" -s  "the url + port of server" -d "the folder where the library folder will be downloaded" -u "username on server" [-p "password"]
 
-   seaf-cli status  # check status of ongoing downloads
+   winguf-cli status  # check status of ongoing downloads
 
    # Name  Status  Progress
    # Apps    downloading     9984/10367, 9216.1KB/s
@@ -62,14 +62,14 @@ Table of Contents
 2.4 stop wingufile client
 ========================
 
-  ./seaf-cli stop
+  ./winguf-cli stop
 
 3 Uninstall
 ------------
 
   First stop the client:
 
-  seaf-cli stop
+  winguf-cli stop
 
   Then remove the data:
 

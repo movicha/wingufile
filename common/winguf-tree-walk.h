@@ -17,7 +17,7 @@ struct tree_desc {
 inline static void tree_desc_free (struct tree_desc *t)
 {
 	if (t->tree)
-		seaf_dir_free (t->tree);
+		winguf_dir_free (t->tree);
 }
 
 struct traverse_info;

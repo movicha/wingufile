@@ -1,7 +1,7 @@
 /* -*- Mode: C; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 #include "common.h"
-#include "seaf-tree-walk.h"
+#include "winguf-tree-walk.h"
 /* #include "cache-tree.h" */
 #include "unpack-trees.h"
 /* #include "vc-utils.h" */
@@ -739,7 +739,7 @@ static int verify_uptodate_1(struct cache_entry *ce,
         return 0;
 
     snprintf(full_path, SEAF_PATH_MAX, "%s/%s", o->base, ce->name);
-    if (!seaf_stat (full_path, &st)) {
+    if (!winguf_stat (full_path, &st)) {
         unsigned changed = ie_match_stat(o->src_index, ce, &st, CE_MATCH_IGNORE_VALID|CE_MATCH_IGNORE_SKIP_WORKTREE);
         if (!changed)
             return 0;
@@ -904,7 +904,7 @@ static int verify_absent_1(struct cache_entry *ce,
         return 0;
 
     snprintf (full_path, SEAF_PATH_MAX, "%s/%s", o->base, ce->name);
-    if (!seaf_stat (full_path, &st) && S_ISREG(st.st_mode))
+    if (!winguf_stat (full_path, &st) && S_ISREG(st.st_mode))
         return o->gently ? -1:
             add_rejected_path(o, error_type, ce->name);
     /* return check_ok_to_remove(ce->name, ce_namelen(ce), */
@@ -1294,7 +1294,7 @@ int oneway_merge(struct cache_entry **src, struct unpack_trees_options *o)
             SeafStat st;
             char full_path[SEAF_PATH_MAX];
             snprintf (full_path, SEAF_PATH_MAX, "%s/%s", o->base, old->name);
-            if (seaf_stat (full_path, &st) ||
+            if (winguf_stat (full_path, &st) ||
                 ie_match_stat(o->src_index, old, &st, CE_MATCH_IGNORE_VALID|CE_MATCH_IGNORE_SKIP_WORKTREE))
                 update |= CE_UPDATE;
         }

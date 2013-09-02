@@ -88,9 +88,9 @@ encrypt_token (CcnetProcessor *processor, const char *token)
     if (!token)
         goto out;
 
-    peer = ccnet_get_peer(seaf->ccnetrpc_client, processor->peer_id);
+    peer = ccnet_get_peer(winguf->ccnetrpc_client, processor->peer_id);
     if (!peer || !peer->session_key) {
-        seaf_warning ("[check tx v3] peer or peer session key not exist\n");
+        winguf_warning ("[check tx v3] peer or peer session key not exist\n");
         goto out;
     }
 
@@ -107,7 +107,7 @@ encrypt_token (CcnetProcessor *processor, const char *token)
     
     /* encrypt the token with session key, including the trailing null byte */
     if (wingufile_encrypt (&enc_out, &len, token, strlen(token) + 1, crypt) < 0) {
-        seaf_warning ("[check tx v3] failed to encrypt token\n");
+        winguf_warning ("[check tx v3] failed to encrypt token\n");
         goto out;
     }
 

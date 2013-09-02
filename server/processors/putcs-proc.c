@@ -39,7 +39,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     GList *chunk_servers, *cs;
     char *cs_id;
 
-    chunk_servers = seaf_cs_manager_get_chunk_servers (seaf->cs_mgr);
+    chunk_servers = winguf_cs_manager_get_chunk_servers (winguf->cs_mgr);
     cs = chunk_servers;
     while (cs) {
         cs_id = cs->data;
@@ -47,12 +47,12 @@ start (CcnetProcessor *processor, int argc, char **argv)
         /* The public ip of myself is not set. We just send my id to
          * clients, they should already have my ip address.
          */
-        if (strcmp (cs_id, seaf->session->base.id) == 0) {
+        if (strcmp (cs_id, winguf->session->base.id) == 0) {
             g_string_append_printf (buf, "%s\n", cs_id);
             goto next;
         }
 
-        CcnetPeer *peer = ccnet_get_peer (seaf->ccnetrpc_client, cs_id);
+        CcnetPeer *peer = ccnet_get_peer (winguf->ccnetrpc_client, cs_id);
         if (!peer || !peer->public_addr) {
             /* do nothing */
             if (peer)

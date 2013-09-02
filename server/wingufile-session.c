@@ -24,8 +24,8 @@
 
 #include "monitor-rpc-wrappers.h"
 
-#include "seaf-db.h"
-#include "seaf-utils.h"
+#include "winguf-db.h"
+#include "winguf-utils.h"
 
 #define CONNECT_INTERVAL_MSEC 10 * 1000
 
@@ -85,7 +85,7 @@ wingufile_session_new(const char *wingufile_dir,
     }
 
     session = g_new0(SeafileSession, 1);
-    session->seaf_dir = abs_wingufile_dir;
+    session->winguf_dir = abs_wingufile_dir;
     session->tmp_file_dir = tmp_file_dir;
     session->session = ccnet_session;
     session->config_db = config_db;
@@ -103,47 +103,47 @@ wingufile_session_new(const char *wingufile_dir,
         goto onerror;
     }
 
-    session->fs_mgr = seaf_fs_manager_new (session, abs_wingufile_dir);
+    session->fs_mgr = winguf_fs_manager_new (session, abs_wingufile_dir);
     if (!session->fs_mgr)
         goto onerror;
-    session->block_mgr = seaf_block_manager_new (session, abs_wingufile_dir);
+    session->block_mgr = winguf_block_manager_new (session, abs_wingufile_dir);
     if (!session->block_mgr)
         goto onerror;
-    session->commit_mgr = seaf_commit_manager_new (session);
+    session->commit_mgr = winguf_commit_manager_new (session);
     if (!session->commit_mgr)
         goto onerror;
-    session->repo_mgr = seaf_repo_manager_new (session);
+    session->repo_mgr = winguf_repo_manager_new (session);
     if (!session->repo_mgr)
         goto onerror;
-    session->branch_mgr = seaf_branch_manager_new (session);
+    session->branch_mgr = winguf_branch_manager_new (session);
     if (!session->branch_mgr)
         goto onerror;
 
-    session->cs_mgr = seaf_cs_manager_new (session);
+    session->cs_mgr = winguf_cs_manager_new (session);
     if (!session->cs_mgr)
         goto onerror;
 
-    session->share_mgr = seaf_share_manager_new (session);
+    session->share_mgr = winguf_share_manager_new (session);
     if (!session->share_mgr)
         goto onerror;
     
-    session->web_at_mgr = seaf_web_at_manager_new (session);
+    session->web_at_mgr = winguf_web_at_manager_new (session);
     if (!session->web_at_mgr)
         goto onerror;
 
-    session->token_mgr = seaf_token_manager_new (session);
+    session->token_mgr = winguf_token_manager_new (session);
     if (!session->token_mgr)
         goto onerror;
 
-    session->passwd_mgr = seaf_passwd_manager_new (session);
+    session->passwd_mgr = winguf_passwd_manager_new (session);
     if (!session->passwd_mgr)
         goto onerror;
 
-    session->quota_mgr = seaf_quota_manager_new (session);
+    session->quota_mgr = winguf_quota_manager_new (session);
     if (!session->quota_mgr)
         goto onerror;
 
-    session->listen_mgr = seaf_listen_manager_new (session);
+    session->listen_mgr = winguf_listen_manager_new (session);
     if (!session->listen_mgr)
         goto onerror;
 
@@ -156,7 +156,7 @@ wingufile_session_new(const char *wingufile_dir,
     if (!session->ev_mgr)
         goto onerror;
 
-    session->mq_mgr = seaf_mq_manager_new (session);
+    session->mq_mgr = winguf_mq_manager_new (session);
     if (!session->mq_mgr)
         goto onerror;
 
@@ -174,24 +174,24 @@ onerror:
 int
 wingufile_session_init (SeafileSession *session)
 {
-    if (seaf_commit_manager_init (session->commit_mgr) < 0)
+    if (winguf_commit_manager_init (session->commit_mgr) < 0)
         return -1;
 
-    if (seaf_fs_manager_init (session->fs_mgr) < 0)
+    if (winguf_fs_manager_init (session->fs_mgr) < 0)
         return -1;
 
-    if (seaf_branch_manager_init (session->branch_mgr) < 0)
+    if (winguf_branch_manager_init (session->branch_mgr) < 0)
         return -1;
 
-    if (seaf_repo_manager_init (session->repo_mgr) < 0)
+    if (winguf_repo_manager_init (session->repo_mgr) < 0)
         return -1;
 
-    if (seaf_quota_manager_init (session->quota_mgr) < 0)
+    if (winguf_quota_manager_init (session->quota_mgr) < 0)
         return -1;
 
-    seaf_mq_manager_init (session->mq_mgr);
-    seaf_mq_manager_set_heartbeat_name (session->mq_mgr,
-                                        "seaf_server.heartbeat");
+    winguf_mq_manager_init (session->mq_mgr);
+    winguf_mq_manager_set_heartbeat_name (session->mq_mgr,
+                                        "winguf_server.heartbeat");
 
     return 0;
 }
@@ -204,32 +204,32 @@ wingufile_session_start (SeafileSession *session)
         return -1;
     }
 
-    if (seaf_cs_manager_start (session->cs_mgr) < 0) {
+    if (winguf_cs_manager_start (session->cs_mgr) < 0) {
         g_error ("Failed to start chunk server manager.\n");
         return -1;
     }
 
-    if (seaf_share_manager_start (session->share_mgr) < 0) {
+    if (winguf_share_manager_start (session->share_mgr) < 0) {
         g_error ("Failed to start share manager.\n");
         return -1;
     }
 
-    if (seaf_web_at_manager_start (session->web_at_mgr) < 0) {
+    if (winguf_web_at_manager_start (session->web_at_mgr) < 0) {
         g_error ("Failed to start web access check manager.\n");
         return -1;
     }
 
-    if (seaf_passwd_manager_start (session->passwd_mgr) < 0) {
+    if (winguf_passwd_manager_start (session->passwd_mgr) < 0) {
         g_error ("Failed to start password manager.\n");
         return -1;
     }
 
-    if (seaf_mq_manager_start (session->mq_mgr) < 0) {
+    if (winguf_mq_manager_start (session->mq_mgr) < 0) {
         g_error ("Failed to start mq manager.\n");
         return -1;
     }
 
-    if (seaf_listen_manager_start (session->listen_mgr) < 0) {
+    if (winguf_listen_manager_start (session->listen_mgr) < 0) {
         g_error ("Failed to start listen manager.\n");
         return -1;
     }

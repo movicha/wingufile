@@ -56,16 +56,16 @@ start (CcnetProcessor *processor, int argc, char **argv)
     const char *repo_id = argv[0];
     const char *token = argv[1];
 
-    seaf_debug ("[notifysync-slave] Receive notify sync repo %s from %s\n",
+    winguf_debug ("[notifysync-slave] Receive notify sync repo %s from %s\n",
                 repo_id, processor->peer_id);
 
-    if (!seaf_repo_manager_repo_exists (seaf->repo_mgr, repo_id)) {
+    if (!winguf_repo_manager_repo_exists (winguf->repo_mgr, repo_id)) {
         ccnet_processor_send_response (processor, SC_BAD_REPO, SS_BAD_REPO, NULL, 0);
         ccnet_processor_done (processor, FALSE);
         return -1;
     }
 
-    seaf_sync_manager_add_sync_task (seaf->sync_mgr, repo_id,
+    winguf_sync_manager_add_sync_task (winguf->sync_mgr, repo_id,
                                      processor->peer_id,
                                      token, TRUE, NULL);
     ccnet_processor_send_response (processor, SC_OK, SS_OK,

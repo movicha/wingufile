@@ -29,12 +29,12 @@ struct _SeafShareManagerPriv {
 static void item_got_cb (CcnetKVItem *item, void *vmanager);
 
 SeafShareManager*
-seaf_share_manager_new (SeafileSession *seaf)
+winguf_share_manager_new (SeafileSession *winguf)
 {
     SeafShareManager *mgr = g_new0 (SeafShareManager, 1);
     mgr->priv = g_new0 (SeafShareManagerPriv, 1);
     
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
 
     mgr->priv->sinfo_hash = g_hash_table_new (g_str_hash, g_str_equal);
     mgr->priv->group_index = g_hash_table_new_full (
@@ -46,16 +46,16 @@ seaf_share_manager_new (SeafileSession *seaf)
 }
 
 int
-seaf_share_manager_init (SeafShareManager *mgr)
+winguf_share_manager_init (SeafShareManager *mgr)
 {
 
     return 0;
 }
 
 
-int seaf_share_manager_start (SeafShareManager *mgr)
+int winguf_share_manager_start (SeafShareManager *mgr)
 {
-    CcnetClient *ccnet_session = mgr->seaf->session;
+    CcnetClient *ccnet_session = mgr->winguf->session;
 
     mgr->priv->kv_proc = (CcnetKvclientProc *) 
         ccnet_proc_factory_create_master_processor (ccnet_session->proc_factory,
@@ -133,7 +133,7 @@ remove_share_item (SeafShareManager *share_mgr, const char *id)
     list = g_list_remove (list, info);
     g_hash_table_insert (share_mgr->priv->repo_index, 
                          g_strdup(info->repo_id), list);
-    seaf_share_info_free (info);
+    winguf_share_info_free (info);
 }
 
 static void
@@ -145,7 +145,7 @@ send_info (SeafShareManager *share_mgr, SeafShareInfo *info)
     item->category = SHAREINFO_KV_CATEGORY;
     item->group_id = info->group_id;
     item->id = info->id;
-    item->value = seaf_share_info_to_json (info);
+    item->value = winguf_share_info_to_json (info);
     item->timestamp = info->timestamp;
 
     ccnet_kvclient_proc_put_item (share_mgr->priv->kv_proc, item);
@@ -155,12 +155,12 @@ send_info (SeafShareManager *share_mgr, SeafShareInfo *info)
 }
 
 const char *
-seaf_share_manager_share (SeafShareManager *share_mgr,
+winguf_share_manager_share (SeafShareManager *share_mgr,
                           const char *repo_id,
                           const char *group_id)
 {
     SeafShareInfo *info;    
-    char *my_id = share_mgr->seaf->session->base.user_id;
+    char *my_id = share_mgr->winguf->session->base.user_id;
 
     g_return_val_if_fail (repo_id != NULL && group_id != NULL, NULL);
 
@@ -171,7 +171,7 @@ seaf_share_manager_share (SeafShareManager *share_mgr,
         return NULL;
     }
 
-    info = seaf_share_info_new (NULL, repo_id, group_id, my_id, 0);
+    info = winguf_share_info_new (NULL, repo_id, group_id, my_id, 0);
     add_share_item (share_mgr, info);
 
     send_info (share_mgr, info);
@@ -180,7 +180,7 @@ seaf_share_manager_share (SeafShareManager *share_mgr,
 }
 
 int
-seaf_share_manager_unshare (SeafShareManager *share_mgr,
+winguf_share_manager_unshare (SeafShareManager *share_mgr,
                             const char *id)
 {
     SeafShareInfo *info;
@@ -211,7 +211,7 @@ seaf_share_manager_unshare (SeafShareManager *share_mgr,
 }
 
 GList *
-seaf_share_manager_list_share_info_by_repo (SeafShareManager *mgr,
+winguf_share_manager_list_share_info_by_repo (SeafShareManager *mgr,
                                             const char *repo_id)
 {
     return g_hash_table_lookup (mgr->priv->repo_index, repo_id);
@@ -219,7 +219,7 @@ seaf_share_manager_list_share_info_by_repo (SeafShareManager *mgr,
 
 #if 0
 GList *
-seaf_share_manager_list_share_info (SeafShareManager *mgr,
+winguf_share_manager_list_share_info (SeafShareManager *mgr,
                                     int offset,
                                     int limit)
 {
@@ -228,7 +228,7 @@ seaf_share_manager_list_share_info (SeafShareManager *mgr,
 #endif
 
 GList *
-seaf_share_manager_list_share_info_by_group (SeafShareManager *mgr,
+winguf_share_manager_list_share_info_by_group (SeafShareManager *mgr,
                                              const char *group_id)
 {
     return g_hash_table_lookup (mgr->priv->group_index, group_id);
@@ -250,7 +250,7 @@ item_got_cb (CcnetKVItem *item, void *vmanager)
         return;
     }
 
-    if ((info = seaf_share_info_from_json (item->value)) == NULL)
+    if ((info = winguf_share_info_from_json (item->value)) == NULL)
         return;
     
     g_assert (strcmp(item->id, info->id) == 0);

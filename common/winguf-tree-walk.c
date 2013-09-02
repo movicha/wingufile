@@ -4,7 +4,7 @@
 
 #include "wingufile-session.h"
 #include "fs-mgr.h"
-#include "seaf-tree-walk.h"
+#include "winguf-tree-walk.h"
 #include "utils.h"
 
 #include <stdio.h>
@@ -22,7 +22,7 @@ fill_tree_descriptor(struct tree_desc *desc, const char *root_id)
         return;
     }
 
-    dir = seaf_fs_manager_get_seafdir_sorted (seaf->fs_mgr, root_id);
+    dir = winguf_fs_manager_get_wingufdir_sorted (winguf->fs_mgr, root_id);
     if (!dir) {
         g_warning ("Failed to fill tree descriptor with %s.\n", root_id);
         desc->tree = NULL;

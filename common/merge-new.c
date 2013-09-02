@@ -22,13 +22,13 @@ merge_conflict_filename (const char *remote_head,
 
     conflict_suffix = get_last_changer_of_file (remote_head, path);
     if (!conflict_suffix) {
-        commit = seaf_commit_manager_get_commit (seaf->commit_mgr, remote_head);
+        commit = winguf_commit_manager_get_commit (winguf->commit_mgr, remote_head);
         if (!commit) {
-            seaf_warning ("Failed to find remote head %s.\n", remote_head);
+            winguf_warning ("Failed to find remote head %s.\n", remote_head);
             goto out;
         }
         conflict_suffix = g_strdup(commit->creator_name);
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
     }
 
     conflict_name = gen_conflict_path (filename, conflict_suffix);
@@ -47,13 +47,13 @@ merge_conflict_dirname (const char *remote_head,
     char *conflict_suffix = NULL, *conflict_name = NULL;
     SeafCommit *commit;
 
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr, remote_head);
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr, remote_head);
     if (!commit) {
-        seaf_warning ("Failed to find remote head %s.\n", remote_head);
+        winguf_warning ("Failed to find remote head %s.\n", remote_head);
         goto out;
     }
     conflict_suffix = g_strdup(commit->creator_name);
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
 
     conflict_name = gen_conflict_path (dirname, conflict_suffix);
 
@@ -96,23 +96,23 @@ merge_entries (int n, SeafDirent *dents[],
 
     if (head && remote) {
         if (strcmp (head->id, remote->id) == 0) {
-            seaf_debug ("%s%s: files match\n", basedir, head->name);
+            winguf_debug ("%s%s: files match\n", basedir, head->name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
         } else if (base && strcmp (base->id, head->id) == 0) {
-            seaf_debug ("%s%s: unchanged in head, changed in remote\n",
+            winguf_debug ("%s%s: unchanged in head, changed in remote\n",
                         basedir, head->name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(remote));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(remote));
         } else if (base && strcmp (base->id, remote->id) == 0) {
-            seaf_debug ("%s%s: unchanged in remote, changed in head\n",
+            winguf_debug ("%s%s: unchanged in remote, changed in head\n",
                         basedir, head->name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
         } else {
             /* File content conflict. */
 
-            seaf_debug ("%s%s: files conflict\n", basedir, head->name);
+            winguf_debug ("%s%s: files conflict\n", basedir, head->name);
 
             conflict_name = merge_conflict_filename(opt->remote_head,
                                                     basedir,
@@ -127,8 +127,8 @@ merge_entries (int n, SeafDirent *dents[],
             remote->name_len = strlen (remote->name);
             g_free (conflict_name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(remote));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(remote));
         }
     } else if (base && !head && remote) {
         if (strcmp (base->id, remote->id) != 0) {
@@ -136,7 +136,7 @@ merge_entries (int n, SeafDirent *dents[],
                 /* D/F conflict:
                  * Head replaces file with dir, while remote change the file.
                  */
-                seaf_debug ("%s%s: DFC, file -> dir, file\n",
+                winguf_debug ("%s%s: DFC, file -> dir, file\n",
                             basedir, remote->name);
 
                 conflict_name = merge_conflict_filename(opt->remote_head,
@@ -151,21 +151,21 @@ merge_entries (int n, SeafDirent *dents[],
                 remote->name_len = strlen (remote->name);
                 g_free (conflict_name);
 
-                *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(remote));
+                *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(remote));
             } else {
                 /* Deleted in head and changed in remote. */
 
-                seaf_debug ("%s%s: deleted in head and changed in remote\n",
+                winguf_debug ("%s%s: deleted in head and changed in remote\n",
                             basedir, remote->name);
 
                 /* Keep version of remote. */
-                *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(remote));
+                *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(remote));
             }
         } else {
             /* If base and remote match, the file should not be added to
              * the merge result.
              */
-            seaf_debug ("%s%s: file deleted in head, unchanged in remote\n",
+            winguf_debug ("%s%s: file deleted in head, unchanged in remote\n",
                         basedir, remote->name);
         }
     } else if (base && head && !remote) {
@@ -174,7 +174,7 @@ merge_entries (int n, SeafDirent *dents[],
                 /* D/F conflict:
                  * Remote replaces file with dir, while head change the file.
                  */
-                seaf_debug ("%s%s: DFC, file -> file, dir\n",
+                winguf_debug ("%s%s: DFC, file -> file, dir\n",
                             basedir, head->name);
 
                 /* We use remote head commit author name as conflict
@@ -190,37 +190,37 @@ merge_entries (int n, SeafDirent *dents[],
                 dents[2]->name_len = strlen (dents[2]->name);
                 g_free (conflict_name);
 
-                *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
+                *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
             } else {
                 /* Deleted in remote and changed in head. */
 
-                seaf_debug ("%s%s: deleted in remote and changed in head\n",
+                winguf_debug ("%s%s: deleted in remote and changed in head\n",
                             basedir, head->name);
 
                 /* Keep version of remote. */
-                *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
+                *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
             }
         } else {
             /* If base and head match, the file should not be added to
              * the merge result.
              */
-            seaf_debug ("%s%s: file deleted in remote, unchanged in head\n",
+            winguf_debug ("%s%s: file deleted in remote, unchanged in head\n",
                         basedir, head->name);
         }
     } else if (!base && !head && remote) {
         if (!dents[1]) {
             /* Added in remote. */
-            seaf_debug ("%s%s: added in remote\n", basedir, remote->name);
+            winguf_debug ("%s%s: added in remote\n", basedir, remote->name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(remote));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(remote));
         } else if (dents[0] != NULL && strcmp(dents[0]->id, dents[1]->id) == 0) {
             /* Contents in the dir is not changed.
              * The dir will be deleted in merge_directories().
              */
-            seaf_debug ("%s%s: dir in head will be replaced by file in remote\n",
+            winguf_debug ("%s%s: dir in head will be replaced by file in remote\n",
                         basedir, remote->name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(remote));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(remote));
         } else {
             /* D/F conflict:
              * Contents of the dir is changed in head, while
@@ -230,7 +230,7 @@ merge_entries (int n, SeafDirent *dents[],
              * with the same name.
              */
 
-            seaf_debug ("%s%s: DFC, dir -> dir, file\n", basedir, remote->name);
+            winguf_debug ("%s%s: DFC, dir -> dir, file\n", basedir, remote->name);
 
             conflict_name = merge_conflict_filename(opt->remote_head,
                                                     basedir,
@@ -242,22 +242,22 @@ merge_entries (int n, SeafDirent *dents[],
             remote->name_len = strlen (remote->name);
             g_free (conflict_name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(remote));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(remote));
         }
     } else if (!base && head && !remote) {
         if (!dents[2]) {
             /* Added in remote. */
-            seaf_debug ("%s%s: added in head\n", basedir, head->name);
+            winguf_debug ("%s%s: added in head\n", basedir, head->name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
         } else if (dents[0] != NULL && strcmp(dents[0]->id, dents[2]->id) == 0) {
             /* Contents in the dir is not changed.
              * The dir will be deleted in merge_directories().
              */
-            seaf_debug ("%s%s: dir in remote will be replaced by file in head\n",
+            winguf_debug ("%s%s: dir in remote will be replaced by file in head\n",
                         basedir, head->name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
         } else {
             /* D/F conflict:
              * Contents of the dir is changed in remote, while
@@ -267,7 +267,7 @@ merge_entries (int n, SeafDirent *dents[],
              * with the same name.
              */
 
-            seaf_debug ("%s%s: DFC, dir -> file, dir\n", basedir, head->name);
+            winguf_debug ("%s%s: DFC, dir -> file, dir\n", basedir, head->name);
 
             conflict_name = merge_conflict_dirname (opt->remote_head,
                                                     basedir, dents[2]->name);
@@ -278,11 +278,11 @@ merge_entries (int n, SeafDirent *dents[],
             dents[2]->name_len = strlen (dents[2]->name);
             g_free (conflict_name);
 
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(head));
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(head));
         }
     } else if (base && !head && !remote) {
         /* Don't need to add anything to dents_out. */
-        seaf_debug ("%s%s: deleted in head and remote\n", basedir, base->name);
+        winguf_debug ("%s%s: deleted in head and remote\n", basedir, base->name);
     }
 
     return 0;
@@ -307,7 +307,7 @@ merge_directories (int n, SeafDirent *dents[],
             dir_mask |= 1 << i;
     }
 
-    seaf_debug ("dir_mask = %d\n", dir_mask);
+    winguf_debug ("dir_mask = %d\n", dir_mask);
 
     if (n == 3 && opt->do_merge) {
         switch (dir_mask) {
@@ -315,57 +315,57 @@ merge_directories (int n, SeafDirent *dents[],
             g_assert (0);
         case 1:
             /* head and remote are not dirs, nothing to merge. */
-            seaf_debug ("%s%s: no dir, no need to merge\n", basedir, dents[0]->name);
+            winguf_debug ("%s%s: no dir, no need to merge\n", basedir, dents[0]->name);
             return 0;
         case 2:
             /* only head is dir, add to result directly, no need to merge. */
-            seaf_debug ("%s%s: only head is dir\n", basedir, dents[1]->name);
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(dents[1]));
+            winguf_debug ("%s%s: only head is dir\n", basedir, dents[1]->name);
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(dents[1]));
             return 0;
         case 3:
             if (strcmp (dents[0]->id, dents[1]->id) == 0) {
                 /* Base and head are the same, but deleted in remote. */
-                seaf_debug ("%s%s: dir deleted in remote\n", basedir, dents[0]->name);
+                winguf_debug ("%s%s: dir deleted in remote\n", basedir, dents[0]->name);
                 return 0;
             }
-            seaf_debug ("%s%s: dir changed in head but deleted in remote\n",
+            winguf_debug ("%s%s: dir changed in head but deleted in remote\n",
                         basedir, dents[1]->name);
             break;
         case 4:
             /* only remote is dir, add to result directly, no need to merge. */
-            seaf_debug ("%s%s: only remote is dir\n", basedir, dents[2]->name);
-            *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(dents[2]));
+            winguf_debug ("%s%s: only remote is dir\n", basedir, dents[2]->name);
+            *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(dents[2]));
             return 0;
         case 5:
             if (strcmp (dents[0]->id, dents[2]->id) == 0) {
                 /* Base and remote are the same, but deleted in head. */
-                seaf_debug ("%s%s: dir deleted in head\n", basedir, dents[0]->name);
+                winguf_debug ("%s%s: dir deleted in head\n", basedir, dents[0]->name);
                 return 0;
             }
-            seaf_debug ("%s%s: dir changed in remote but deleted in head\n",
+            winguf_debug ("%s%s: dir changed in remote but deleted in head\n",
                         basedir, dents[2]->name);
             break;
         case 6:
         case 7:
             if (strcmp (dents[1]->id, dents[2]->id) == 0) {
                 /* Head and remote match. */
-                seaf_debug ("%s%s: dir is the same in head and remote\n",
+                winguf_debug ("%s%s: dir is the same in head and remote\n",
                             basedir, dents[1]->name);
-                *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(dents[1]));
+                *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(dents[1]));
                 return 0;
             } else if (dents[0] && strcmp(dents[0]->id, dents[1]->id) == 0) {
-                seaf_debug ("%s%s: dir changed in remote but unchanged in head\n",
+                winguf_debug ("%s%s: dir changed in remote but unchanged in head\n",
                             basedir, dents[1]->name);
-                *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(dents[2]));
+                *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(dents[2]));
                 return 0;
             } else if (dents[0] && strcmp(dents[0]->id, dents[2]->id) == 0) {
-                seaf_debug ("%s%s: dir changed in head but unchanged in remote\n",
+                winguf_debug ("%s%s: dir changed in head but unchanged in remote\n",
                             basedir, dents[1]->name);
-                *dents_out = g_list_prepend (*dents_out, seaf_dirent_dup(dents[1]));
+                *dents_out = g_list_prepend (*dents_out, winguf_dirent_dup(dents[1]));
                 return 0;
             }
 
-            seaf_debug ("%s%s: dir is changed in both head and remote, "
+            winguf_debug ("%s%s: dir is changed in both head and remote, "
                         "merge recursively\n", basedir, dents[1]->name);
             break;
         default:
@@ -376,9 +376,9 @@ merge_directories (int n, SeafDirent *dents[],
     memset (sub_dirs, 0, sizeof(sub_dirs[0])*n);
     for (i = 0; i < n; ++i) {
         if (dents[i] != NULL && S_ISDIR(dents[i]->mode)) {
-            dir = seaf_fs_manager_get_seafdir (seaf->fs_mgr, dents[i]->id);
+            dir = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, dents[i]->id);
             if (!dir) {
-                seaf_warning ("Failed to find dir %s.\n", dents[i]->id);
+                winguf_warning ("Failed to find dir %s.\n", dents[i]->id);
                 ret = -1;
                 goto free_sub_dirs;
             }
@@ -397,11 +397,11 @@ merge_directories (int n, SeafDirent *dents[],
 
     if (n == 3 && opt->do_merge) {
         if (dir_mask == 3 || dir_mask == 6 || dir_mask == 7) {
-            merged_dent = seaf_dirent_dup (dents[1]);
+            merged_dent = winguf_dirent_dup (dents[1]);
             memcpy (merged_dent->id, opt->merged_tree_root, 40);
             *dents_out = g_list_prepend (*dents_out, merged_dent);
         } else if (dir_mask == 5) {
-            merged_dent = seaf_dirent_dup (dents[2]);
+            merged_dent = winguf_dirent_dup (dents[2]);
             memcpy (merged_dent->id, opt->merged_tree_root, 40);
             *dents_out = g_list_prepend (*dents_out, merged_dent);
         }
@@ -409,7 +409,7 @@ merge_directories (int n, SeafDirent *dents[],
 
 free_sub_dirs:
     for (i = 0; i < n; ++i)
-        seaf_dir_free (sub_dirs[i]);
+        winguf_dir_free (sub_dirs[i]);
 
     return ret;
 }
@@ -500,18 +500,18 @@ merge_trees_recursive (int n, SeafDir *trees[],
 
     if (n == 3 && opt->do_merge) {
         merged_dents = g_list_sort (merged_dents, compare_dirents);
-        merged_tree = seaf_dir_new (NULL, merged_dents, 0);
+        merged_tree = winguf_dir_new (NULL, merged_dents, 0);
 
         memcpy (opt->merged_tree_root, merged_tree->dir_id, 40);
 
         if ((trees[1] && strcmp (trees[1]->dir_id, merged_tree->dir_id) == 0) ||
             (trees[2] && strcmp (trees[2]->dir_id, merged_tree->dir_id) == 0)) {
-            seaf_dir_free (merged_tree);
+            winguf_dir_free (merged_tree);
         } else {
-            ret = seaf_dir_save (seaf->fs_mgr, merged_tree);
-            seaf_dir_free (merged_tree);
+            ret = winguf_dir_save (winguf->fs_mgr, merged_tree);
+            winguf_dir_free (merged_tree);
             if (ret < 0) {
-                seaf_warning ("Failed to save merged tree %s.\n", basedir);
+                winguf_warning ("Failed to save merged tree %s.\n", basedir);
             }
         }
     }
@@ -520,7 +520,7 @@ merge_trees_recursive (int n, SeafDir *trees[],
 }
 
 int
-seaf_merge_trees (int n, const char *roots[], MergeOptions *opt)
+winguf_merge_trees (int n, const char *roots[], MergeOptions *opt)
 {
     SeafDir **trees, *root;
     int i, ret;
@@ -529,9 +529,9 @@ seaf_merge_trees (int n, const char *roots[], MergeOptions *opt)
 
     trees = g_new0 (SeafDir *, n);
     for (i = 0; i < n; ++i) {
-        root = seaf_fs_manager_get_seafdir (seaf->fs_mgr, roots[i]);
+        root = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, roots[i]);
         if (!root) {
-            seaf_warning ("Failed to find dir %s.\n", roots[i]);
+            winguf_warning ("Failed to find dir %s.\n", roots[i]);
             g_free (trees);
             return -1;
         }
@@ -541,7 +541,7 @@ seaf_merge_trees (int n, const char *roots[], MergeOptions *opt)
     ret = merge_trees_recursive (n, trees, "", opt);
 
     for (i = 0; i < n; ++i)
-        seaf_dir_free (trees[i]);
+        winguf_dir_free (trees[i]);
     g_free (trees);
 
     return ret;

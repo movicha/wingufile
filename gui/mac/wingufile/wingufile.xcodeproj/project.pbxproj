@@ -55,14 +55,14 @@
 		456D19B9166CD36E001C044D /* libwingufile.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1981166CD36E001C044D /* libwingufile.0.dylib */; };
 		456D19BA166CD36E001C044D /* libwingufile.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1981166CD36E001C044D /* libwingufile.0.dylib */; };
 		456D19BB166CD36E001C044D /* libwingufile.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1981166CD36E001C044D /* libwingufile.0.dylib */; };
-		456D19BC166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D19BD166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D19BE166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D19BF166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D19C0166CD36E001C044D /* libsearpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
-		456D19C1166CD36E001C044D /* libsearpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
-		456D19C2166CD36E001C044D /* libsearpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
-		456D19C3166CD36E001C044D /* libsearpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
+		456D19BC166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D19BD166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D19BE166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D19BF166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D19C0166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
+		456D19C1166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
+		456D19C2166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
+		456D19C3166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
 		456D19CC166CD36E001C044D /* libuuid.16.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1986166CD36E001C044D /* libuuid.16.dylib */; };
 		456D19CD166CD36E001C044D /* libuuid.16.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1986166CD36E001C044D /* libuuid.16.dylib */; };
 		456D19CE166CD36E001C044D /* libuuid.16.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1986166CD36E001C044D /* libuuid.16.dylib */; };
@@ -71,10 +71,10 @@
 		456D19D1166CD36E001C044D /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1987166CD36E001C044D /* libz.1.dylib */; };
 		456D19D2166CD36E001C044D /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1987166CD36E001C044D /* libz.1.dylib */; };
 		456D19D3166CD36E001C044D /* libz.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1987166CD36E001C044D /* libz.1.dylib */; };
-		456D19D5166CD386001C044D /* seaf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* seaf-daemon */; };
-		456D19D6166CD386001C044D /* seaf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* seaf-daemon */; };
-		456D19D7166CD386001C044D /* seaf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* seaf-daemon */; };
-		456D19D8166CD386001C044D /* seaf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* seaf-daemon */; };
+		456D19D5166CD386001C044D /* winguf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* winguf-daemon */; };
+		456D19D6166CD386001C044D /* winguf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* winguf-daemon */; };
+		456D19D7166CD386001C044D /* winguf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* winguf-daemon */; };
+		456D19D8166CD386001C044D /* winguf-daemon in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D4166CD386001C044D /* winguf-daemon */; };
 		456D19DA166CD38F001C044D /* wingufileweb.app in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D9166CD38F001C044D /* wingufileweb.app */; };
 		456D19DB166CD38F001C044D /* wingufileweb.app in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D9166CD38F001C044D /* wingufileweb.app */; };
 		456D19DC166CD38F001C044D /* wingufileweb.app in Resources */ = {isa = PBXBuildFile; fileRef = 456D19D9166CD38F001C044D /* wingufileweb.app */; };
@@ -93,8 +93,8 @@
 		456D19EA166CEC9F001C044D /* libiconv.2.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D197F166CD36E001C044D /* libiconv.2.dylib */; };
 		456D19EB166CEC9F001C044D /* libintl.8.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1980166CD36E001C044D /* libintl.8.dylib */; };
 		456D19EC166CEC9F001C044D /* libwingufile.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1981166CD36E001C044D /* libwingufile.0.dylib */; };
-		456D19ED166CEC9F001C044D /* libsearpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D19EE166CEC9F001C044D /* libsearpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
+		456D19ED166CEC9F001C044D /* libwingurpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D19EE166CEC9F001C044D /* libwingurpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
 		456D19F1166CEC9F001C044D /* libuuid.16.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1986166CD36E001C044D /* libuuid.16.dylib */; };
 		456D19F2166CEC9F001C044D /* libz.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1987166CD36E001C044D /* libz.1.dylib */; };
 		456D19F3166CECAC001C044D /* libccnet.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1976166CD36E001C044D /* libccnet.0.dylib */; };
@@ -107,8 +107,8 @@
 		456D19FB166CECAC001C044D /* libiconv.2.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D197F166CD36E001C044D /* libiconv.2.dylib */; };
 		456D19FC166CECAC001C044D /* libintl.8.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1980166CD36E001C044D /* libintl.8.dylib */; };
 		456D19FD166CECAC001C044D /* libwingufile.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1981166CD36E001C044D /* libwingufile.0.dylib */; };
-		456D19FE166CECAC001C044D /* libsearpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D19FF166CECAC001C044D /* libsearpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
+		456D19FE166CECAC001C044D /* libwingurpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D19FF166CECAC001C044D /* libwingurpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
 		456D1A02166CECAC001C044D /* libuuid.16.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1986166CD36E001C044D /* libuuid.16.dylib */; };
 		456D1A03166CECAC001C044D /* libz.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1987166CD36E001C044D /* libz.1.dylib */; };
 		456D1A04166CECB8001C044D /* libccnet.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1976166CD36E001C044D /* libccnet.0.dylib */; };
@@ -121,8 +121,8 @@
 		456D1A0C166CECB8001C044D /* libiconv.2.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D197F166CD36E001C044D /* libiconv.2.dylib */; };
 		456D1A0D166CECB8001C044D /* libintl.8.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1980166CD36E001C044D /* libintl.8.dylib */; };
 		456D1A0E166CECB8001C044D /* libwingufile.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1981166CD36E001C044D /* libwingufile.0.dylib */; };
-		456D1A0F166CECB8001C044D /* libsearpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D1A10166CECB8001C044D /* libsearpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
+		456D1A0F166CECB8001C044D /* libwingurpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D1A10166CECB8001C044D /* libwingurpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
 		456D1A13166CECB8001C044D /* libuuid.16.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1986166CD36E001C044D /* libuuid.16.dylib */; };
 		456D1A14166CECB8001C044D /* libz.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1987166CD36E001C044D /* libz.1.dylib */; };
 		456D1A15166CECC1001C044D /* libccnet.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1976166CD36E001C044D /* libccnet.0.dylib */; };
@@ -135,8 +135,8 @@
 		456D1A1D166CECC1001C044D /* libiconv.2.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D197F166CD36E001C044D /* libiconv.2.dylib */; };
 		456D1A1E166CECC1001C044D /* libintl.8.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1980166CD36E001C044D /* libintl.8.dylib */; };
 		456D1A1F166CECC1001C044D /* libwingufile.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1981166CD36E001C044D /* libwingufile.0.dylib */; };
-		456D1A20166CECC1001C044D /* libsearpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */; };
-		456D1A21166CECC1001C044D /* libsearpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libsearpc.1.dylib */; };
+		456D1A20166CECC1001C044D /* libwingurpc-json-glib.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */; };
+		456D1A21166CECC1001C044D /* libwingurpc.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1983166CD36E001C044D /* libwingurpc.1.dylib */; };
 		456D1A24166CECC1001C044D /* libuuid.16.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1986166CD36E001C044D /* libuuid.16.dylib */; };
 		456D1A25166CECC1001C044D /* libz.1.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 456D1987166CD36E001C044D /* libz.1.dylib */; };
 		456D1A28166CED65001C044D /* libsqlite3.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 456D1A26166CED65001C044D /* libsqlite3.0.dylib */; };
@@ -292,11 +292,11 @@
 		456D197F166CD36E001C044D /* libiconv.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libiconv.2.dylib; sourceTree = "<group>"; };
 		456D1980166CD36E001C044D /* libintl.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libintl.8.dylib; sourceTree = "<group>"; };
 		456D1981166CD36E001C044D /* libwingufile.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwingufile.0.dylib; sourceTree = "<group>"; };
-		456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libsearpc-json-glib.0.dylib"; sourceTree = "<group>"; };
-		456D1983166CD36E001C044D /* libsearpc.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsearpc.1.dylib; sourceTree = "<group>"; };
+		456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libwingurpc-json-glib.0.dylib"; sourceTree = "<group>"; };
+		456D1983166CD36E001C044D /* libwingurpc.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libwingurpc.1.dylib; sourceTree = "<group>"; };
 		456D1986166CD36E001C044D /* libuuid.16.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libuuid.16.dylib; sourceTree = "<group>"; };
 		456D1987166CD36E001C044D /* libz.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libz.1.dylib; sourceTree = "<group>"; };
-		456D19D4166CD386001C044D /* seaf-daemon */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "seaf-daemon"; sourceTree = "<group>"; };
+		456D19D4166CD386001C044D /* winguf-daemon */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = "winguf-daemon"; sourceTree = "<group>"; };
 		456D19D9166CD38F001C044D /* wingufileweb.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; path = wingufileweb.app; sourceTree = "<group>"; };
 		456D1A26166CED65001C044D /* libsqlite3.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libsqlite3.0.dylib; sourceTree = "<group>"; };
 		456D1A27166CED65001C044D /* libssl.1.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libssl.1.0.0.dylib; sourceTree = "<group>"; };
@@ -371,8 +371,8 @@
 				456D19B0166CD36E001C044D /* libiconv.2.dylib in Frameworks */,
 				456D19B4166CD36E001C044D /* libintl.8.dylib in Frameworks */,
 				456D19B8166CD36E001C044D /* libwingufile.0.dylib in Frameworks */,
-				456D19BC166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */,
-				456D19C0166CD36E001C044D /* libsearpc.1.dylib in Frameworks */,
+				456D19BC166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */,
+				456D19C0166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */,
 				456D19CC166CD36E001C044D /* libuuid.16.dylib in Frameworks */,
 				456D19D0166CD36E001C044D /* libz.1.dylib in Frameworks */,
 				456D1A28166CED65001C044D /* libsqlite3.0.dylib in Frameworks */,
@@ -400,8 +400,8 @@
 				456D19B1166CD36E001C044D /* libiconv.2.dylib in Frameworks */,
 				456D19B5166CD36E001C044D /* libintl.8.dylib in Frameworks */,
 				456D19B9166CD36E001C044D /* libwingufile.0.dylib in Frameworks */,
-				456D19BD166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */,
-				456D19C1166CD36E001C044D /* libsearpc.1.dylib in Frameworks */,
+				456D19BD166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */,
+				456D19C1166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */,
 				456D19CD166CD36E001C044D /* libuuid.16.dylib in Frameworks */,
 				456D19D1166CD36E001C044D /* libz.1.dylib in Frameworks */,
 				456D1A29166CED65001C044D /* libsqlite3.0.dylib in Frameworks */,
@@ -429,8 +429,8 @@
 				456D19B2166CD36E001C044D /* libiconv.2.dylib in Frameworks */,
 				456D19B6166CD36E001C044D /* libintl.8.dylib in Frameworks */,
 				456D19BA166CD36E001C044D /* libwingufile.0.dylib in Frameworks */,
-				456D19BE166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */,
-				456D19C2166CD36E001C044D /* libsearpc.1.dylib in Frameworks */,
+				456D19BE166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */,
+				456D19C2166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */,
 				456D19CE166CD36E001C044D /* libuuid.16.dylib in Frameworks */,
 				456D19D2166CD36E001C044D /* libz.1.dylib in Frameworks */,
 				456D1A2A166CED65001C044D /* libsqlite3.0.dylib in Frameworks */,
@@ -458,8 +458,8 @@
 				456D19B3166CD36E001C044D /* libiconv.2.dylib in Frameworks */,
 				456D19B7166CD36E001C044D /* libintl.8.dylib in Frameworks */,
 				456D19BB166CD36E001C044D /* libwingufile.0.dylib in Frameworks */,
-				456D19BF166CD36E001C044D /* libsearpc-json-glib.0.dylib in Frameworks */,
-				456D19C3166CD36E001C044D /* libsearpc.1.dylib in Frameworks */,
+				456D19BF166CD36E001C044D /* libwingurpc-json-glib.0.dylib in Frameworks */,
+				456D19C3166CD36E001C044D /* libwingurpc.1.dylib in Frameworks */,
 				456D19CF166CD36E001C044D /* libuuid.16.dylib in Frameworks */,
 				456D19D3166CD36E001C044D /* libz.1.dylib in Frameworks */,
 				456D1A2B166CED65001C044D /* libsqlite3.0.dylib in Frameworks */,
@@ -537,14 +537,14 @@
 				456D197F166CD36E001C044D /* libiconv.2.dylib */,
 				456D1980166CD36E001C044D /* libintl.8.dylib */,
 				456D1981166CD36E001C044D /* libwingufile.0.dylib */,
-				456D1982166CD36E001C044D /* libsearpc-json-glib.0.dylib */,
-				456D1983166CD36E001C044D /* libsearpc.1.dylib */,
+				456D1982166CD36E001C044D /* libwingurpc-json-glib.0.dylib */,
+				456D1983166CD36E001C044D /* libwingurpc.1.dylib */,
 				456D1A26166CED65001C044D /* libsqlite3.0.dylib */,
 				456D1A27166CED65001C044D /* libssl.1.0.0.dylib */,
 				456D1986166CD36E001C044D /* libuuid.16.dylib */,
 				456D1987166CD36E001C044D /* libz.1.dylib */,
 				577BBD3E1562815F00FD577C /* Other Frameworks */,
-				456D19D4166CD386001C044D /* seaf-daemon */,
+				456D19D4166CD386001C044D /* winguf-daemon */,
 				456D19D9166CD38F001C044D /* wingufileweb.app */,
 			);
 			name = Frameworks;
@@ -707,8 +707,8 @@
 				456D19EA166CEC9F001C044D /* libiconv.2.dylib in Resources */,
 				456D19EB166CEC9F001C044D /* libintl.8.dylib in Resources */,
 				456D19EC166CEC9F001C044D /* libwingufile.0.dylib in Resources */,
-				456D19ED166CEC9F001C044D /* libsearpc-json-glib.0.dylib in Resources */,
-				456D19EE166CEC9F001C044D /* libsearpc.1.dylib in Resources */,
+				456D19ED166CEC9F001C044D /* libwingurpc-json-glib.0.dylib in Resources */,
+				456D19EE166CEC9F001C044D /* libwingurpc.1.dylib in Resources */,
 				456D19F1166CEC9F001C044D /* libuuid.16.dylib in Resources */,
 				456D19F2166CEC9F001C044D /* libz.1.dylib in Resources */,
 				456D19E1166CD405001C044D /* libffi.6.dylib in Resources */,
@@ -727,7 +727,7 @@
 				57335CEC160D8DDE00018AE8 /* network-stop.png in Resources */,
 				57A0559E1644BEC0006511AA /* wingufile.icns in Resources */,
 				456D1988166CD36E001C044D /* ccnet in Resources */,
-				456D19D5166CD386001C044D /* seaf-daemon in Resources */,
+				456D19D5166CD386001C044D /* winguf-daemon in Resources */,
 				456D19DA166CD38F001C044D /* wingufileweb.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -749,8 +749,8 @@
 				456D19FB166CECAC001C044D /* libiconv.2.dylib in Resources */,
 				456D19FC166CECAC001C044D /* libintl.8.dylib in Resources */,
 				456D19FD166CECAC001C044D /* libwingufile.0.dylib in Resources */,
-				456D19FE166CECAC001C044D /* libsearpc-json-glib.0.dylib in Resources */,
-				456D19FF166CECAC001C044D /* libsearpc.1.dylib in Resources */,
+				456D19FE166CECAC001C044D /* libwingurpc-json-glib.0.dylib in Resources */,
+				456D19FF166CECAC001C044D /* libwingurpc.1.dylib in Resources */,
 				456D1A02166CECAC001C044D /* libuuid.16.dylib in Resources */,
 				456D1A03166CECAC001C044D /* libz.1.dylib in Resources */,
 				456D19E0166CD3FF001C044D /* libffi.6.dylib in Resources */,
@@ -768,7 +768,7 @@
 				57335CED160D8DDE00018AE8 /* network-stop.png in Resources */,
 				57A0559F1644BEC0006511AA /* wingufile.icns in Resources */,
 				456D1989166CD36E001C044D /* ccnet in Resources */,
-				456D19D6166CD386001C044D /* seaf-daemon in Resources */,
+				456D19D6166CD386001C044D /* winguf-daemon in Resources */,
 				456D19DB166CD38F001C044D /* wingufileweb.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -790,8 +790,8 @@
 				456D1A0C166CECB8001C044D /* libiconv.2.dylib in Resources */,
 				456D1A0D166CECB8001C044D /* libintl.8.dylib in Resources */,
 				456D1A0E166CECB8001C044D /* libwingufile.0.dylib in Resources */,
-				456D1A0F166CECB8001C044D /* libsearpc-json-glib.0.dylib in Resources */,
-				456D1A10166CECB8001C044D /* libsearpc.1.dylib in Resources */,
+				456D1A0F166CECB8001C044D /* libwingurpc-json-glib.0.dylib in Resources */,
+				456D1A10166CECB8001C044D /* libwingurpc.1.dylib in Resources */,
 				456D1A13166CECB8001C044D /* libuuid.16.dylib in Resources */,
 				456D1A14166CECB8001C044D /* libz.1.dylib in Resources */,
 				456D19DE166CD3CB001C044D /* libffi.6.dylib in Resources */,
@@ -809,7 +809,7 @@
 				57335CEE160D8DDE00018AE8 /* network-stop.png in Resources */,
 				57A055A01644BEC0006511AA /* wingufile.icns in Resources */,
 				456D198A166CD36E001C044D /* ccnet in Resources */,
-				456D19D7166CD386001C044D /* seaf-daemon in Resources */,
+				456D19D7166CD386001C044D /* winguf-daemon in Resources */,
 				456D19DC166CD38F001C044D /* wingufileweb.app in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -831,8 +831,8 @@
 				456D1A1D166CECC1001C044D /* libiconv.2.dylib in Resources */,
 				456D1A1E166CECC1001C044D /* libintl.8.dylib in Resources */,
 				456D1A1F166CECC1001C044D /* libwingufile.0.dylib in Resources */,
-				456D1A20166CECC1001C044D /* libsearpc-json-glib.0.dylib in Resources */,
-				456D1A21166CECC1001C044D /* libsearpc.1.dylib in Resources */,
+				456D1A20166CECC1001C044D /* libwingurpc-json-glib.0.dylib in Resources */,
+				456D1A21166CECC1001C044D /* libwingurpc.1.dylib in Resources */,
 				456D1A24166CECC1001C044D /* libuuid.16.dylib in Resources */,
 				456D1A25166CECC1001C044D /* libz.1.dylib in Resources */,
 				456D19DF166CD3F8001C044D /* libffi.6.dylib in Resources */,
@@ -849,7 +849,7 @@
 				57DE0B0715A9AA89006C0152 /* warning.png in Resources */,
 				57335CEF160D8DDE00018AE8 /* network-stop.png in Resources */,
 				456D198B166CD36E001C044D /* ccnet in Resources */,
-				456D19D8166CD386001C044D /* seaf-daemon in Resources */,
+				456D19D8166CD386001C044D /* winguf-daemon in Resources */,
 				456D19DD166CD38F001C044D /* wingufileweb.app in Resources */,
 				5793DC2C1764C9DC001B0DAD /* wingufile-Info.plist in Resources */,
 				5793DC2D1764C9DD001B0DAD /* wingufile-release-Info.plist in Resources */,
@@ -1072,7 +1072,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -1110,7 +1110,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -1148,7 +1148,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-release-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -1186,7 +1186,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-release-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -1224,7 +1224,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-release-10.6-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -1265,7 +1265,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-release-10.6-Info.plist";
 				LIBRARY_SEARCH_PATHS = (
@@ -1309,7 +1309,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 					../../..,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-10.6-debug-Info.plist";
@@ -1351,7 +1351,7 @@
 					"/opt/local/lib/glib-2.0/include",
 					/opt/local/include,
 					/usr/local/include,
-					/usr/local/include/searpc,
+					/usr/local/include/wingurpc,
 				);
 				INFOPLIST_FILE = "wingufile/wingufile-10.6-debug-Info.plist";
 				LIBRARY_SEARCH_PATHS = (

@@ -119,7 +119,7 @@ send_block_list_segment (CcnetProcessor *processor, BlockList *block_list)
         ptr += 40;
     }
 
-    seaf_debug ("Send %d block ids in block list segment.\n", len);
+    winguf_debug ("Send %d block ids in block list segment.\n", len);
     ccnet_processor_send_update (processor, SC_BLOCK_LIST, SS_BLOCK_LIST,
                                  buf, len * 40);
 }
@@ -129,18 +129,18 @@ process_needed_blocks (CcnetProcessor *processor, TransferTask *task,
                        char *content, int clen)
 {
     if (clen == 0) {
-        seaf_debug ("No block is needed on the server.\n");
+        winguf_debug ("No block is needed on the server.\n");
         return;
     }
 
     if (clen % 40 != 0) {
-        seaf_warning ("Bad block list length %d.\n", clen);
+        winguf_warning ("Bad block list length %d.\n", clen);
         ccnet_processor_send_update (processor, SC_SHUTDOWN, SS_SHUTDOWN, NULL, 0);
         ccnet_processor_done (processor, FALSE);
         return;
     }
 
-    seaf_debug ("%d blocks are needed by the server.\n", clen/40);
+    winguf_debug ("%d blocks are needed by the server.\n", clen/40);
 
     int offset = 0;
     while (offset < clen) {
@@ -166,7 +166,7 @@ handle_response (CcnetProcessor *processor,
         process_needed_blocks (processor, task, content, clen);
         send_block_list_segment (processor, task->block_list);
     } else {
-        seaf_warning ("Bad response: %s %s.\n", code, code_msg);
+        winguf_warning ("Bad response: %s %s.\n", code, code_msg);
         ccnet_processor_done (processor, FALSE);
     }
 }

@@ -9,14 +9,14 @@ AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 	-I$(top_builddir)/lib \
 	-I$(top_srcdir)/common \
 	@CCNET_CFLAGS@ \
-	@SEARPC_CFLAGS@ \
+	@WINGURPC_CFLAGS@ \
 	@GLIB2_CFLAGS@ \
 	@ZDB_CFLAGS@ \
 	@MSVC_CFLAGS@ \
 	@CURL_CFLAGS@ \
 	-Wall
 
-bin_PROGRAMS = seaf-server
+bin_PROGRAMS = winguf-server
 
 proc_headers = $(addprefix processors/, \
 	recvfs-proc.h \
@@ -47,8 +47,8 @@ noinst_HEADERS = web-accesstoken-mgr.h chunkserv-mgr.h wingufile-session.h \
 	block-tx-server.h \
 	$(proc_headers)
 
-seaf_server_SOURCES = \
-	seaf-server.c \
+winguf_server_SOURCES = \
+	winguf-server.c \
 	web-accesstoken-mgr.c chunkserv-mgr.c wingufile-session.c \
 	share-mgr.c \
 	token-mgr.c \
@@ -59,21 +59,21 @@ seaf_server_SOURCES = \
 	repo-perm.c \
 	size-sched.c \
 	virtual-repo.c \
-	monitor-rpc-wrappers.c ../common/seaf-db.c \
+	monitor-rpc-wrappers.c ../common/winguf-db.c \
 	../common/wingufile-config.c ../common/bitfield.c \
 	../common/branch-mgr.c ../common/fs-mgr.c \
 	repo-mgr.c ../common/commit-mgr.c \
 	../common/log.c ../common/avl/avl.c ../common/object-list.c \
 	../common/rpc-service.c \
 	../common/vc-common.c \
-	../common/seaf-utils.c \
+	../common/winguf-utils.c \
 	../common/obj-store.c \
 	../common/obj-backend-fs.c \
 	../common/obj-backend-riak.c \
 	../common/riak-http-client.c \
 	../common/wingufile-crypt.c \
 	../common/unpack-trees.c \
-	../common/seaf-tree-walk.c \
+	../common/winguf-tree-walk.c \
 	../common/diff-simple.c \
 	../common/mq-mgr.c \
 	../common/block-mgr.c \
@@ -97,11 +97,11 @@ seaf_server_SOURCES = \
 	processors/putcs-v2-proc.c \
 	processors/checkbl-proc.c
 
-seaf_server_LDADD = @CCNET_LIBS@ \
+winguf_server_LDADD = @CCNET_LIBS@ \
 	$(top_builddir)/lib/libwingufile_common.la \
 	$(top_builddir)/common/index/libindex.la \
 	@GLIB2_LIBS@ @GOBJECT_LIBS@ -lssl @LIB_RT@ @LIB_UUID@ -lsqlite3 -levent \
 	$(top_builddir)/common/cdc/libcdc.la \
-	@SEARPC_LIBS@ @ZDB_LIBS@ @RADOS_LIBS@ @CURL_LIBS@ ${LIB_WS32}
+	@WINGURPC_LIBS@ @ZDB_LIBS@ @RADOS_LIBS@ @CURL_LIBS@ ${LIB_WS32}
 
-seaf_server_LDFLAGS = @STATIC_COMPILE@ @SERVER_PKG_RPATH@
+winguf_server_LDFLAGS = @STATIC_COMPILE@ @SERVER_PKG_RPATH@

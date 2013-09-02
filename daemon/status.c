@@ -72,7 +72,7 @@ get_dtype(const char *dname, const char *path)
     int dtype = DT_UNKNOWN;
     char *realpath = g_build_path (PATH_SEPERATOR, path, dname, NULL);
 
-    if (!seaf_stat(realpath, &st)) {
+    if (!winguf_stat(realpath, &st)) {
         if (S_ISREG(st.st_mode))
             dtype =  DT_REG;
         if (S_ISDIR(st.st_mode))
@@ -170,10 +170,10 @@ read_directory(struct dir_struct *dir,
 {
     GList *ignore_list = NULL;
 
-    ignore_list = seaf_repo_load_ignore_files(worktree);
+    ignore_list = winguf_repo_load_ignore_files(worktree);
     read_directory_recursive(dir, "", 0, 0, index, worktree,
                              ignore_func, ignore_list);
-    seaf_repo_free_ignore_files(ignore_list);
+    winguf_repo_free_ignore_files(ignore_list);
     qsort(dir->entries, dir->nr, sizeof(struct dir_entry *), cmp_name);
     return dir->nr;
 }
@@ -235,7 +235,7 @@ void wt_status_collect_changes_worktree(struct index_state *index,
     DiffEntry *de;
     int entries, i;
 
-    GList *ignore_list = seaf_repo_load_ignore_files (worktree);
+    GList *ignore_list = winguf_repo_load_ignore_files (worktree);
 
     entries = index->cache_nr;
     for (i = 0; i < entries; i++) {
@@ -275,7 +275,7 @@ void wt_status_collect_changes_worktree(struct index_state *index,
             continue;
 
         realpath = g_build_path (PATH_SEPERATOR, worktree, ce->name, NULL);
-        if (seaf_stat(realpath, &st) < 0) {
+        if (winguf_stat(realpath, &st) < 0) {
             if (errno != ENOENT && errno != ENOTDIR)
                 changed = -1;
             else
@@ -311,7 +311,7 @@ void wt_status_collect_changes_worktree(struct index_state *index,
          * ignore.txt. After that changes to this file will not committed,
          * and it should be ignored here.
          */
-        if (seaf_repo_check_ignore_file (ignore_list, realpath)) {
+        if (winguf_repo_check_ignore_file (ignore_list, realpath)) {
             g_free (realpath);
             continue;
         }
@@ -329,7 +329,7 @@ void wt_status_collect_changes_worktree(struct index_state *index,
         *results = g_list_prepend (*results, de);
     }
 
-    seaf_repo_free_ignore_files (ignore_list);
+    winguf_repo_free_ignore_files (ignore_list);
 }
 
 static struct cache_entry *
@@ -354,11 +354,11 @@ wt_status_collect_changes_index (struct index_state *index,
     int pos = 0;
     DiffEntry *de;
 
-    fs_mgr = repo->manager->seaf->fs_mgr;
-    head = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    fs_mgr = repo->manager->winguf->fs_mgr;
+    head = winguf_commit_manager_get_commit (winguf->commit_mgr,
             repo->head->commit_id);
     if (!head) {
-        seaf_warning ("Failed to get commit %s.\n", repo->head->commit_id);
+        winguf_warning ("Failed to get commit %s.\n", repo->head->commit_id);
         return;
     }
 
@@ -369,20 +369,20 @@ wt_status_collect_changes_index (struct index_state *index,
         SeafDir *root;
 
         /* call diff_index to get status */
-        root = seaf_fs_manager_get_seafdir (fs_mgr, head->root_id);
+        root = winguf_fs_manager_get_wingufdir (fs_mgr, head->root_id);
         if (!root) {
-            seaf_warning ("Failed to get root %s.\n", head->root_id);
-            seaf_commit_unref (head);
+            winguf_warning ("Failed to get root %s.\n", head->root_id);
+            winguf_commit_unref (head);
             return;
         }
 
         if (diff_index(index, root, results) < 0)
             g_warning("diff index failed\n");
-        seaf_dir_free (root);
-        seaf_commit_unref (head);
+        winguf_dir_free (root);
+        winguf_commit_unref (head);
         return;
     }
-    seaf_commit_unref (head);
+    winguf_commit_unref (head);
 
     while (1) {
         struct cache_entry *ce = next_cache_entry(index, &pos);

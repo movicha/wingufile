@@ -56,7 +56,7 @@ static void stream_callback (ConstFSEventStreamRef streamRef,
     char **paths = eventPaths;
     for (i = 0; i < numEvents; i++) {
         /* flags are unsigned long, IDs are uint64_t */
-        seaf_debug("%ld Change %llu in %s, flags %lu\n", (long)CFRunLoopGetCurrent(),
+        winguf_debug("%ld Change %llu in %s, flags %lu\n", (long)CFRunLoopGetCurrent(),
                    eventIds[i], paths[i], (unsigned long)eventFlags[i]);
     }
 #endif
@@ -67,9 +67,9 @@ static FSEventStreamRef add_watch (SeafWTMonitorPriv *priv, const char* repo_id)
     SeafRepo *repo = NULL;
     const char *path = NULL;
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
-        seaf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
+        winguf_warning ("[wt mon] cannot find repo %s.\n", repo_id);
         return 0;
     }
 
@@ -94,7 +94,7 @@ static FSEventStreamRef add_watch (SeafWTMonitorPriv *priv, const char* repo_id)
     CFRelease (pathsToWatch);
 
     if (!stream) {
-        seaf_warning ("[wt] Failed to create event stream \n");
+        winguf_warning ("[wt] Failed to create event stream \n");
         return stream;
     }
 
@@ -102,7 +102,7 @@ static FSEventStreamRef add_watch (SeafWTMonitorPriv *priv, const char* repo_id)
     FSEventStreamStart (stream);
 #ifdef FSEVENT_DEBUG
     FSEventStreamShow (stream);
-    seaf_debug ("[wt mon] Add repo %s watch success :%s.\n", repo_id, repo->worktree);
+    winguf_debug ("[wt mon] Add repo %s watch success :%s.\n", repo_id, repo->worktree);
 #endif
     return stream;
 }
@@ -117,12 +117,12 @@ static void command_read_cb (CFFileDescriptorRef fdref,
 
     n = pipereadn (priv->cmd_pipe[0], &cmd, sizeof(cmd));
     if (n != sizeof(cmd)) {
-        seaf_warning ("[wt mon] failed to read command.\n");
+        winguf_warning ("[wt mon] failed to read command.\n");
         CFFileDescriptorEnableCallBacks (fdref, kCFFileDescriptorReadCallBack);
         return;
     }
 
-    seaf_debug ("[wt mon] %ld receive command type=%d, repo=%s\n",
+    winguf_debug ("[wt mon] %ld receive command type=%d, repo=%s\n",
                 (long)CFRunLoopGetCurrent(), cmd.type, cmd.repo_id);
     handle_watch_command (priv, &cmd);
     CFFileDescriptorEnableCallBacks (fdref, kCFFileDescriptorReadCallBack);

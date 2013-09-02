@@ -371,7 +371,7 @@ echo "If you are OK with these configuration, press [ENTER] to continue."
 read dummy
 
 ccnet_init=${INSTALLPATH}/wingufile/bin/ccnet-init
-seaf_server_init=${INSTALLPATH}/wingufile/bin/seaf-server-init
+winguf_server_init=${INSTALLPATH}/wingufile/bin/winguf-server-init
 
 # -------------------------------------------
 # Create ccnet conf 
@@ -394,7 +394,7 @@ sleep 0.5
 if [[ "${use_existing_wingufile}" != "true" ]]; then
     echo "Generating wingufile configuration in ${wingufile_data_dir} ..."
     echo
-    if ! LD_LIBRARY_PATH=$WINGUFILE_LD_LIBRARY_PATH ${seaf_server_init} --wingufile-dir "${wingufile_data_dir}" \
+    if ! LD_LIBRARY_PATH=$WINGUFILE_LD_LIBRARY_PATH ${winguf_server_init} --wingufile-dir "${wingufile_data_dir}" \
         --port ${wingufile_server_port} --httpserver-port ${httpserver_port}; then
         
         echo "Failed to generate wingufile configuration"

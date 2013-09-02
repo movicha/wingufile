@@ -43,7 +43,7 @@ from urlparse import urlparse
 import ccnet
 import wingufile
 import re
-from pysearpc import SearpcError
+from pywingurpc import SearpcError
 
 ENVIRONMENT_VARIABLES = ('CCNET_CONF_DIR', 'WINGUFILE_CONF_DIR')
 
@@ -67,8 +67,8 @@ pool = ccnet.ClientPool(CCNET_CONF_PATH)
 ccnet_rpc = ccnet.CcnetRpcClient(pool, req_pool=True)
 ccnet_threaded_rpc = ccnet.CcnetThreadedRpcClient(pool, req_pool=True)
 monitor_rpc = wingufile.MonitorRpcClient(pool)
-seafserv_rpc = wingufile.ServerRpcClient(pool, req_pool=True)
-seafserv_threaded_rpc = wingufile.ServerThreadedRpcClient(pool, req_pool=True)
+wingufserv_rpc = wingufile.ServerRpcClient(pool, req_pool=True)
+wingufserv_threaded_rpc = wingufile.ServerThreadedRpcClient(pool, req_pool=True)
 
 # load ccnet server addr and port from ccnet.conf.
 # 'addr:port' is used when downloading a repo
@@ -352,7 +352,7 @@ def get_binding_peerids(email):
         peerid_list.append(peer_id)
     return peerid_list
 
-######## seafserv API ####
+######## wingufserv API ####
 
 # repo
 def get_repos():
@@ -360,14 +360,14 @@ def get_repos():
     Return repository list.
 
     """
-    return seafserv_threaded_rpc.get_repo_list("", 100)
+    return wingufserv_threaded_rpc.get_repo_list("", 100)
 
 def get_repo(repo_id):
-    return seafserv_threaded_rpc.get_repo(repo_id)
+    return wingufserv_threaded_rpc.get_repo(repo_id)
 
 def edit_repo(repo_id, name, desc, user):
     try:
-        ret = seafserv_threaded_rpc.edit_repo(repo_id, name, desc, user)
+        ret = wingufserv_threaded_rpc.edit_repo(repo_id, name, desc, user)
     except SearpcError, e:
         ret = -1
     return True if ret == 0 else False
@@ -377,7 +377,7 @@ def create_repo(name, desc, user, passwd):
     Return repo id if successfully created a repo, otherwise None.
     """
     try:
-        ret = seafserv_threaded_rpc.create_repo(name, desc, user, passwd)
+        ret = wingufserv_threaded_rpc.create_repo(name, desc, user, passwd)
     except SearpcError, e:
         logger.error(e)
         ret = None
@@ -388,7 +388,7 @@ def remove_repo(repo_id):
     Return true if successfully removed a repo, otherwise false.
     """
     try:
-        ret = seafserv_threaded_rpc.remove_repo(repo_id)
+        ret = wingufserv_threaded_rpc.remove_repo(repo_id)
     except SearpcError, e:
         logger.error(e)
         ret = -1
@@ -399,20 +399,20 @@ def list_personal_repos_by_owner(owner):
     List users owned repos in personal context.
     """
     try:
-        repos = seafserv_threaded_rpc.list_owned_repos(owner)
+        repos = wingufserv_threaded_rpc.list_owned_repos(owner)
     except SearpcError:
         repos = []
     return repos
 
 def get_repo_token_nonnull(repo_id, username):
-    return seafserv_threaded_rpc.get_repo_token_nonnull (repo_id, username)
+    return wingufserv_threaded_rpc.get_repo_token_nonnull (repo_id, username)
 
 def get_repo_owner(repo_id):
     """
     Get owner of a repo.
     """
     try:
-        ret = seafserv_threaded_rpc.get_repo_owner(repo_id)
+        ret = wingufserv_threaded_rpc.get_repo_owner(repo_id)
     except SearpcError:
         ret = ''
     return ret
@@ -422,14 +422,14 @@ def is_repo_owner(user, repo_id):
     Check whether user is repo owner.
     """
     try:
-        ret = seafserv_threaded_rpc.is_repo_owner(user, repo_id)
+        ret = wingufserv_threaded_rpc.is_repo_owner(user, repo_id)
     except SearpcError:
         ret = 0
     return ret
 
 def server_repo_size(repo_id):
     try:
-        size = seafserv_threaded_rpc.server_repo_size(repo_id)
+        size = wingufserv_threaded_rpc.server_repo_size(repo_id)
     except SearpcError:
         size = 0
     return size
@@ -440,7 +440,7 @@ def create_org_repo(repo_name, repo_desc, user, passwd, org_id):
     Create org repo, return valid repo id if success.
     """
     try:
-        repo_id = seafserv_threaded_rpc.create_org_repo(repo_name, repo_desc,
+        repo_id = wingufserv_threaded_rpc.create_org_repo(repo_name, repo_desc,
                                                         user, passwd, org_id)
     except SearpcError:
         repo_id = None
@@ -453,7 +453,7 @@ def is_org_repo(repo_id):
 
 def list_org_repos_by_owner(org_id, user):
     try:
-        repos = seafserv_threaded_rpc.list_org_repos_by_owner(org_id, user)
+        repos = wingufserv_threaded_rpc.list_org_repos_by_owner(org_id, user)
     except SearpcError:
         repos = []
     return repos
@@ -463,7 +463,7 @@ def get_org_repos(org_id, start, limit):
     List repos created in org.
     """
     try:
-        repos = seafserv_threaded_rpc.get_org_repo_list(org_id, start, limit)
+        repos = wingufserv_threaded_rpc.get_org_repo_list(org_id, start, limit)
     except SearpcError:
         repos = []
 
@@ -478,7 +478,7 @@ def get_org_id_by_repo_id(repo_id):
     Get org id according repo id.
     """
     try:
-        org_id = seafserv_threaded_rpc.get_org_id_by_repo_id(repo_id)
+        org_id = wingufserv_threaded_rpc.get_org_id_by_repo_id(repo_id)
     except SearpcError:
         org_id = -1
     return org_id
@@ -499,7 +499,7 @@ def get_org_repo_owner(repo_id):
     Get owner of org repo.
     """
     try:
-        owner = seafserv_threaded_rpc.get_org_repo_owner(repo_id)
+        owner = wingufserv_threaded_rpc.get_org_repo_owner(repo_id)
     except SearpcError:
         owner = None
     return owner
@@ -508,7 +508,7 @@ def get_org_repo_owner(repo_id):
 def get_commit(cmt_id):
     """ Get a commit. """
     try:
-        ret = seafserv_threaded_rpc.get_commit(cmt_id)
+        ret = wingufserv_threaded_rpc.get_commit(cmt_id)
     except SearpcError:
         ret = None
     return ret
@@ -516,7 +516,7 @@ def get_commit(cmt_id):
 def get_commits(repo_id, offset, limit):
     """Get commit lists."""
     try:
-        ret = seafserv_threaded_rpc.get_commit_list(repo_id, offset, limit)
+        ret = wingufserv_threaded_rpc.get_commit_list(repo_id, offset, limit)
     except SearpcError:
         ret = None
     return ret
@@ -524,7 +524,7 @@ def get_commits(repo_id, offset, limit):
 # branch
 def get_branches(repo_id):
     """Get branches of a given repo"""
-    return seafserv_threaded_rpc.branch_gets(repo_id)
+    return wingufserv_threaded_rpc.branch_gets(repo_id)
 
 # group repo
 def get_group_repos_by_owner(user):
@@ -532,14 +532,14 @@ def get_group_repos_by_owner(user):
     List user's repos that are sharing to groups
     """
     try:
-        ret = seafserv_threaded_rpc.get_group_repos_by_owner(user)
+        ret = wingufserv_threaded_rpc.get_group_repos_by_owner(user)
     except SearpcError:
         ret = []
     return ret
 
 def get_shared_groups_by_repo(repo_id):
     try:
-        group_ids = seafserv_threaded_rpc.get_shared_groups_by_repo(repo_id)
+        group_ids = wingufserv_threaded_rpc.get_shared_groups_by_repo(repo_id)
     except SearpcError:
         group_ids = ''
     if not group_ids:
@@ -571,7 +571,7 @@ def conv_repoids_to_list(repo_ids):
 def get_group_repoids(group_id):
     """Get repo ids of a given group id."""
     try:
-        repo_ids = seafserv_threaded_rpc.get_group_repoids(group_id)
+        repo_ids = wingufserv_threaded_rpc.get_group_repoids(group_id)
     except SearpcError:
         return []
 
@@ -589,7 +589,7 @@ def get_group_repos(group_id, user):
         if not repo:
             continue
 
-        repo.owner = seafserv_threaded_rpc.get_group_repo_owner(repo_id)
+        repo.owner = wingufserv_threaded_rpc.get_group_repo_owner(repo_id)
         repo.share_from_me = True if user == repo.owner else False
 
         last_commit = get_commits(repo.id, 0, 1)[0]
@@ -602,11 +602,11 @@ def get_group_repos(group_id, user):
 
 # org group repo
 def del_org_group_repo(repo_id, org_id, group_id):
-    seafserv_threaded_rpc.del_org_group_repo(repo_id, org_id, group_id)
+    wingufserv_threaded_rpc.del_org_group_repo(repo_id, org_id, group_id)
 
 def get_org_group_repoids(org_id, group_id):
     try:
-        repo_ids = seafserv_threaded_rpc.get_org_group_repoids(org_id, group_id)
+        repo_ids = wingufserv_threaded_rpc.get_org_group_repoids(org_id, group_id)
     except SearpcError:
         repo_ids = ''
 
@@ -626,7 +626,7 @@ def get_org_group_repos(org_id, group_id, user):
         if not repo:
             continue
 
-        repo.owner = seafserv_threaded_rpc.get_org_group_repo_owner(org_id,
+        repo.owner = wingufserv_threaded_rpc.get_org_group_repo_owner(org_id,
                                                                     group_id,
                                                                     repo_id)
         repo.sharecd_from_me = True if user == repo.owner else False
@@ -641,7 +641,7 @@ def get_org_group_repos(org_id, group_id, user):
 
 def get_org_groups_by_repo(org_id, repo_id):
     try:
-        group_ids = seafserv_threaded_rpc.get_org_groups_by_repo(org_id,
+        group_ids = wingufserv_threaded_rpc.get_org_groups_by_repo(org_id,
                                                                  repo_id)
     except SearpcError:
         group_ids = ''
@@ -663,7 +663,7 @@ def list_inner_pub_repos_by_owner(user):
     List a user's inner pub repos.
     """
     try:
-        ret = seafserv_threaded_rpc.list_inner_pub_repos_by_owner(user)
+        ret = wingufserv_threaded_rpc.list_inner_pub_repos_by_owner(user)
     except SearpcError:
         ret = []
     return ret
@@ -673,7 +673,7 @@ def list_inner_pub_repos(username):
     List inner pub repos, which can be access by everyone.
     """
     try:
-        shared_repos = seafserv_threaded_rpc.list_inner_pub_repos()
+        shared_repos = wingufserv_threaded_rpc.list_inner_pub_repos()
     except:
         shared_repos = []
 
@@ -685,7 +685,7 @@ def list_inner_pub_repos(username):
 
 def count_inner_pub_repos():
     try:
-        ret = seafserv_threaded_rpc.count_inner_pub_repos()
+        ret = wingufserv_threaded_rpc.count_inner_pub_repos()
     except SearpcError:
         ret = -1
     return 0 if ret < 0 else ret
@@ -696,14 +696,14 @@ def is_inner_pub_repo(repo_id):
     Return 0 if repo is not inner public, otherwise non-zero.
     """
     try:
-        ret = seafserv_threaded_rpc.is_inner_pub_repo(repo_id)
+        ret = wingufserv_threaded_rpc.is_inner_pub_repo(repo_id)
     except SearpcError:
         ret = 0
 
     return ret
 
 def unset_inner_pub_repo(repo_id):
-    seafserv_threaded_rpc.unset_inner_pub_repo(repo_id)
+    wingufserv_threaded_rpc.unset_inner_pub_repo(repo_id)
         
 # org inner pub repo
 def list_org_inner_pub_repos(org_id, username, start=None, limit=None):
@@ -711,7 +711,7 @@ def list_org_inner_pub_repos(org_id, username, start=None, limit=None):
     List org inner pub repos, which can be access by all org members.
     """
     try:
-        shared_repos = seafserv_threaded_rpc.list_org_inner_pub_repos(org_id)
+        shared_repos = wingufserv_threaded_rpc.list_org_inner_pub_repos(org_id)
     except SearpcError:
         shared_repos = []
 
@@ -729,7 +729,7 @@ def check_permission(repo_id, user):
     Return values can be 'rw' or 'r' or None.
     """
     try:
-        ret = seafserv_threaded_rpc.check_permission(repo_id, user)
+        ret = wingufserv_threaded_rpc.check_permission(repo_id, user)
     except SearpcError:
         ret = None
     return ret
@@ -739,7 +739,7 @@ def is_personal_repo(repo_id):
     Check whether repo is personal repo.
     """
     try:
-        owner = seafserv_threaded_rpc.get_repo_owner(repo_id)
+        owner = wingufserv_threaded_rpc.get_repo_owner(repo_id)
     except SearpcError:
         owner = ''
     return True if owner else False
@@ -747,17 +747,17 @@ def is_personal_repo(repo_id):
 # shared repo
 def list_share_repos(user, share_type, start, limit):
     try:
-        ret = seafserv_threaded_rpc.list_share_repos(user, share_type,
+        ret = wingufserv_threaded_rpc.list_share_repos(user, share_type,
                                                      start, limit)
     except SearpcError:
         ret = []
     return ret
 
 def remove_share(repo_id, from_user, to_user):
-    seafserv_threaded_rpc.remove_share(repo_id, from_user, to_user)
+    wingufserv_threaded_rpc.remove_share(repo_id, from_user, to_user)
 
 def unshare_group_repo(repo_id, group_id, from_user):
-    return seafserv_threaded_rpc.group_unshare_repo(repo_id, int(group_id),
+    return wingufserv_threaded_rpc.group_unshare_repo(repo_id, int(group_id),
                                                     from_user)
         
 def list_personal_shared_repos(user, user_type, start, limit):
@@ -780,7 +780,7 @@ def list_org_shared_repos(org_id, user, user_type, start, limit):
     If `user_type` is 'to_email', list repos others sahre to user.
     """
     try:
-        share_repos = seafserv_threaded_rpc.list_org_share_repos(org_id,
+        share_repos = wingufserv_threaded_rpc.list_org_share_repos(org_id,
                                                                  user, user_type,
                                                                  start, limit)
     except SearpcError:
@@ -795,7 +795,7 @@ def list_org_shared_repos(org_id, user, user_type, start, limit):
 # dir
 def list_dir_by_path(commit_id, path):
     try:
-        ret = seafserv_threaded_rpc.list_dir_by_path(commit_id, path)
+        ret = wingufserv_threaded_rpc.list_dir_by_path(commit_id, path)
     except SearpcError:
         ret = None
     return ret
@@ -806,7 +806,7 @@ def post_empty_file(repo_id, parent_dir, file_name, user):
     Return true if successfully make a new file, otherwise false.
     """
     try:
-        ret = seafserv_threaded_rpc.post_empty_file(repo_id, parent_dir,
+        ret = wingufserv_threaded_rpc.post_empty_file(repo_id, parent_dir,
                                               file_name, user)
     except SearpcError, e:
         logger.error(e)
@@ -818,7 +818,7 @@ def del_file(repo_id, parent_dir, file_name, user):
     Return true if successfully delete a file, otherwise false.
     """
     try:
-        ret = seafserv_threaded_rpc.del_file(repo_id, parent_dir,
+        ret = wingufserv_threaded_rpc.del_file(repo_id, parent_dir,
                                              file_name, user)
     except SearpcError, e:
         logger.error(e)
@@ -831,7 +831,7 @@ def is_valid_filename(file_or_dir):
     Check whether file name or directory name is valid.
     """
     try:
-        ret = seafserv_threaded_rpc.is_valid_filename('', file_or_dir)
+        ret = wingufserv_threaded_rpc.is_valid_filename('', file_or_dir)
     except SearpcError:
         ret = 0
 
@@ -839,14 +839,14 @@ def is_valid_filename(file_or_dir):
 
 def get_file_size(file_id):
     try:
-        fs = seafserv_threaded_rpc.get_file_size(file_id)
+        fs = wingufserv_threaded_rpc.get_file_size(file_id)
     except SearpcError, e:
         fs = 0
     return fs
 
 def get_file_id_by_path(repo_id, path):
     try:
-        ret = seafserv_threaded_rpc.get_file_id_by_path(repo_id, path)
+        ret = wingufserv_threaded_rpc.get_file_id_by_path(repo_id, path)
     except SearpcError, e:
         ret = ''
     return ret
@@ -857,7 +857,7 @@ def get_related_users_by_repo(repo_id):
     - members of groups to which the repo is shared
     - users to which the repo is shared
     """
-    owner = seafserv_threaded_rpc.get_repo_owner(repo_id)
+    owner = wingufserv_threaded_rpc.get_repo_owner(repo_id)
     if not owner:
         # Can't happen
         return []
@@ -899,7 +899,7 @@ def get_related_users_by_org_repo(org_id, repo_id):
             if member.user_name not in users:
                 users.append(member.user_name)
 
-    share_repos = seafserv_threaded_rpc.list_org_share_repos(org_id, \
+    share_repos = wingufserv_threaded_rpc.list_org_share_repos(org_id, \
                                         owner, 'from_email', -1, -1)
 
     for repo in share_repos:
@@ -912,7 +912,7 @@ def get_related_users_by_org_repo(org_id, repo_id):
 # quota
 def check_quota(repo_id):
     try:
-        ret = seafserv_threaded_rpc.check_quota(repo_id)
+        ret = wingufserv_threaded_rpc.check_quota(repo_id)
     except SearpcError, e:
         logger.error(e)
         ret = -1
@@ -920,7 +920,7 @@ def check_quota(repo_id):
 
 def get_user_quota(user):
     try:
-        ret = seafserv_threaded_rpc.get_user_quota(user)
+        ret = wingufserv_threaded_rpc.get_user_quota(user)
     except SearpcError, e:
         logger.error(e)
         ret = 0
@@ -928,7 +928,7 @@ def get_user_quota(user):
 
 def get_user_quota_usage(user):
     try:
-        ret = seafserv_threaded_rpc.get_user_quota_usage(user)
+        ret = wingufserv_threaded_rpc.get_user_quota_usage(user)
     except SearpcError, e:
         logger.error(e)
         ret = 0
@@ -936,7 +936,7 @@ def get_user_quota_usage(user):
 
 def get_user_share_usage(user):
     try:
-        ret = seafserv_threaded_rpc.get_user_share_usage(user)
+        ret = wingufserv_threaded_rpc.get_user_share_usage(user)
     except SearpcError, e:
         logger.error(e)
         ret = 0
@@ -945,7 +945,7 @@ def get_user_share_usage(user):
 # access token
 def web_get_access_token(repo_id, obj_id, op, username):
     try:
-        ret = seafserv_rpc.web_get_access_token(repo_id, obj_id, op, username)
+        ret = wingufserv_rpc.web_get_access_token(repo_id, obj_id, op, username)
     except SearpcError, e:
         ret = ''
     return ret
@@ -959,14 +959,14 @@ def unset_repo_passwd(repo_id, user):
     - `user`: username
     """
     try:
-        ret = seafserv_threaded_rpc.unset_passwd(repo_id, user)
+        ret = wingufserv_threaded_rpc.unset_passwd(repo_id, user)
     except SearpcError, e:
         ret = -1
     return ret
 
 def is_passwd_set(repo_id, user):
     try:
-        ret = seafserv_rpc.is_passwd_set(repo_id, user)
+        ret = wingufserv_rpc.is_passwd_set(repo_id, user)
     except SearpcError, e:
         ret = -1
     return True if ret == 1 else False
@@ -974,14 +974,14 @@ def is_passwd_set(repo_id, user):
 # repo history limit
 def get_repo_history_limit(repo_id):
     try:
-        ret = seafserv_threaded_rpc.get_repo_history_limit(repo_id)
+        ret = wingufserv_threaded_rpc.get_repo_history_limit(repo_id)
     except SearpcError, e:
         ret = -1
     return ret
 
 def set_repo_history_limit(repo_id, days):
     try:
-        ret = seafserv_threaded_rpc.set_repo_history_limit(repo_id, days)
+        ret = wingufserv_threaded_rpc.set_repo_history_limit(repo_id, days)
     except SearpcError, e:
         ret = -1
     return ret

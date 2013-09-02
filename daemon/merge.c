@@ -42,7 +42,7 @@ do_real_merge (SeafRepo *repo,
     opts.index = &istate;
     opts.worktree = repo->worktree;
     opts.ancestor = "common ancestor";
-    opts.branch1 = seaf->session->base.user_name;
+    opts.branch1 = winguf->session->base.user_name;
     opts.branch2 = remote->creator_name;
     opts.remote_head = remote->commit_id;
     opts.recover_merge = recover_merge;
@@ -65,31 +65,31 @@ do_real_merge (SeafRepo *repo,
     }
 
     if (clean) {
-        merged = seaf_commit_new (NULL,
+        merged = winguf_commit_new (NULL,
                                   repo->id,
                                   root_id,
                                   repo->email ? repo->email
-                                  : seaf->session->base.user_name,
-                                  seaf->session->base.id,
+                                  : winguf->session->base.user_name,
+                                  winguf->session->base.id,
                                   "Auto merge by wingufile system",
                                   0);
 
         merged->parent_id = g_strdup(head->commit_id);
         merged->second_parent_id = g_strdup(remote->commit_id);
 
-        seaf_repo_to_commit (repo, merged);
+        winguf_repo_to_commit (repo, merged);
 
-        if (seaf_commit_manager_add_commit (seaf->commit_mgr, merged) < 0) {
-            seaf_commit_unref (merged);
+        if (winguf_commit_manager_add_commit (winguf->commit_mgr, merged) < 0) {
+            winguf_commit_unref (merged);
             *error = g_strdup ("Internal error.\n");
             ret = -1;
             goto out;
         }
-        seaf_branch_set_commit (head_branch, merged->commit_id);
-        seaf_branch_manager_update_branch (seaf->branch_mgr, head_branch);
+        winguf_branch_set_commit (head_branch, merged->commit_id);
+        winguf_branch_manager_update_branch (winguf->branch_mgr, head_branch);
         g_debug ("Auto merged.\n");
 
-        seaf_commit_unref (merged);
+        winguf_commit_unref (merged);
     } else {
         ret = -1;
         g_debug ("Auto merge failed.\n");
@@ -118,18 +118,18 @@ merge_branches (SeafRepo *repo, SeafBranch *remote_branch, char **error,
     *real_merge = FALSE;
 
     memset (&minfo, 0, sizeof(minfo));
-    if (seaf_repo_manager_get_merge_info (repo->manager, repo->id, &minfo) < 0) {
+    if (winguf_repo_manager_get_merge_info (repo->manager, repo->id, &minfo) < 0) {
         g_warning ("Failed to get merge status of repo %s.\n", repo->id);
         return -1;
     }
 
-    head = seaf_commit_manager_get_commit (seaf->commit_mgr, repo->head->commit_id);
+    head = winguf_commit_manager_get_commit (winguf->commit_mgr, repo->head->commit_id);
     if (!head) {
         *error = g_strdup("Internal error: current branch corrupted.\n");
         return -1;
     }
 
-    remote = seaf_commit_manager_get_commit (seaf->commit_mgr, remote_branch->commit_id);
+    remote = winguf_commit_manager_get_commit (winguf->commit_mgr, remote_branch->commit_id);
     if (!remote) {
         *error = g_strdup("Invalid remote branch.\n");
         ret = -1;
@@ -145,8 +145,8 @@ merge_branches (SeafRepo *repo, SeafBranch *remote_branch, char **error,
          * The first case is a clean merge; the second case is unclean merge.
          */
         if (strcmp (head->commit_id, remote->commit_id) == 0 ||
-            seaf_repo_is_index_unmerged (repo)) {
-            seaf_repo_manager_clear_merge (repo->manager, repo->id);
+            winguf_repo_is_index_unmerged (repo)) {
+            winguf_repo_manager_clear_merge (repo->manager, repo->id);
             goto free_head;
         }
     }
@@ -154,7 +154,7 @@ merge_branches (SeafRepo *repo, SeafBranch *remote_branch, char **error,
     /* We use the same logic for normal merge and recover. */
 
     /* Set in_merge state. */
-    seaf_repo_manager_set_merge (repo->manager, repo->id, remote_branch->commit_id);
+    winguf_repo_manager_set_merge (repo->manager, repo->id, remote_branch->commit_id);
 
     common = get_merge_base (head, remote);
 
@@ -172,12 +172,12 @@ merge_branches (SeafRepo *repo, SeafBranch *remote_branch, char **error,
         g_debug ("Already up to date.\n");
     } else if (strcmp(common->commit_id, head->commit_id) == 0) {
         /* Fast forward. */
-        if (seaf_repo_checkout_commit (repo, remote, minfo.in_merge, error) < 0) {
+        if (winguf_repo_checkout_commit (repo, remote, minfo.in_merge, error) < 0) {
             ret = -1;
             goto out;
         }
-        seaf_branch_set_commit (repo->head, remote->commit_id);
-        seaf_branch_manager_update_branch (seaf->branch_mgr, repo->head);
+        winguf_branch_set_commit (repo->head, remote->commit_id);
+        winguf_branch_manager_update_branch (winguf->branch_mgr, repo->head);
 
         /* Repo info on the client is in memory. */
         g_free (repo->name);
@@ -198,13 +198,13 @@ merge_branches (SeafRepo *repo, SeafBranch *remote_branch, char **error,
 
 out:
     /* Clear in_merge state, no matter clean or not. */
-    seaf_repo_manager_clear_merge (repo->manager, repo->id);
+    winguf_repo_manager_clear_merge (repo->manager, repo->id);
 
-    seaf_commit_unref (common);
+    winguf_commit_unref (common);
 free_remote:
-    seaf_commit_unref (remote);
+    winguf_commit_unref (remote);
 free_head:
-    seaf_commit_unref (head);
+    winguf_commit_unref (head);
 
     return ret;
 }
@@ -288,7 +288,7 @@ get_new_blocks_merge (SeafRepo *repo,
     opts.index = &istate;
     opts.worktree = repo->worktree;
     opts.ancestor = "common ancestor";
-    opts.branch1 = seaf->session->base.user_name;
+    opts.branch1 = winguf->session->base.user_name;
     opts.branch2 = remote->creator_name;
     opts.collect_blocks_only = TRUE;
 
@@ -324,7 +324,7 @@ merge_get_new_block_list (SeafRepo *repo, SeafCommit *remote, BlockList **bl)
     SeafCommit *head;
     int ret = 0;
 
-    head = seaf_commit_manager_get_commit (seaf->commit_mgr, repo->head->commit_id);
+    head = winguf_commit_manager_get_commit (winguf->commit_mgr, repo->head->commit_id);
     if (!head) {
         g_warning ("current branch corrupted.\n");
         return -1;
@@ -349,9 +349,9 @@ merge_get_new_block_list (SeafRepo *repo, SeafCommit *remote, BlockList **bl)
         ret = get_new_blocks_merge (repo, head, remote, common, bl);
     }
 
-    seaf_commit_unref (common);
+    winguf_commit_unref (common);
 free_head:
-    seaf_commit_unref (head);
+    winguf_commit_unref (head);
 
     return ret;
 }

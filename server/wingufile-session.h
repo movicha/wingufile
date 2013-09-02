@@ -13,7 +13,7 @@
 #include "branch-mgr.h"
 #include "repo-mgr.h"
 #include "db.h"
-#include "seaf-db.h"
+#include "winguf-db.h"
 
 #include "chunkserv-mgr.h"
 #include "share-mgr.h"
@@ -26,7 +26,7 @@
 
 #include "mq-mgr.h"
 
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 struct _CcnetClient;
 
@@ -45,7 +45,7 @@ struct _SeafileSession {
     /* Used in threads. */
     CcnetClientPool     *client_pool;
 
-    char                *seaf_dir;
+    char                *winguf_dir;
     char                *tmp_file_dir;
     /* Config that can be changed in run-time. */
     sqlite3             *config_db;
@@ -84,7 +84,7 @@ struct _SeafileSession {
     int                  sync_thread_pool_size;
 };
 
-extern SeafileSession *seaf;
+extern SeafileSession *winguf;
 
 SeafileSession *
 wingufile_session_new(const char *wingufile_dir,

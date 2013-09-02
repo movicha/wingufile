@@ -80,7 +80,7 @@ send_encrypted_data_frame_begin (evutil_socket_t data_fd,
     enc_frame_len = htonl (enc_frame_len);
 
     if (sendn (data_fd, &enc_frame_len, sizeof(int)) < 0) {
-        seaf_warning ("Failed to send frame length: %s.\n",
+        winguf_warning ("Failed to send frame length: %s.\n",
                       evutil_socket_error_to_string(evutil_socket_geterror(data_fd)));
         return -1;
     }
@@ -99,12 +99,12 @@ send_encrypted_data (EVP_CIPHER_CTX *ctx,
     if (EVP_EncryptUpdate (ctx,
                            (unsigned char *)out_buf, &out_len,
                            (unsigned char *)buf, len) == 0) {
-        seaf_warning ("Failed to encrypt data.\n");
+        winguf_warning ("Failed to encrypt data.\n");
         return -1;
     }
 
     if (sendn (data_fd, out_buf, out_len) < 0) {
-        seaf_warning ("Failed to write data: %s.\n",
+        winguf_warning ("Failed to write data: %s.\n",
                       evutil_socket_error_to_string(evutil_socket_geterror(data_fd)));
         return -1;
     }
@@ -120,11 +120,11 @@ send_encrypted_data_frame_end (EVP_CIPHER_CTX *ctx,
     int out_len;
 
     if (EVP_EncryptFinal_ex (ctx, (unsigned char *)out_buf, &out_len) == 0) {
-        seaf_warning ("Failed to encrypt data.\n");
+        winguf_warning ("Failed to encrypt data.\n");
         return -1;
     }
     if (sendn (data_fd, out_buf, out_len) < 0) {
-        seaf_warning ("Failed to write data: %s.\n",
+        winguf_warning ("Failed to write data: %s.\n",
                       evutil_socket_error_to_string(evutil_socket_geterror(data_fd)));
         return -1;
     }
@@ -159,14 +159,14 @@ handle_frame_content (struct evbuffer *buf, FrameParser *parser)
                            (unsigned char *)out, &outlen,
                            (unsigned char *)frame,
                            parser->enc_frame_len) == 0) {
-        seaf_warning ("Failed to decrypt frame content.\n");
+        winguf_warning ("Failed to decrypt frame content.\n");
         ret = -1;
         goto out;
     }
 
     if (EVP_DecryptFinal_ex (&ctx, (unsigned char *)(out + outlen), &outlen2) == 0)
     {
-        seaf_warning ("Failed to decrypt frame content.\n");
+        winguf_warning ("Failed to decrypt frame content.\n");
         ret = -1;
         goto out;
     }
@@ -222,7 +222,7 @@ handle_frame_fragment_content (struct evbuffer *buf, FrameParser *parser)
     if (EVP_DecryptUpdate (&parser->ctx,
                            (unsigned char *)out, &outlen,
                            (unsigned char *)fragment, fragment_len) == 0) {
-        seaf_warning ("Failed to decrypt frame fragment.\n");
+        winguf_warning ("Failed to decrypt frame fragment.\n");
         ret = -1;
         goto out;
     }
@@ -237,7 +237,7 @@ handle_frame_fragment_content (struct evbuffer *buf, FrameParser *parser)
         if (EVP_DecryptFinal_ex (&parser->ctx,
                                  (unsigned char *)out,
                                  &outlen) == 0) {
-            seaf_warning ("Failed to decrypt frame fragment.\n");
+            winguf_warning ("Failed to decrypt frame fragment.\n");
             ret = -1;
             goto out;
         }

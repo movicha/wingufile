@@ -11,8 +11,8 @@
 #include "riak-client.h"
 
 #ifdef RIAK_TEST
-#undef seaf_warning
-#define seaf_warning g_warning
+#undef winguf_warning
+#define winguf_warning g_warning
 #endif
 
 struct SeafRiakClient {
@@ -27,7 +27,7 @@ typedef struct RiakObject {
 } RiakObject;
 
 SeafRiakClient *
-seaf_riak_client_new (const char *host, const char *port)
+winguf_riak_client_new (const char *host, const char *port)
 {
     SeafRiakClient *client = g_new0 (SeafRiakClient, 1);
 
@@ -39,7 +39,7 @@ seaf_riak_client_new (const char *host, const char *port)
 }
 
 void
-seaf_riak_client_free (SeafRiakClient *client)
+winguf_riak_client_free (SeafRiakClient *client)
 {
     curl_easy_cleanup (client->curl);
     g_free (client->host);
@@ -55,7 +55,7 @@ recv_object (void *contents, size_t size, size_t nmemb, void *userp)
 
     object->data = g_realloc (object->data, object->size + realsize);
     if (!object->data) {
-        seaf_warning ("[riak http] Not enough memory.\n");
+        winguf_warning ("[riak http] Not enough memory.\n");
         /* return a value other than realsize to signify an error. */
         return 0;
     }
@@ -67,7 +67,7 @@ recv_object (void *contents, size_t size, size_t nmemb, void *userp)
 }
 
 int
-seaf_riak_client_get (SeafRiakClient *client,
+winguf_riak_client_get (SeafRiakClient *client,
                       const char *bucket,
                       const char *key,
                       void **value,
@@ -127,7 +127,7 @@ send_object (void *ptr, size_t size, size_t nmemb, void *userp)
 }
 
 int
-seaf_riak_client_put (SeafRiakClient *client,
+winguf_riak_client_put (SeafRiakClient *client,
                       const char *bucket,
                       const char *key,
                       void *value,
@@ -171,7 +171,7 @@ seaf_riak_client_put (SeafRiakClient *client,
 
     rc = curl_easy_perform (curl);
     if (rc != 0) {
-        seaf_warning ("[riak http] Failed to put object [%s:%s]: %s.\n",
+        winguf_warning ("[riak http] Failed to put object [%s:%s]: %s.\n",
                       bucket, key, curl_easy_strerror(rc));
         ret = -1;
     }
@@ -185,7 +185,7 @@ seaf_riak_client_put (SeafRiakClient *client,
 }
 
 gboolean
-seaf_riak_client_query (SeafRiakClient *client,
+winguf_riak_client_query (SeafRiakClient *client,
                         const char *bucket,
                         const char *key)
 {
@@ -218,7 +218,7 @@ seaf_riak_client_query (SeafRiakClient *client,
 }
 
 int
-seaf_riak_client_delete (SeafRiakClient *client,
+winguf_riak_client_delete (SeafRiakClient *client,
                          const char *bucket,
                          const char *key,
                          int n_w)
@@ -252,7 +252,7 @@ seaf_riak_client_delete (SeafRiakClient *client,
     rc = curl_easy_perform (curl);
     status = curl_easy_getinfo (curl, CURLINFO_RESPONSE_CODE, &status);
     if (rc != 0 && status != 404) {
-        seaf_warning ("[riak http] Failed to delete object [%s:%s]: %s.\n",
+        winguf_warning ("[riak http] Failed to delete object [%s:%s]: %s.\n",
                       bucket, key, curl_easy_strerror(rc));
         ret = -1;
     }

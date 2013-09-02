@@ -78,7 +78,7 @@ obj_backend_fs_exists (ObjBackend *bend,
 
     id_to_path (bend->priv, obj_id, path);
 
-    if (seaf_stat (path, &st) == 0)
+    if (winguf_stat (path, &st) == 0)
         return TRUE;
 
     return FALSE;

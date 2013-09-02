@@ -66,7 +66,7 @@ release_resource (CcnetProcessor *processor)
 
         priv->tdata->processor_done = TRUE;
 
-        cevent_manager_unregister (seaf->ev_mgr, priv->tdata->cevent_id);
+        cevent_manager_unregister (winguf->ev_mgr, priv->tdata->cevent_id);
     }
 
     BitfieldDestruct (&proc->block_bitmap);
@@ -100,7 +100,7 @@ block_proc_start (CcnetProcessor *processor, int argc, char **argv)
     }
 
     char *session_token = argv[0];
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          processor->peer_id,
                                          session_token, NULL) < 0) {
         ccnet_processor_send_response (processor, 
@@ -131,7 +131,7 @@ release_resource (CcnetProcessor *processor)
         priv->tdata->processor_done = TRUE;
 
 #ifndef SEND
-        cevent_manager_unregister (seaf->ev_mgr, priv->tdata->cevent_id);
+        cevent_manager_unregister (winguf->ev_mgr, priv->tdata->cevent_id);
 #endif
     }
 
@@ -168,7 +168,7 @@ send_block_rsp (int cevent_id, int block_idx, int tx_bytes, int tx_time)
     blk_rsp->block_idx = block_idx;
     blk_rsp->tx_bytes = tx_bytes;
     blk_rsp->tx_time = tx_time;
-    cevent_manager_add_event (seaf->ev_mgr, 
+    cevent_manager_add_event (winguf->ev_mgr, 
                               cevent_id,
                               (void *)blk_rsp);
 }
@@ -182,7 +182,7 @@ send_block_packet (ThreadData *tdata,
                    BlockHandle *handle, 
                    evutil_socket_t sockfd)
 {
-    SeafBlockManager *block_mgr = seaf->block_mgr;
+    SeafBlockManager *block_mgr = winguf->block_mgr;
     BlockMetadata *md;
     uint32_t size;
     BlockPacket pkt;
@@ -193,7 +193,7 @@ send_block_packet (ThreadData *tdata,
     int delta = 0;
 #endif
 
-    md = seaf_block_manager_stat_block_by_handle (block_mgr, handle);
+    md = winguf_block_manager_stat_block_by_handle (block_mgr, handle);
     if (!md) {
         g_warning ("Failed to stat block %s.\n", block_id);
         return -1;
@@ -214,7 +214,7 @@ send_block_packet (ThreadData *tdata,
     t_start = get_time_microseconds ();
 #endif
     while (1) {
-        n = seaf_block_manager_read_block (block_mgr, handle, buf, 1024);
+        n = winguf_block_manager_read_block (block_mgr, handle, buf, 1024);
         if (n <= 0)
             break;
         if (sendn (sockfd, buf, n) < 0) {
@@ -248,7 +248,7 @@ send_block_packet (ThreadData *tdata,
 static int
 send_blocks (ThreadData *tdata)
 {
-    SeafBlockManager *block_mgr = seaf->block_mgr;
+    SeafBlockManager *block_mgr = winguf->block_mgr;
     BlockRequest blk_req;
     BlockHandle *handle;
     int         n;
@@ -265,7 +265,7 @@ send_blocks (ThreadData *tdata)
             return -1;
         }
 
-        handle = seaf_block_manager_open_block (block_mgr, 
+        handle = winguf_block_manager_open_block (block_mgr, 
                                                 blk_req.block_id, BLOCK_READ);
         if (!handle) {
             g_warning ("[send block] failed to open block %s.\n", 
@@ -278,8 +278,8 @@ send_blocks (ThreadData *tdata)
         if (n_sent < 0)
             return -1;
 
-        seaf_block_manager_close_block (block_mgr, handle);
-        seaf_block_manager_block_handle_free (block_mgr, handle);
+        winguf_block_manager_close_block (block_mgr, handle);
+        winguf_block_manager_block_handle_free (block_mgr, handle);
     }
 
     return 0;
@@ -305,7 +305,7 @@ typedef struct {
 static int
 recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
 {
-    SeafBlockManager *block_mgr = seaf->block_mgr;
+    SeafBlockManager *block_mgr = winguf->block_mgr;
     char *block_id;
     BlockHandle *handle;
     int n, round;
@@ -328,7 +328,7 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
             block_id = fsm->hdr.block_id;
             block_id[40] = 0;
 
-            handle = seaf_block_manager_open_block (block_mgr, 
+            handle = winguf_block_manager_open_block (block_mgr, 
                                                     block_id, BLOCK_WRITE);
             if (!handle) {
                 g_warning ("failed to open block %s.\n", block_id);
@@ -365,26 +365,26 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
             fsm->delta = 0;
         }
 
-        if (seaf_block_manager_write_block (block_mgr, handle, buf, n) < 0) {
+        if (winguf_block_manager_write_block (block_mgr, handle, buf, n) < 0) {
             g_warning ("Failed to write block %s.\n", fsm->hdr.block_id);
             return -1;
         }
 
         fsm->remain -= n;
         if (fsm->remain == 0) {
-            if (seaf_block_manager_close_block (block_mgr, handle) < 0) {
+            if (winguf_block_manager_close_block (block_mgr, handle) < 0) {
                 g_warning ("Failed to close block %s.\n", fsm->hdr.block_id);
-                seaf_block_manager_block_handle_free (seaf->block_mgr, handle);
+                winguf_block_manager_block_handle_free (winguf->block_mgr, handle);
                 return -1;
             }
 
-            if (seaf_block_manager_commit_block (block_mgr, handle) < 0) {
+            if (winguf_block_manager_commit_block (block_mgr, handle) < 0) {
                 g_warning ("Failed to commit block %s.\n", fsm->hdr.block_id);
-                seaf_block_manager_block_handle_free (seaf->block_mgr, handle);
+                winguf_block_manager_block_handle_free (winguf->block_mgr, handle);
                 return -1;
             }
 
-            seaf_block_manager_block_handle_free (block_mgr, handle);
+            winguf_block_manager_block_handle_free (block_mgr, handle);
 
             /* Notify finish receiving this block. */
             send_block_rsp (fsm->cevent_id,
@@ -561,7 +561,7 @@ get_port (CcnetProcessor *processor, char *content, int clen)
 
     tdata->port = atoi (content);
 
-    CcnetPeer *peer = ccnet_get_peer (seaf->ccnetrpc_client, processor->peer_id);
+    CcnetPeer *peer = ccnet_get_peer (winguf->ccnetrpc_client, processor->peer_id);
     if (!peer) {
         g_warning ("Invalid peer %s.\n", processor->peer_id);
         g_free (tdata);
@@ -581,18 +581,18 @@ get_port (CcnetProcessor *processor, char *content, int clen)
     }
 
 #ifdef SEND
-    tdata->cevent_id = cevent_manager_register (seaf->ev_mgr,
+    tdata->cevent_id = cevent_manager_register (winguf->ev_mgr,
                                                       sent_block_cb,
                                                       processor);
 #else
-    tdata->cevent_id = cevent_manager_register (seaf->ev_mgr,
+    tdata->cevent_id = cevent_manager_register (winguf->ev_mgr,
                                                       got_block_cb,
                                                       processor);
 #endif
 
     priv->tdata = tdata;
 
-    ccnet_job_manager_schedule_job (seaf->job_mgr,
+    ccnet_job_manager_schedule_job (winguf->job_mgr,
                                     do_transfer,
                                     thread_done,
                                     tdata);
@@ -653,7 +653,7 @@ accept_connection (int fd, short event, void *vdata)
         goto fail;
     }
 
-    ccnet_job_manager_schedule_job (seaf->job_mgr,
+    ccnet_job_manager_schedule_job (winguf->job_mgr,
                                     do_passive_transfer,
                                     thread_done,
                                     tdata);
@@ -702,7 +702,7 @@ send_port (CcnetProcessor *processor)
     tdata->task_pipe[1] = -1;
 
 #ifndef SEND
-    tdata->cevent_id = cevent_manager_register (seaf->ev_mgr,
+    tdata->cevent_id = cevent_manager_register (winguf->ev_mgr,
                                                 recv_block_cb,
                                                 processor);
 #endif
@@ -812,7 +812,7 @@ process_block_list (CcnetProcessor *processor, char *content, int clen)
     block_id = content;
     for (i = 0; i < n_blocks; ++i) {
         block_id[40] = '\0';
-        if (seaf_block_manager_block_exists(seaf->block_mgr, block_id))
+        if (winguf_block_manager_block_exists(winguf->block_mgr, block_id))
             BitfieldAdd (&bitmap, i);
         block_id += 41;
     }

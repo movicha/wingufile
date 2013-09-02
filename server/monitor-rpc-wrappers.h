@@ -1,7 +1,7 @@
 #ifndef MONITOR_RPC_WRAPPERS_H
 #define MONITOR_RPC_WRAPPERS_H
 
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 #include <ccnet.h>
 
 #if 0

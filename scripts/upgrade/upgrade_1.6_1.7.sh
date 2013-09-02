@@ -69,7 +69,7 @@ read_wingufile_data_dir
 export WINGUFILE_CONF_DIR=$wingufile_data_dir
 
 # test whether wingufile server has been stopped.
-if pgrep seaf-server 2>/dev/null 1>&2 ; then
+if pgrep winguf-server 2>/dev/null 1>&2 ; then
     echo
     echo "wingufile server is still running !"
     echo "stop it using scripts before upgrade."

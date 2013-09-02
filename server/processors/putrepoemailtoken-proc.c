@@ -85,7 +85,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     }
 
     priv->repo_id = g_strdup(argv[0]);
-    ccnet_get_binding_email_async (seaf->async_ccnetrpc_client_t, processor->peer_id,
+    ccnet_get_binding_email_async (winguf->async_ccnetrpc_client_t, processor->peer_id,
                                    get_email_cb, processor);
 
     return 0;
@@ -119,12 +119,12 @@ get_repo_token (void *vprocessor)
     USE_PRIV;
 
     priv->rsp_code = SC_OK;
-    if (!seaf_repo_manager_repo_exists (seaf->repo_mgr, priv->repo_id)) {
+    if (!winguf_repo_manager_repo_exists (winguf->repo_mgr, priv->repo_id)) {
         priv->rsp_code = SC_NO_REPO;
 
     } else {
-        priv->token = seaf_repo_manager_get_repo_token_nonnull (
-            seaf->repo_mgr, priv->repo_id, priv->email);
+        priv->token = winguf_repo_manager_get_repo_token_nonnull (
+            winguf->repo_mgr, priv->repo_id, priv->email);
         
         if (!priv->token)
             priv->rsp_code = SC_SERVER_ERROR;
@@ -169,7 +169,7 @@ handle_update (CcnetProcessor *processor,
                                        strlen(priv->token) + 1);
         ccnet_processor_done (processor, TRUE);
     } else {
-        seaf_warning ("bad update, %s : %s\n", code, code_msg);
+        winguf_warning ("bad update, %s : %s\n", code, code_msg);
         ccnet_processor_done (processor, FALSE);
     }
 

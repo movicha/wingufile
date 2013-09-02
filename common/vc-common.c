@@ -47,7 +47,7 @@ commit_tree_to_hash (SeafCommit *head)
 
     hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-    res = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    res = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                     head->commit_id,
                                                     add_to_commit_hash,
                                                     hash, FALSE);
@@ -89,14 +89,14 @@ get_independent_commits (GList *commits)
                  * drop the older one.
                  */
                 if (strcmp (rslt[i]->commit_id, c->commit_id) == 0) {
-                    seaf_commit_unref (rslt[i]);
+                    winguf_commit_unref (rslt[i]);
                     rslt[i] = NULL;
                 }
                 if (strcmp (rslt[j]->commit_id, c->commit_id) == 0) {
-                    seaf_commit_unref (rslt[j]);
+                    winguf_commit_unref (rslt[j]);
                     rslt[j] = NULL;
                 }
-                seaf_commit_unref (c);
+                winguf_commit_unref (c);
             }
         }
     }
@@ -131,7 +131,7 @@ get_merge_bases (SeafCommit *commit, void *vdata, gboolean *stop)
             data->result = g_list_insert_sorted_with_data (data->result, commit,
                                                      compare_commit_by_time,
                                                      NULL);
-            seaf_commit_ref (commit);
+            winguf_commit_ref (commit);
         }
         *stop = TRUE;
     }
@@ -170,7 +170,7 @@ merge_bases_many (SeafCommit *one, int n, SeafCommit **twos)
     data.result = NULL;
 
     for (i = 0; i < n; i++) {
-        res = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+        res = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                         twos[i]->commit_id,
                                                         get_merge_bases,
                                                         &data, FALSE);
@@ -193,7 +193,7 @@ fail:
     result = data.result;
     while (result) {
         commit = result->data;
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
         result = g_list_delete_link (result, result);
     }
     g_hash_table_destroy (commit_hash);
@@ -283,13 +283,13 @@ vc_compare_commits (const char *c1, const char *c2)
     if (strcmp (c1, c2) == 0)
         return VC_UP_TO_DATE;
 
-    commit1 = seaf_commit_manager_get_commit (seaf->commit_mgr, c1);
+    commit1 = winguf_commit_manager_get_commit (winguf->commit_mgr, c1);
     if (!commit1)
         return VC_INDEPENDENT;
 
-    commit2 = seaf_commit_manager_get_commit (seaf->commit_mgr, c2);
+    commit2 = winguf_commit_manager_get_commit (winguf->commit_mgr, c2);
     if (!commit2) {
-        seaf_commit_unref (commit1);
+        winguf_commit_unref (commit1);
         return VC_INDEPENDENT;
     }
 
@@ -304,9 +304,9 @@ vc_compare_commits (const char *c1, const char *c2)
     else
         ret = VC_INDEPENDENT;
 
-    if (ca) seaf_commit_unref (ca);
-    seaf_commit_unref (commit1);
-    seaf_commit_unref (commit2);
+    if (ca) winguf_commit_unref (ca);
+    winguf_commit_unref (commit1);
+    winguf_commit_unref (commit2);
     return ret;
 }
 
@@ -332,7 +332,7 @@ diff_parents_with_path (SeafCommit *commit,
 
     g_assert (commit->parent_id != NULL);
 
-    p1 = seaf_commit_manager_get_commit (seaf->commit_mgr, commit->parent_id);
+    p1 = winguf_commit_manager_get_commit (winguf->commit_mgr, commit->parent_id);
     if (!p1) {
         g_warning ("Failed to find commit %s.\n", commit->parent_id);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, " ");
@@ -340,23 +340,23 @@ diff_parents_with_path (SeafCommit *commit,
     }
 
     if (strcmp (p1->root_id, EMPTY_SHA1) == 0) {
-        seaf_commit_unref (p1);
+        winguf_commit_unref (p1);
         return 1;
     }
 
     if (commit->second_parent_id) {
-        p2 = seaf_commit_manager_get_commit (seaf->commit_mgr,
+        p2 = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                              commit->second_parent_id);
         if (!p2) {
             g_warning ("Failed to find commit %s.\n", commit->second_parent_id);
-            seaf_commit_unref (p1);
+            winguf_commit_unref (p1);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, " ");
             return 0;
         }
     }
 
     if (!p2) {
-        file_id_p1 = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr,
+        file_id_p1 = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr,
                                                       p1->root_id, path,
                                                       NULL,
                                                       error);
@@ -367,12 +367,12 @@ diff_parents_with_path (SeafCommit *commit,
         else
             memcpy (parent, p1->commit_id, 41);
     } else {
-        file_id_p1 = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr,
+        file_id_p1 = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr,
                                                       p1->root_id, path,
                                                       NULL, error);
         if (*error)
             goto out;
-        file_id_p2 = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr,
+        file_id_p2 = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr,
                                                       p2->root_id, path,
                                                       NULL, error);
         if (*error)
@@ -406,9 +406,9 @@ out:
     g_free (file_id_p2);
 
     if (p1)
-        seaf_commit_unref (p1);
+        winguf_commit_unref (p1);
     if (p2)
-        seaf_commit_unref (p2);
+        winguf_commit_unref (p2);
 
     return ret;
 }
@@ -431,7 +431,7 @@ get_last_changer_of_file (const char *head, const char *path)
     memcpy (commit_id, head, 41);
 
     while (1) {
-        commit = seaf_commit_manager_get_commit (seaf->commit_mgr, commit_id);
+        commit = winguf_commit_manager_get_commit (winguf->commit_mgr, commit_id);
         if (!commit)
             break;
 
@@ -439,7 +439,7 @@ get_last_changer_of_file (const char *head, const char *path)
         if (!commit->parent_id)
             break;
 
-        file_id = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr,
+        file_id = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr,
                                                    commit->root_id,
                                                    path,
                                                    NULL,
@@ -467,13 +467,13 @@ get_last_changer_of_file (const char *head, const char *path)
              * to the parent commit to traverse.
              */
             g_free (file_id);
-            seaf_commit_unref (commit);
+            winguf_commit_unref (commit);
         }
     }
 
     g_free (file_id);
     if (commit)
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
     return ret;
 }
 

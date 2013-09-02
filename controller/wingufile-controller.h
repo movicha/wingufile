@@ -6,8 +6,8 @@
  *    1. Start: start server processes:
  *
  *       - ccnet-server
- *       - seaf-server
- *       - seaf-mon
+ *       - winguf-server
+ *       - winguf-mon
  *       - httpserver
  *
  *    2. Repair:
@@ -41,7 +41,7 @@ struct _SeafileController {
 
     guint               check_process_timer;
     guint               client_io_id;
-    /* Decide whether to start seaf-server in cloud mode  */
+    /* Decide whether to start winguf-server in cloud mode  */
     gboolean            cloud_mode;
 
     int                 pid[N_PID];

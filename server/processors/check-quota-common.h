@@ -2,7 +2,7 @@
 #define CHECK_QUOTA_COMMON_H
 
 #include <ccnet.h>
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 #include <ccnet/ccnetrpc-transport.h>
 
 static SearpcClient *
@@ -54,13 +54,13 @@ check_repo_owner_quota (CcnetProcessor *processor,
     int ret = 0;
 
     /* repo is guranteed to exist before check_repo_owner_quota */
-    user = seaf_repo_manager_get_repo_owner (seaf->repo_mgr, repo_id);
+    user = winguf_repo_manager_get_repo_owner (winguf->repo_mgr, repo_id);
     if (user != NULL) {
-        quota = seaf_quota_manager_get_user_quota (seaf->quota_mgr, user);
+        quota = winguf_quota_manager_get_user_quota (winguf->quota_mgr, user);
         if (quota <= 0)
-            quota = seaf->quota_mgr->default_quota;
+            quota = winguf->quota_mgr->default_quota;
     } else {
-        org_id = seaf_repo_manager_get_repo_org (seaf->repo_mgr, repo_id);
+        org_id = winguf_repo_manager_get_repo_org (winguf->repo_mgr, repo_id);
         if (org_id < 0) {
             priv->rsp_code = g_strdup (SC_QUOTA_ERROR);
             priv->rsp_msg = g_strdup (SS_QUOTA_ERROR);
@@ -68,18 +68,18 @@ check_repo_owner_quota (CcnetProcessor *processor,
             goto out;
         }
 
-        quota = seaf_quota_manager_get_org_quota (seaf->quota_mgr, org_id);
+        quota = winguf_quota_manager_get_org_quota (winguf->quota_mgr, org_id);
         if (quota <= 0)
-            quota = seaf->quota_mgr->default_quota;
+            quota = winguf->quota_mgr->default_quota;
     }
 
     if (quota == INFINITE_QUOTA)
         return ret;
 
     if (user)
-        usage = seaf_quota_manager_get_user_usage (seaf->quota_mgr, user);
+        usage = winguf_quota_manager_get_user_usage (winguf->quota_mgr, user);
     else
-        usage = seaf_quota_manager_get_org_usage (seaf->quota_mgr, org_id);
+        usage = winguf_quota_manager_get_org_usage (winguf->quota_mgr, org_id);
 
     g_debug ("quota is %"G_GINT64_FORMAT", usage is %"G_GINT64_FORMAT"\n",
              quota, usage);

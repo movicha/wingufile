@@ -84,7 +84,7 @@ check_bl (void *vprocessor)
         memcpy (block_id, &priv->block_list[offset], 40);
         block_id[40] = 0;
 
-        if (!seaf_block_manager_block_exists(seaf->block_mgr, block_id))
+        if (!winguf_block_manager_block_exists(winguf->block_mgr, block_id))
             g_string_append (priv->buf, block_id);
 
         offset += 40;
@@ -134,7 +134,7 @@ handle_update (CcnetProcessor *processor,
         }
 
         if (clen == 0 || clen % 40 != 0) {
-            seaf_warning ("Bad block list length %d.\n", priv->len);
+            winguf_warning ("Bad block list length %d.\n", priv->len);
             ccnet_processor_send_response (processor, SC_SHUTDOWN, SS_SHUTDOWN,
                                            NULL, 0);
             ccnet_processor_done (processor, FALSE);
@@ -144,12 +144,12 @@ handle_update (CcnetProcessor *processor,
         priv->processing = TRUE;
         priv->block_list = g_memdup (content, clen);
         priv->len = clen;
-        ccnet_processor_thread_create (processor, seaf->job_mgr,
+        ccnet_processor_thread_create (processor, winguf->job_mgr,
                                        check_bl, check_bl_done, processor);
     } else if (memcmp (code, SC_BLOCK_LIST_END, 3) == 0) {
         ccnet_processor_done (processor, TRUE);
     } else {
-        seaf_warning ("Bad update: %s %s.\n", code, code_msg);
+        winguf_warning ("Bad update: %s %s.\n", code, code_msg);
         ccnet_processor_done (processor, FALSE);
     }
 }

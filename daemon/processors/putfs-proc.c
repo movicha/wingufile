@@ -62,7 +62,7 @@ send_fs_object (CcnetProcessor *processor, char *object_id)
     ObjectPack *pack = NULL;
     int pack_size;
 
-    if (seaf_obj_store_read_obj (seaf->fs_mgr->obj_store,
+    if (winguf_obj_store_read_obj (winguf->fs_mgr->obj_store,
                                  object_id, (void**)&data, &len) < 0) {
         g_warning ("Failed to read fs object %s.\n", object_id);
         goto fail;

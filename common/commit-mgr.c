@@ -7,11 +7,11 @@
 
 #include "utils.h"
 #include "db.h"
-#include "searpc-utils.h"
+#include "wingurpc-utils.h"
 
 #include "wingufile-session.h"
 #include "commit-mgr.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 #define MAX_TIME_SKEW 259200    /* 3 days */
 
@@ -55,7 +55,7 @@ static void compute_commit_id (SeafCommit* commit)
 }
 
 SeafCommit*
-seaf_commit_new (const char *commit_id,
+winguf_commit_new (const char *commit_id,
                  const char *repo_id,
                  const char *root_id,
                  const char *creator_name,
@@ -101,7 +101,7 @@ seaf_commit_new (const char *commit_id,
 }
 
 char *
-seaf_commit_to_data (SeafCommit *commit, gsize *len)
+winguf_commit_to_data (SeafCommit *commit, gsize *len)
 {
     JsonGenerator *gen = json_generator_new ();
     JsonNode *root;
@@ -119,7 +119,7 @@ seaf_commit_to_data (SeafCommit *commit, gsize *len)
 }
 
 SeafCommit *
-seaf_commit_from_data (const char *id, const char *data, gsize len)
+winguf_commit_from_data (const char *id, const char *data, gsize len)
 {
     JsonParser *parser = json_parser_new ();
     JsonNode *root;
@@ -142,7 +142,7 @@ seaf_commit_from_data (const char *id, const char *data, gsize len)
 }
 
 static void
-seaf_commit_free (SeafCommit *commit)
+winguf_commit_free (SeafCommit *commit)
 {
     g_free (commit->desc);
     g_free (commit->creator_name);
@@ -155,43 +155,43 @@ seaf_commit_free (SeafCommit *commit)
 }
 
 void
-seaf_commit_ref (SeafCommit *commit)
+winguf_commit_ref (SeafCommit *commit)
 {
     commit->ref++;
 }
 
 void
-seaf_commit_unref (SeafCommit *commit)
+winguf_commit_unref (SeafCommit *commit)
 {
     if (!commit)
         return;
 
     if (--commit->ref <= 0)
-        seaf_commit_free (commit);
+        winguf_commit_free (commit);
 }
 
 SeafCommitManager*
-seaf_commit_manager_new (SeafileSession *seaf)
+winguf_commit_manager_new (SeafileSession *winguf)
 {
     SeafCommitManager *mgr = g_new0 (SeafCommitManager, 1);
 
     mgr->priv = g_new0 (SeafCommitManagerPriv, 1);
-    mgr->seaf = seaf;
-    mgr->obj_store = seaf_obj_store_new (mgr->seaf, "commits");
+    mgr->winguf = winguf;
+    mgr->obj_store = winguf_obj_store_new (mgr->winguf, "commits");
 
     return mgr;
 }
 
 int
-seaf_commit_manager_init (SeafCommitManager *mgr)
+winguf_commit_manager_init (SeafCommitManager *mgr)
 {
 #if defined WINGUFILE_SERVER && defined FULL_FEATURE
-    if (seaf_obj_store_init (mgr->obj_store, TRUE, seaf->ev_mgr) < 0) {
+    if (winguf_obj_store_init (mgr->obj_store, TRUE, winguf->ev_mgr) < 0) {
         g_warning ("[commit mgr] Failed to init commit object store.\n");
         return -1;
     }
 #else
-    if (seaf_obj_store_init (mgr->obj_store, FALSE, NULL) < 0) {
+    if (winguf_obj_store_init (mgr->obj_store, FALSE, NULL) < 0) {
         g_warning ("[commit mgr] Failed to init commit object store.\n");
         return -1;
     }
@@ -207,19 +207,19 @@ add_commit_to_cache (SeafCommitManager *mgr, SeafCommit *commit)
     g_hash_table_insert (mgr->priv->commit_cache,
                          g_strdup(commit->commit_id),
                          commit);
-    seaf_commit_ref (commit);
+    winguf_commit_ref (commit);
 }
 
 inline static void
 remove_commit_from_cache (SeafCommitManager *mgr, SeafCommit *commit)
 {
     g_hash_table_remove (mgr->priv->commit_cache, commit->commit_id);
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
 }
 #endif
 
 int
-seaf_commit_manager_add_commit (SeafCommitManager *mgr, SeafCommit *commit)
+winguf_commit_manager_add_commit (SeafCommitManager *mgr, SeafCommit *commit)
 {
     int ret;
 
@@ -231,7 +231,7 @@ seaf_commit_manager_add_commit (SeafCommitManager *mgr, SeafCommit *commit)
 }
 
 void
-seaf_commit_manager_del_commit (SeafCommitManager *mgr, const char *id)
+winguf_commit_manager_del_commit (SeafCommitManager *mgr, const char *id)
 {
     g_assert (id != NULL);
 
@@ -254,14 +254,14 @@ delete:
 }
 
 SeafCommit* 
-seaf_commit_manager_get_commit (SeafCommitManager *mgr, const char *id)
+winguf_commit_manager_get_commit (SeafCommitManager *mgr, const char *id)
 {
     SeafCommit *commit;
 
 #if 0
     commit = g_hash_table_lookup (mgr->priv->commit_cache, id);
     if (commit != NULL) {
-        seaf_commit_ref (commit);
+        winguf_commit_ref (commit);
         return commit;
     }
 #endif
@@ -294,7 +294,7 @@ insert_parent_commit (GList **list, GHashTable *hash, const char *parent_id)
     if (g_hash_table_lookup (hash, parent_id) != NULL)
         return 0;
 
-    p = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    p = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                         parent_id);
     if (!p) {
         g_warning ("Failed to find commit %s\n", parent_id);
@@ -312,7 +312,7 @@ insert_parent_commit (GList **list, GHashTable *hash, const char *parent_id)
 }
 
 gboolean
-seaf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
+winguf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
                                                      const char *head,
                                                      CommitTraverseFunc func,
                                                      int limit,
@@ -326,7 +326,7 @@ seaf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
     /* A hash table for recording id of traversed commits. */
     commit_hash = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 
-    commit = seaf_commit_manager_get_commit (mgr, head);
+    commit = winguf_commit_manager_get_commit (mgr, head);
     if (!commit) {
         g_warning ("Failed to find commit %s.\n", head);
         return FALSE;
@@ -346,19 +346,19 @@ seaf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
         list = g_list_delete_link (list, list);
 
         if (!func (commit, data, &stop)) {
-            seaf_commit_unref (commit);
+            winguf_commit_unref (commit);
             ret = FALSE;
             goto out;
         }
 
         /* Stop when limit is reached. If limit < 0, there is no limit; */
         if (limit > 0 && ++count == limit) {
-            seaf_commit_unref (commit);
+            winguf_commit_unref (commit);
             break;
         }
         
         if (stop) {
-            seaf_commit_unref (commit);
+            winguf_commit_unref (commit);
             /* stop traverse down from this commit,
              * but not stop traversing the tree 
              */
@@ -367,33 +367,33 @@ seaf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
 
         if (commit->parent_id) {
             if (insert_parent_commit (&list, commit_hash, commit->parent_id) < 0) {
-                seaf_commit_unref (commit);
+                winguf_commit_unref (commit);
                 ret = FALSE;
                 goto out;
             }
         }
         if (commit->second_parent_id) {
             if (insert_parent_commit (&list, commit_hash, commit->second_parent_id) < 0) {
-                seaf_commit_unref (commit);
+                winguf_commit_unref (commit);
                 ret = FALSE;
                 goto out;
             }
         }
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
     }
 
 out:
     g_hash_table_destroy (commit_hash);
     while (list) {
         commit = list->data;
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
         list = g_list_delete_link (list, list);
     }
     return ret;
 }
 
 gboolean
-seaf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
+winguf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
                                           const char *head,
                                           CommitTraverseFunc func,
                                           void *data,
@@ -404,7 +404,7 @@ seaf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
     GHashTable *commit_hash;
     gboolean ret = TRUE;
 
-    commit = seaf_commit_manager_get_commit (mgr, head);
+    commit = winguf_commit_manager_get_commit (mgr, head);
     if (!commit) {
         g_warning ("Failed to find commit %s.\n", head);
         if (!skip_errors)
@@ -431,13 +431,13 @@ seaf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
 
             /* If skip errors, continue to traverse parents. */
             if (!skip_errors) {
-                seaf_commit_unref (commit);
+                winguf_commit_unref (commit);
                 ret = FALSE;
                 goto out;
             }
         }
         if (stop) {
-            seaf_commit_unref (commit);
+            winguf_commit_unref (commit);
             /* stop traverse down from this commit,
              * but not stop traversing the tree 
              */
@@ -450,7 +450,7 @@ seaf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
 
                 /* If skip errors, try insert second parent. */
                 if (!skip_errors) {
-                    seaf_commit_unref (commit);
+                    winguf_commit_unref (commit);
                     ret = FALSE;
                     goto out;
                 }
@@ -461,20 +461,20 @@ seaf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
                 g_warning("[comit-mgr]insert second parent commit failed\n");
 
                 if (!skip_errors) {
-                    seaf_commit_unref (commit);
+                    winguf_commit_unref (commit);
                     ret = FALSE;
                     goto out;
                 }
             }
         }
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
     }
 
 out:
     g_hash_table_destroy (commit_hash);
     while (list) {
         commit = list->data;
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
         list = g_list_delete_link (list, list);
     }
     return ret;
@@ -509,7 +509,7 @@ find_commit(SeafCommit *commit, FindingHelp *f, gboolean *stop)
 }
 
 int
-seaf_commit_manager_compare_commit (SeafCommitManager *mgr,
+winguf_commit_manager_compare_commit (SeafCommitManager *mgr,
                                     const char *commit1,
                                     const char *commit2)
 {
@@ -527,12 +527,12 @@ seaf_commit_manager_compare_commit (SeafCommitManager *mgr,
     if (strcmp(commit1, commit2) == 0)
         return 0;
 
-    c1 = seaf_commit_manager_get_commit (mgr, commit1);
+    c1 = winguf_commit_manager_get_commit (mgr, commit1);
     if (!c1) {
         g_warning ("Failed to find commit %s.\n", commit1);
         return -2;
     }
-    c2 = seaf_commit_manager_get_commit (mgr, commit2);
+    c2 = winguf_commit_manager_get_commit (mgr, commit2);
     if (!c2) {
         g_warning ("Failed to find commit %s.\n", commit2);
         return -2;
@@ -542,7 +542,7 @@ seaf_commit_manager_compare_commit (SeafCommitManager *mgr,
         FindingHelp f;
         f.to_find = c2;
         f.result = FALSE;
-        if (!seaf_commit_manager_traverse_commit_tree (
+        if (!winguf_commit_manager_traverse_commit_tree (
                  mgr, c1->commit_id, (CommitTraverseFunc)find_commit, &f, FALSE))
             ret = -2;
         if (f.result == TRUE)
@@ -553,7 +553,7 @@ seaf_commit_manager_compare_commit (SeafCommitManager *mgr,
         FindingHelp f;
         f.to_find = c1;
         f.result = FALSE;
-        if (!seaf_commit_manager_traverse_commit_tree (
+        if (!winguf_commit_manager_traverse_commit_tree (
                  mgr, c2->commit_id, (CommitTraverseFunc)find_commit, &f, FALSE))
             ret = -2;
         if (f.result == TRUE)
@@ -562,13 +562,13 @@ seaf_commit_manager_compare_commit (SeafCommitManager *mgr,
             ret = 0;
     }
 
-    seaf_commit_unref (c1);
-    seaf_commit_unref (c2);
+    winguf_commit_unref (c1);
+    winguf_commit_unref (c2);
     return ret;
 }
 
 GList* 
-seaf_commit_manager_get_repo_commits (SeafCommitManager *mgr, const char *repo_id)
+winguf_commit_manager_get_repo_commits (SeafCommitManager *mgr, const char *repo_id)
 {
     sqlite3 *db = mgr->db;
     
@@ -589,7 +589,7 @@ seaf_commit_manager_get_repo_commits (SeafCommitManager *mgr, const char *repo_i
         result = sqlite3_step (stmt);
         if (result == SQLITE_ROW) {
             commit_id = (char *)sqlite3_column_text(stmt, 0);
-            commit = seaf_commit_manager_get_commit (mgr, commit_id);
+            commit = winguf_commit_manager_get_commit (mgr, commit_id);
             if (commit)
                 ret = g_list_prepend(ret, commit);
         }
@@ -610,7 +610,7 @@ end:
 }
 
 gboolean
-seaf_commit_manager_commit_exists (SeafCommitManager *mgr, const char *id)
+winguf_commit_manager_commit_exists (SeafCommitManager *mgr, const char *id)
 {
 #if 0
     commit = g_hash_table_lookup (mgr->priv->commit_cache, id);
@@ -618,7 +618,7 @@ seaf_commit_manager_commit_exists (SeafCommitManager *mgr, const char *id)
         return TRUE;
 #endif
 
-    return seaf_obj_store_obj_exists (mgr->obj_store, id);
+    return winguf_obj_store_obj_exists (mgr->obj_store, id);
 }
 
 static JsonNode *
@@ -726,7 +726,7 @@ commit_from_json_node (const char *commit_id, JsonNode *node)
         (magic && strlen(magic) != 32))
         return commit;
 
-    commit = seaf_commit_new (commit_id, repo_id, root_id,
+    commit = winguf_commit_new (commit_id, repo_id, root_id,
                               creator_name, creator, desc, ctime);
 
     commit->parent_id = parent_id ? g_strdup(parent_id) : NULL;
@@ -764,7 +764,7 @@ load_commit (SeafCommitManager *mgr, const char *commit_id)
     if (!commit_id || strlen(commit_id) != 40)
         return NULL;
 
-    if (seaf_obj_store_read_obj (mgr->obj_store, commit_id, (void **)&data, &len) < 0)
+    if (winguf_obj_store_read_obj (mgr->obj_store, commit_id, (void **)&data, &len) < 0)
         return NULL;
 
     parser = json_parser_new ();
@@ -817,7 +817,7 @@ save_commit (SeafCommitManager *manager, SeafCommit *commit)
     json_node_free (root);
     g_object_unref (gen);
 
-    if (seaf_obj_store_write_obj (manager->obj_store, commit->commit_id,
+    if (winguf_obj_store_write_obj (manager->obj_store, commit->commit_id,
                                   data, (int)len) < 0) {
         g_free (data);
         return -1;
@@ -830,5 +830,5 @@ save_commit (SeafCommitManager *manager, SeafCommit *commit)
 static void
 delete_commit (SeafCommitManager *mgr, const char *id)
 {
-    seaf_obj_store_delete_obj (mgr->obj_store, id);
+    winguf_obj_store_delete_obj (mgr->obj_store, id);
 }

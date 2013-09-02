@@ -87,13 +87,13 @@ static void
 set_repo_token_email (CcnetProcessor *processor)
 {
     USE_PRIV;
-    SeafRepo *repo = seaf_repo_manager_get_repo (seaf->repo_mgr,
+    SeafRepo *repo = winguf_repo_manager_get_repo (winguf->repo_mgr,
                                                  priv->repo_id);
     if (!repo)
         return;
     
-    seaf_repo_manager_set_repo_email (seaf->repo_mgr, repo, priv->email);
-    seaf_repo_manager_set_repo_token (seaf->repo_mgr, repo, priv->token);
+    winguf_repo_manager_set_repo_email (winguf->repo_mgr, repo, priv->email);
+    winguf_repo_manager_set_repo_token (winguf->repo_mgr, repo, priv->token);
 }
 
 #define SC_REPO_EMAIL       "300"
@@ -133,15 +133,15 @@ handle_response (CcnetProcessor *processor,
         }
         
     } else if (strcmp (code, SC_ACCESS_DENIED) == 0) {
-        seaf_warning ("[get repo email token] failed because %s", code_msg);
+        winguf_warning ("[get repo email token] failed because %s", code_msg);
         ccnet_processor_done (processor, FALSE);
 
     } else if (strcmp (code, SC_SERVER_ERROR) == 0) {
-        seaf_warning ("[get repo email token] repo %s is deleted on server", priv->repo_id);
+        winguf_warning ("[get repo email token] repo %s is deleted on server", priv->repo_id);
         ccnet_processor_done (processor, FALSE);
         
     } else {
-        seaf_warning ("bad response, %s : %s\n", code, code_msg);
+        winguf_warning ("bad response, %s : %s\n", code, code_msg);
         ccnet_processor_done (processor, FALSE);
     }
 }

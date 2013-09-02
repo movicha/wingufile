@@ -62,7 +62,7 @@ typedef struct SendDirData {
 
 
 
-extern SeafileSession *seaf;
+extern SeafileSession *winguf;
 
 static struct file_type_map ftmap[] = {
     { "txt", "text/plain" },
@@ -78,8 +78,8 @@ static void
 free_sendfile_data (SendfileData *data)
 {
     if (data->handle) {
-        seaf_block_manager_close_block(seaf->block_mgr, data->handle);
-        seaf_block_manager_block_handle_free(seaf->block_mgr, data->handle);
+        winguf_block_manager_close_block(winguf->block_mgr, data->handle);
+        winguf_block_manager_block_handle_free(winguf->block_mgr, data->handle);
     }
 
     if (data->enc_init)
@@ -113,15 +113,15 @@ next:
     blk_id = data->file->blk_sha1s[data->idx];
 
     if (!data->handle) {
-        data->handle = seaf_block_manager_open_block(seaf->block_mgr,
+        data->handle = winguf_block_manager_open_block(winguf->block_mgr,
                                                      blk_id, BLOCK_READ);
         if (!data->handle) {
-            seaf_warning ("Failed to open block %s\n", blk_id);
+            winguf_warning ("Failed to open block %s\n", blk_id);
             goto err;
         }
 
         BlockMetadata *bmd;
-        bmd = seaf_block_manager_stat_block_by_handle (seaf->block_mgr,
+        bmd = winguf_block_manager_stat_block_by_handle (winguf->block_mgr,
                                                        data->handle);
         if (!bmd)
             goto err;
@@ -133,7 +133,7 @@ next:
                                       data->crypt->version,
                                       (unsigned char *)data->crypt->key,
                                       (unsigned char *)data->crypt->iv) < 0) {
-                seaf_warning ("Failed to init decrypt.\n");
+                winguf_warning ("Failed to init decrypt.\n");
                 goto err;
             }
             data->enc_init = TRUE;
@@ -141,15 +141,15 @@ next:
     }
     handle = data->handle;
 
-    n = seaf_block_manager_read_block(seaf->block_mgr, handle, buf, sizeof(buf));
+    n = winguf_block_manager_read_block(winguf->block_mgr, handle, buf, sizeof(buf));
     data->remain -= n;
     if (n < 0) {
-        seaf_warning ("Error when reading from block %s.\n", blk_id);
+        winguf_warning ("Error when reading from block %s.\n", blk_id);
         goto err;
     } else if (n == 0) {
         /* We've read up the data of this block, finish or try next block. */
-        seaf_block_manager_close_block (seaf->block_mgr, handle);
-        seaf_block_manager_block_handle_free (seaf->block_mgr, handle);
+        winguf_block_manager_close_block (winguf->block_mgr, handle);
+        winguf_block_manager_block_handle_free (winguf->block_mgr, handle);
         data->handle = NULL;
         if (data->crypt != NULL) {
             EVP_CIPHER_CTX_cleanup (&data->ctx);
@@ -184,7 +184,7 @@ next:
 
         dec_out = g_new (char, n + 16);
         if (!dec_out) {
-            seaf_warning ("Failed to alloc memory.\n");
+            winguf_warning ("Failed to alloc memory.\n");
             goto err;
         }
 
@@ -194,7 +194,7 @@ next:
                                      (unsigned char *)buf,
                                      n);
         if (ret == 0) {
-            seaf_warning ("Decrypt block %s failed.\n", blk_id);
+            winguf_warning ("Decrypt block %s failed.\n", blk_id);
             g_free (dec_out);
             goto err;
         }
@@ -210,7 +210,7 @@ next:
                                        (unsigned char *)dec_out,
                                        &dec_out_len);
             if (ret == 0) {
-                seaf_warning ("Decrypt block %s failed.\n", blk_id);
+                winguf_warning ("Decrypt block %s failed.\n", blk_id);
                 evbuffer_free (tmp_buf);
                 g_free (dec_out);
                 goto err;
@@ -246,7 +246,7 @@ write_dir_data_cb (struct bufferevent *bev, void *ctx)
 
     n = readn (data->zipfd, buf, sizeof(buf));
     if (n < 0) {
-        seaf_warning ("failed to read zipfile %s\n", data->zipfile);
+        winguf_warning ("failed to read zipfile %s\n", data->zipfile);
         evhtp_connection_free (evhtp_request_get_connection (data->req));
         free_senddir_data (data);
     } else if (n > 0) {
@@ -362,7 +362,7 @@ do_file(evhtp_request_t *req, SeafRepo *repo, const char *file_id,
     SeafileCrypt *crypt = NULL;
     SendfileData *data;
 
-    file = seaf_fs_manager_get_wingufile(seaf->fs_mgr, file_id);
+    file = winguf_fs_manager_get_wingufile(winguf->fs_mgr, file_id);
     if (file == NULL)
         return -1;
 
@@ -480,9 +480,9 @@ do_dir (evhtp_request_t *req, SeafRepo *repo, const char *dir_id,
     gint64 dir_size = 0;
 
     /* ensure file size does not exceed limit */
-    dir_size = seaf_fs_manager_get_fs_size (seaf->fs_mgr, dir_id);
-    if (dir_size < 0 || dir_size > seaf->max_download_dir_size) {
-        seaf_warning ("invalid dir size: %"G_GINT64_FORMAT"\n", dir_size);
+    dir_size = winguf_fs_manager_get_fs_size (winguf->fs_mgr, dir_id);
+    if (dir_size < 0 || dir_size > winguf->max_download_dir_size) {
+        winguf_warning ("invalid dir size: %"G_GINT64_FORMAT"\n", dir_size);
         ret = -1;
         goto out;
     }
@@ -490,7 +490,7 @@ do_dir (evhtp_request_t *req, SeafRepo *repo, const char *dir_id,
     /* Let's zip the directory first */
     filename_escaped = g_uri_unescape_string (filename, NULL);
     if (!filename_escaped) {
-        seaf_warning ("failed to unescape string %s\n", filename);
+        winguf_warning ("failed to unescape string %s\n", filename);
         ret = -1;
         goto out;
     }
@@ -517,7 +517,7 @@ do_dir (evhtp_request_t *req, SeafRepo *repo, const char *dir_id,
     evhtp_headers_add_header(req->headers_out,
                 evhtp_header_new("Content-Type", "application/zip", 1, 1));
     
-    if (seaf_stat(zipfile, &st) < 0) {
+    if (winguf_stat(zipfile, &st) < 0) {
         ret = -1;
         goto out;
     }
@@ -539,7 +539,7 @@ do_dir (evhtp_request_t *req, SeafRepo *repo, const char *dir_id,
 
     zipfd = g_open (zipfile, O_RDONLY | O_BINARY, 0);
     if (zipfd < 0) {
-        seaf_warning ("failed to open zipfile %s\n", zipfile);
+        winguf_warning ("failed to open zipfile %s\n", zipfile);
         ret = -1;
         goto out;
     }
@@ -621,11 +621,11 @@ access_cb(evhtp_request_t *req, void *arg)
     token = parts[1];
     filename = parts[2];
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-rpcserver");
+                                                 "wingufserv-rpcserver");
 
-    webaccess = (SeafileWebAccess *) searpc_client_call__object (
+    webaccess = (SeafileWebAccess *) wingurpc_client_call__object (
         rpc_client, "wingufile_web_query_access_token", WINGUFILE_TYPE_WEB_ACCESS,
         NULL, 1, "string", token);
     if (!webaccess) {
@@ -665,7 +665,7 @@ access_cb(evhtp_request_t *req, void *arg)
     operation = wingufile_web_access_get_op (webaccess);
     user = wingufile_web_access_get_username (webaccess);
 
-    repo = seaf_repo_manager_get_repo(seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo(winguf->repo_mgr, repo_id);
     if (!repo) {
         error = "Bad repo id\n";
         goto bad_req;
@@ -681,7 +681,7 @@ access_cb(evhtp_request_t *req, void *arg)
         }
     }
 
-    if (!seaf_fs_manager_object_exists (seaf->fs_mgr, id)) {
+    if (!winguf_fs_manager_object_exists (winguf->fs_mgr, id)) {
         error = "Invalid file id\n";
         goto bad_req;
     }
@@ -702,7 +702,7 @@ success:
 
     g_strfreev (parts);
     if (repo != NULL)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     g_free (repo_role);
     if (key != NULL)
         g_object_unref (key);
@@ -713,7 +713,7 @@ success:
 bad_req:
     g_strfreev (parts);
     if (repo != NULL)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     g_free (repo_role);
     if (key != NULL)
         g_object_unref (key);
@@ -723,7 +723,7 @@ bad_req:
     if (rpc_client)
         ccnet_rpc_client_free (rpc_client);
 
-    seaf_warning ("fetch failed: %s\n", error);
+    winguf_warning ("fetch failed: %s\n", error);
     evbuffer_add_printf(req->buffer_out, "%s\n", error);
     evhtp_send_reply(req, EVHTP_RES_BADREQ);
 }

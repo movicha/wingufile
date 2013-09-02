@@ -19,7 +19,7 @@ gc_start ()
 
     g_atomic_int_set (&gc_started, 1);
 
-    ret = ccnet_job_manager_schedule_job (seaf->job_mgr,
+    ret = ccnet_job_manager_schedule_job (winguf->job_mgr,
                                           gc_thread_func,
                                           gc_thread_done,
                                           NULL);

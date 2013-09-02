@@ -51,80 +51,80 @@ struct _SeafRepo {
 gboolean is_repo_id_valid (const char *id);
 
 SeafRepo* 
-seaf_repo_new (const char *id, const char *name, const char *desc);
+winguf_repo_new (const char *id, const char *name, const char *desc);
 
 void
-seaf_repo_free (SeafRepo *repo);
+winguf_repo_free (SeafRepo *repo);
 
 void
-seaf_repo_ref (SeafRepo *repo);
+winguf_repo_ref (SeafRepo *repo);
 
 void
-seaf_repo_unref (SeafRepo *repo);
+winguf_repo_unref (SeafRepo *repo);
 
 void
-seaf_virtual_repo_info_free (SeafVirtRepo *vinfo);
+winguf_virtual_repo_info_free (SeafVirtRepo *vinfo);
 
 typedef struct _SeafRepoManager SeafRepoManager;
 typedef struct _SeafRepoManagerPriv SeafRepoManagerPriv;
 
 struct _SeafRepoManager {
-    struct _SeafileSession *seaf;
+    struct _SeafileSession *winguf;
 
     SeafRepoManagerPriv *priv;
 };
 
 SeafRepoManager* 
-seaf_repo_manager_new (struct _SeafileSession *seaf);
+winguf_repo_manager_new (struct _SeafileSession *winguf);
 
 int
-seaf_repo_manager_init (SeafRepoManager *mgr);
+winguf_repo_manager_init (SeafRepoManager *mgr);
 
 int
-seaf_repo_manager_start (SeafRepoManager *mgr);
+winguf_repo_manager_start (SeafRepoManager *mgr);
 
 int
-seaf_repo_manager_add_repo (SeafRepoManager *mgr, SeafRepo *repo);
+winguf_repo_manager_add_repo (SeafRepoManager *mgr, SeafRepo *repo);
 
 int
-seaf_repo_manager_del_repo (SeafRepoManager *mgr, SeafRepo *repo);
+winguf_repo_manager_del_repo (SeafRepoManager *mgr, SeafRepo *repo);
 
 SeafRepo* 
-seaf_repo_manager_get_repo (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_get_repo (SeafRepoManager *manager, const gchar *id);
 
 SeafRepo* 
-seaf_repo_manager_get_repo_prefix (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_get_repo_prefix (SeafRepoManager *manager, const gchar *id);
 
 gboolean
-seaf_repo_manager_repo_exists (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_repo_exists (SeafRepoManager *manager, const gchar *id);
 
 gboolean
-seaf_repo_manager_repo_exists_prefix (SeafRepoManager *manager, const gchar *id);
+winguf_repo_manager_repo_exists_prefix (SeafRepoManager *manager, const gchar *id);
 
 GList* 
-seaf_repo_manager_get_repo_list (SeafRepoManager *mgr,
+winguf_repo_manager_get_repo_list (SeafRepoManager *mgr,
                                  int start, int limit,
                                  gboolean ignore_errors);
 
 GList *
-seaf_repo_manager_get_repo_id_list (SeafRepoManager *mgr);
+winguf_repo_manager_get_repo_id_list (SeafRepoManager *mgr);
 
 int
-seaf_repo_manager_set_repo_history_limit (SeafRepoManager *mgr,
+winguf_repo_manager_set_repo_history_limit (SeafRepoManager *mgr,
                                           const char *repo_id,
                                           int days);
 
 int
-seaf_repo_manager_get_repo_history_limit (SeafRepoManager *mgr,
+winguf_repo_manager_get_repo_history_limit (SeafRepoManager *mgr,
                                           const char *repo_id);
 
 int
-seaf_repo_manager_set_repo_valid_since (SeafRepoManager *mgr,
+winguf_repo_manager_set_repo_valid_since (SeafRepoManager *mgr,
                                         const char *repo_id,
                                         gint64 timestamp);
 
 gint64
-seaf_repo_manager_get_repo_valid_since (SeafRepoManager *mgr,
+winguf_repo_manager_get_repo_valid_since (SeafRepoManager *mgr,
                                         const char *repo_id);
 
 /*
@@ -134,14 +134,14 @@ seaf_repo_manager_get_repo_valid_since (SeafRepoManager *mgr,
  * Returns < 0 if traverse full history.
  */
 gint64
-seaf_repo_manager_get_repo_truncate_time (SeafRepoManager *mgr,
+winguf_repo_manager_get_repo_truncate_time (SeafRepoManager *mgr,
                                           const char *repo_id);
 
 SeafVirtRepo *
-seaf_repo_manager_get_virtual_repo_info (SeafRepoManager *mgr,
+winguf_repo_manager_get_virtual_repo_info (SeafRepoManager *mgr,
                                          const char *repo_id);
 
 void
-seaf_virtual_repo_info_free (SeafVirtRepo *vinfo);
+winguf_virtual_repo_info_free (SeafVirtRepo *vinfo);
 
 #endif

@@ -9,7 +9,7 @@
 #include "wingufile-gnome-keyring.h"
 
 #define WINGUFILE_GK_ATTR_APP_NAME  "wingufile"
-#define WINGUFILE_GK_ATTR_APP_VALUE "seaf-daemon"
+#define WINGUFILE_GK_ATTR_APP_VALUE "winguf-daemon"
 #define WINGUFILE_GK_ATTR_REPO_NAME "repo_id"
 #define WINGUFILE_GK_ATTR_TYPE_NAME "type"
 

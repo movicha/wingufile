@@ -10,30 +10,30 @@ wingufile_repo_size(const char *repo_id, GError **error)
         return -1;
     }
 
-    local = seaf_branch_manager_get_branch (seaf->branch_mgr, repo_id, "local");
+    local = winguf_branch_manager_get_branch (winguf->branch_mgr, repo_id, "local");
     if (!local) {
         g_set_error (error, WINGUFILE_DOMAIN, -1, "No local branch");
         return -1;
     }
 
-    rs = seaf_info_manager_get_repo_size_from_db (seaf->info_mgr, repo_id);
+    rs = winguf_info_manager_get_repo_size_from_db (winguf->info_mgr, repo_id);
     if (!rs) {
         g_set_error (error, WINGUFILE_DOMAIN, -1, "Database error");
-        seaf_branch_unref (local);
+        winguf_branch_unref (local);
         return -1;
     }
 
     //no new commit on "local" branch
     if (strcmp (rs->commit_id, local->commit_id) == 0) {
-        seaf_branch_unref (local);
+        winguf_branch_unref (local);
         gint64 size = rs->size;
         g_free (rs);
         return size;
     }
 
-    gint64 size = seaf_branch_manager_calculate_branch_size (
-        seaf->branch_mgr, repo_id, local->commit_id);
-    seaf_branch_unref (local);
+    gint64 size = winguf_branch_manager_calculate_branch_size (
+        winguf->branch_mgr, repo_id, local->commit_id);
+    winguf_branch_unref (local);
     g_free (rs);
     if (size < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, -1, "Calulate branch size error");
@@ -54,13 +54,13 @@ wingufile_branch_del (const char *repo_id, const char *branch_name, GError **err
         return -1;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "No such repository");
         return -1;
     }
 
-    branch = seaf_branch_manager_get_branch (seaf->branch_mgr, repo->id, branch_name);
+    branch = winguf_branch_manager_get_branch (winguf->branch_mgr, repo->id, branch_name);
     if (!branch) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "No such branch");
         return -1;
@@ -75,9 +75,9 @@ wingufile_branch_del (const char *repo_id, const char *branch_name, GError **err
     /*
      * TODO: we just delete branch itself and need to remove commits using gc.
      */
-    seaf_repo_manager_branch_repo_unmap (seaf->repo_mgr, branch);
-    seaf_branch_manager_del_branch (seaf->branch_mgr, repo->id, branch->name);
-    seaf_branch_unref (branch);
+    winguf_repo_manager_branch_repo_unmap (winguf->repo_mgr, branch);
+    winguf_branch_manager_del_branch (winguf->branch_mgr, repo->id, branch->name);
+    winguf_branch_unref (branch);
 
     return 0;
 }
@@ -93,7 +93,7 @@ wingufile_status (const char *repo_id, GError **error)
         return NULL;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "No such repository");
         return NULL;
@@ -107,7 +107,7 @@ wingufile_status (const char *repo_id, GError **error)
         return NULL;
     }
 
-    res_str = seaf_repo_status (repo);
+    res_str = winguf_repo_status (repo);
     if (!res_str) {
         g_set_error (error, WINGUFILE_DOMAIN, -1, "Failed to status");
         pthread_mutex_unlock (&repo->lock);
@@ -131,12 +131,12 @@ wingufile_set_repo_lantoken (const char *repo_id,
         return -1;
     }
 
-    if (!seaf_repo_manager_repo_exists (seaf->repo_mgr, repo_id)) {
+    if (!winguf_repo_manager_repo_exists (winguf->repo_mgr, repo_id)) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO, "Repo %s doesn't exist", repo_id);
         return -1;
     }
 
-    ret = seaf_repo_manager_set_repo_lantoken (seaf->repo_mgr,
+    ret = winguf_repo_manager_set_repo_lantoken (winguf->repo_mgr,
                                                repo_id, token);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
@@ -158,7 +158,7 @@ wingufile_get_repo_lantoken (const char *repo_id,
         return NULL;
     }
 
-    token = seaf_repo_manager_get_repo_lantoken (seaf->repo_mgr, repo_id);
+    token = winguf_repo_manager_get_repo_lantoken (winguf->repo_mgr, repo_id);
     if (!token)
         return g_strdup(DEFAULT_REPO_TOKEN);
 
@@ -181,7 +181,7 @@ static int check_commit_public (SeafCommit *c)
 
     g_assert (c != NULL);
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, c->repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, c->repo_id);
     if (repo != NULL || check_repo_public(repo))
         return 1;
 
@@ -222,7 +222,7 @@ convert_pubrepo_list (GList *inner_repos)
 GList* wingufile_get_repo_list_pub (int start, int limit, GError **error)
 {
     /* TODO: use start_id and limit */
-    GList *repos = seaf_repo_manager_get_repo_list(seaf->repo_mgr, start, limit);
+    GList *repos = winguf_repo_manager_get_repo_list(winguf->repo_mgr, start, limit);
     GList *ret = NULL;
 
     ret = convert_pubrepo_list (repos);
@@ -234,7 +234,7 @@ GObject* wingufile_get_repo_pub (const gchar* id, GError **error)
 {
     SeafRepo *r;
 
-    r = seaf_repo_manager_get_repo (seaf->repo_mgr, id);
+    r = winguf_repo_manager_get_repo (winguf->repo_mgr, id);
     if (r == NULL || !check_repo_public(r))
         return NULL;
 
@@ -263,12 +263,12 @@ wingufile_get_commit_pub (const gchar *id, GError **error)
     SeafileCommit *commit;
     SeafCommit *c;
 
-    c = seaf_commit_manager_get_commit (seaf->commit_mgr, id);
+    c = winguf_commit_manager_get_commit (winguf->commit_mgr, id);
     if (!c || !check_commit_public(c))
         return NULL;
 
     commit = convert_to_wingufile_commit (c);
-    seaf_commit_unref (c);
+    winguf_commit_unref (c);
     return (GObject *)commit;
 }
 
@@ -289,7 +289,7 @@ wingufile_get_commit_list_pub (const char *repo_id,
         return NULL;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo || !check_repo_public(repo)) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO, "No such repository");
         return NULL;

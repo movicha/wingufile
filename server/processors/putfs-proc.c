@@ -43,7 +43,7 @@ release_resource(CcnetProcessor *processor)
     USE_PRIV;
 
     if (priv->registered)
-        seaf_obj_store_unregister_async_read (seaf->fs_mgr->obj_store,
+        winguf_obj_store_unregister_async_read (winguf->fs_mgr->obj_store,
                                               priv->reader_id);
 
     CCNET_PROCESSOR_CLASS (wingufile_putfs_proc_parent_class)->release_resource (processor);
@@ -82,7 +82,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     }
 
     session_token = argv[0];
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          NULL,
                                          processor->peer_id,
                                          session_token, NULL) < 0) {
@@ -95,7 +95,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
 
     priv->registered = TRUE;
     priv->reader_id =
-        seaf_obj_store_register_async_read (seaf->fs_mgr->obj_store,
+        winguf_obj_store_register_async_read (winguf->fs_mgr->obj_store,
                                             read_done_cb,
                                             processor);
 
@@ -143,7 +143,7 @@ read_done_cb (OSAsyncResult *res, void *cb_data)
                                              SC_OBJ_SEG_END, SS_OBJ_SEG_END,
                                              (char *)pack + offset, n);
             }
-            seaf_debug ("[putfs] Sent object %s segment<total = %d, offset = %d, n = %d>\n",
+            winguf_debug ("[putfs] Sent object %s segment<total = %d, offset = %d, n = %d>\n",
                         res->obj_id, pack_size, offset, n);
             offset += n;
         }
@@ -151,7 +151,7 @@ read_done_cb (OSAsyncResult *res, void *cb_data)
 
     free (pack);
 
-    seaf_debug ("Send fs object %.8s.\n", res->obj_id);
+    winguf_debug ("Send fs object %.8s.\n", res->obj_id);
 }
 
 static gboolean
@@ -159,7 +159,7 @@ send_fs_object (CcnetProcessor *processor, char *object_id)
 {
     USE_PRIV;
 
-    if (seaf_obj_store_async_read (seaf->fs_mgr->obj_store,
+    if (winguf_obj_store_async_read (winguf->fs_mgr->obj_store,
                                    priv->reader_id,
                                    object_id) < 0) {
         g_warning ("[putfs] Failed to start async read of %s.\n", object_id);

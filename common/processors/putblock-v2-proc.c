@@ -163,7 +163,7 @@ put_block_cb (CEvent *event, void *vprocessor)
     snprintf (buf, sizeof(buf), "put-block\t%s\t%s\t%s\t%d",
               priv->repo_id, processor->peer_id, blk_rsp->block_id, blk_rsp->tx_bytes);
 
-    seaf_mq_manager_publish_event (seaf->mq_mgr, buf);
+    winguf_mq_manager_publish_event (winguf->mq_mgr, buf);
     
     g_free (blk_rsp);
 }

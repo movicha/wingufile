@@ -81,7 +81,7 @@ add_chunk_server (CcnetProcessor *processor, TransferTask *task, char *cs_str)
         goto out;
 
     if (strcmp (cs_id, processor->peer_id) == 0) {
-        CcnetPeer *peer = ccnet_get_peer (seaf->ccnetrpc_client,
+        CcnetPeer *peer = ccnet_get_peer (winguf->ccnetrpc_client,
                                           processor->peer_id);
         g_assert (peer);
         if (!peer->public_addr) {

@@ -478,7 +478,7 @@ start_ccnet ()
     applet_message ("ccnet daemon started\n");
 }
 
-/* Kill ccnet/seaf/web, and restart them. */
+/* Kill ccnet/winguf/web, and restart them. */
 void restart_all (void)
 {
     trayicon_set_tip ("Seafile");
@@ -549,7 +549,7 @@ gboolean heartbeat_monitor (void *data)
         if (is_wingufile_daemon_running()) {
             return TRUE;
         } else {
-            applet_message ("[heartbeat mon] seaf-daemon is down, "
+            applet_message ("[heartbeat mon] winguf-daemon is down, "
                             "now bring it up..\n");
             applet->auto_sync_disabled = FALSE;
             start_wingufile_daemon();

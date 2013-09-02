@@ -11,11 +11,11 @@
 #define CHUNKSERVER_DB "chunkserver.db"
 
 SeafCSManager *
-seaf_cs_manager_new (SeafileSession *seaf)
+winguf_cs_manager_new (SeafileSession *winguf)
 {
     SeafCSManager *mgr = g_new0 (SeafCSManager, 1);
 
-    char *db_path = g_build_filename (seaf->seaf_dir, CHUNKSERVER_DB, NULL);
+    char *db_path = g_build_filename (winguf->winguf_dir, CHUNKSERVER_DB, NULL);
     if (sqlite_open_db (db_path, &mgr->db) < 0) {
         g_critical ("Failed to open chunk server db\n");
         g_free (db_path);
@@ -23,7 +23,7 @@ seaf_cs_manager_new (SeafileSession *seaf)
         return NULL;
     }
 
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
     mgr->chunk_servers = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                 g_free, NULL);
 
@@ -62,7 +62,7 @@ load_chunk_servers (SeafCSManager *mgr)
 
     /* Add myself as chunk server by default. */
     g_hash_table_insert (mgr->chunk_servers, 
-                         g_strdup(mgr->seaf->session->base.id),
+                         g_strdup(mgr->winguf->session->base.id),
                          NULL);
 
     return 0;
@@ -71,14 +71,14 @@ load_chunk_servers (SeafCSManager *mgr)
 static void
 register_processors (SeafCSManager *mgr)
 {
-    CcnetClient *client = mgr->seaf->session;
+    CcnetClient *client = mgr->winguf->session;
 
     ccnet_register_service (client, "wingufile-putcs", "basic",
                             WINGUFILE_TYPE_PUTCS_PROC, NULL);
 }
 
 int
-seaf_cs_manager_start (SeafCSManager *mgr)
+winguf_cs_manager_start (SeafCSManager *mgr)
 {
     const char *sql;
 
@@ -93,7 +93,7 @@ seaf_cs_manager_start (SeafCSManager *mgr)
 }
 
 int
-seaf_cs_manager_add_chunk_server (SeafCSManager *mgr, const char *cs_id)
+winguf_cs_manager_add_chunk_server (SeafCSManager *mgr, const char *cs_id)
 {
     char sql[256];
 
@@ -107,7 +107,7 @@ seaf_cs_manager_add_chunk_server (SeafCSManager *mgr, const char *cs_id)
 }
 
 int
-seaf_cs_manager_del_chunk_server (SeafCSManager *mgr, const char *cs_id)
+winguf_cs_manager_del_chunk_server (SeafCSManager *mgr, const char *cs_id)
 {
     char sql[256];
 
@@ -121,7 +121,7 @@ seaf_cs_manager_del_chunk_server (SeafCSManager *mgr, const char *cs_id)
 }
 
 GList*
-seaf_cs_manager_get_chunk_servers (SeafCSManager *mgr)
+winguf_cs_manager_get_chunk_servers (SeafCSManager *mgr)
 {
     return (g_hash_table_get_keys(mgr->chunk_servers));
 }

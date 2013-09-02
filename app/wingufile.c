@@ -13,7 +13,7 @@
 
 #include <glib.h>
 #include <glib-object.h>
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 #include <ccnet.h>
 #include <utils.h>

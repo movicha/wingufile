@@ -6,7 +6,7 @@ struct _SeafileSession;
 struct SizeSchedulerPriv;
 
 typedef struct SizeScheduler {
-    struct _SeafileSession *seaf;
+    struct _SeafileSession *winguf;
 
     struct SizeSchedulerPriv *priv;
 } SizeScheduler;

@@ -31,14 +31,14 @@
 
 #define WINGUFILE_INI "wingufile.ini"
 
-SeafileSession *seaf;
+SeafileSession *winguf;
 
 GTree *already_traversed_commits = NULL;
 GTree *already_traversed_blocks = NULL;
 
 static gboolean print_version = FALSE;
 static gboolean verbose = FALSE;
-static char *seaf_data_dir = NULL;
+static char *winguf_data_dir = NULL;
 static char *ccnet_conf_dir = NULL;
 static char *destroy_repo_id = NULL;
 static char *worktree_dir = NULL;
@@ -76,7 +76,7 @@ static GOptionEntry entries[] =
       .short_name           = 'd',
       .flags                = 0,
       .arg                  = G_OPTION_ARG_STRING,
-      .arg_data             = &seaf_data_dir,
+      .arg_data             = &winguf_data_dir,
       .description          = "set wingufile data directory",
       .arg_description      = NULL },
 
@@ -127,7 +127,7 @@ static void
 usage ()
 {
     printf ("Usage:\n"
-            "  seaf-tool [OPTIONS...]\n\n"
+            "  winguf-tool [OPTIONS...]\n\n"
             "  -h, --help                 show this help message and exit\n"             
             "  --version                  show version and exit\n"
             "  -v, --verbose              output more messages\n"
@@ -144,18 +144,18 @@ usage ()
 static void
 show_version()
 {
-    printf ("seaf-tool version: 0.1\n");
+    printf ("winguf-tool version: 0.1\n");
 }
 
 static inline gboolean
 wingufile_is_running ()
 {
     return (process_is_running("ccnet-applet") ||
-            process_is_running ("seaf-daemon"));
+            process_is_running ("winguf-daemon"));
 }
 
 static char *
-get_seaf_data_dir (const char *dir)
+get_winguf_data_dir (const char *dir)
 {
     if (!dir)
         return NULL;
@@ -171,17 +171,17 @@ get_seaf_data_dir (const char *dir)
         return NULL;
     }
 
-    FILE *seaf_ini = g_fopen(buf, "r");
-    if (!seaf_ini) {
-        perror("Open seaf_ini failed");
+    FILE *winguf_ini = g_fopen(buf, "r");
+    if (!winguf_ini) {
+        perror("Open winguf_ini failed");
         return NULL;
     }
 
     char data_dir[SEAF_PATH_MAX]; 
-    size_t len = fread (data_dir, 1, SEAF_PATH_MAX, seaf_ini);
+    size_t len = fread (data_dir, 1, SEAF_PATH_MAX, winguf_ini);
     if (len <= 0) {
         perror("Read wingufile.ini failed");
-        fclose(seaf_ini);
+        fclose(winguf_ini);
         return NULL;
     }
 
@@ -191,14 +191,14 @@ get_seaf_data_dir (const char *dir)
 
     data_dir[len] = '\0';
     
-    fclose(seaf_ini);
+    fclose(winguf_ini);
     return g_strdup(data_dir);
 }
 
 static void
 do_list_repos ()
 {
-    GList *repo_list = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1);
+    GList *repo_list = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1);
     if (!repo_list) {
         printf ("You have no repo yet.\n");
         return;
@@ -220,13 +220,13 @@ static void
 do_destroy_repo (char *repo_id)
 {
     if (!repo_id) return;
-    SeafRepo *repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    SeafRepo *repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_warning ("Repo %s does not exist\n", repo_id);  
         return;
     }
     printf("Deleting repo %s\n", repo_id);
-    seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+    winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
     printf("Done\n");
 }
     
@@ -245,7 +245,7 @@ validate_block (void *userdata, const char *block_id)
     }
     g_message ("\n");
 
-    if (!seaf_block_manager_block_exists(seaf->block_mgr, block_id)) {
+    if (!winguf_block_manager_block_exists(winguf->block_mgr, block_id)) {
         fprintf (stderr, "[ERROR] block %s does not exist\n", block_id);
         return;
     }
@@ -265,8 +265,8 @@ validate_commit (SeafCommit *commit, void *data, gboolean *stop)
     }
     g_message ("\n");
 
-    if (seaf_fs_manager_traverse_tree
-        (seaf->fs_mgr, commit->root_id, validate_block, NULL) < 0) {
+    if (winguf_fs_manager_traverse_tree
+        (winguf->fs_mgr, commit->root_id, validate_block, NULL) < 0) {
         return FALSE;
     }
 
@@ -282,8 +282,8 @@ validate_branch(SeafBranch *branch)
     if (!branch) return -1;
     
     g_message ("Checking for branch %s\n", branch->name);
-    if (!seaf_commit_manager_traverse_commit_tree
-        (seaf->commit_mgr, branch->commit_id, validate_commit, NULL)) {
+    if (!winguf_commit_manager_traverse_commit_tree
+        (winguf->commit_mgr, branch->commit_id, validate_commit, NULL)) {
         return -1;
     }
 
@@ -299,7 +299,7 @@ static int validate_repo_index(SeafRepo *repo)
     struct index_state istate;
     memset (&istate, 0, sizeof(istate));
 
-    snprintf (index_path, SEAF_PATH_MAX, "%s/%s", seaf->repo_mgr->index_dir, repo->id);
+    snprintf (index_path, SEAF_PATH_MAX, "%s/%s", winguf->repo_mgr->index_dir, repo->id);
     if (read_index_from (&istate, index_path) < 0) {
         g_warning ("[ERROR] Failed to validate index for repo %s\n", repo->id);
         return -1;
@@ -314,7 +314,7 @@ validate_repo_token (const char *repo_id)
 
     g_message ("Checking for token \n");
     char *token = NULL;
-    token = seaf_repo_manager_get_repo_token (seaf->repo_mgr, repo_id);
+    token = winguf_repo_manager_get_repo_token (winguf->repo_mgr, repo_id);
 
     if (!token) {
         g_warning ("[ERROR] Repo token doesn't exist for repo %s\n", repo_id); 
@@ -336,7 +336,7 @@ validate_repo(SeafRepo *repo)
             "Checking for repo %s (%s)\n" ,
             repo->name, repo->id);
 
-    GList *branch_list = seaf_branch_manager_get_branch_list(seaf->branch_mgr, repo->id);
+    GList *branch_list = winguf_branch_manager_get_branch_list(winguf->branch_mgr, repo->id);
     if (!branch_list) {
         g_warning ("Failed to get branch list of repo %s\n", repo->id); 
         return -1;
@@ -377,7 +377,7 @@ validate_repo(SeafRepo *repo)
 static int
 do_validate()
 {
-    GList *repo_list = seaf_repo_manager_get_repo_list(seaf->repo_mgr, -1, -1);
+    GList *repo_list = winguf_repo_manager_get_repo_list(winguf->repo_mgr, -1, -1);
     if (!repo_list) {
         printf ("There is no repo yet.\n");
         return 0;
@@ -423,7 +423,7 @@ static int do_validate_prepare ()
    When --verbose is specified, also log g_message
 */
 static void 
-seaf_tool_log (const gchar *log_domain, GLogLevelFlags log_level,
+winguf_tool_log (const gchar *log_domain, GLogLevelFlags log_level,
                const gchar *message,    gpointer user_data)
 {
     GLogLevelFlags flag = G_LOG_LEVEL_WARNING;
@@ -440,16 +440,16 @@ static void
 log_init()
 {
     g_log_set_handler (NULL, G_LOG_LEVEL_MASK | G_LOG_FLAG_FATAL
-                       | G_LOG_FLAG_RECURSION, seaf_tool_log, NULL);
+                       | G_LOG_FLAG_RECURSION, winguf_tool_log, NULL);
     
 }
 
 static gboolean
-seaf_data_dir_is_valid ()
+winguf_data_dir_is_valid ()
 {
-    char *path = seaf_data_dir;
+    char *path = winguf_data_dir;
     if (!path) return FALSE;
-    printf ("validating seaf data dir : %s\n", path);
+    printf ("validating winguf data dir : %s\n", path);
 
     const char *dbs[] = {
         "repo.db",
@@ -516,7 +516,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    if (!seaf_data_dir) {
+    if (!winguf_data_dir) {
         if (!ccnet_conf_dir) {
             ccnet_conf_dir = ccnet_expand_path(DEFAULT_CONFIG_DIR);
             if (!ccnet_conf_dir) {
@@ -524,28 +524,28 @@ int main(int argc, char *argv[])
                 return -1;
             }
         }
-        seaf_data_dir = get_seaf_data_dir(ccnet_conf_dir);
-        if (!seaf_data_dir) {
+        winguf_data_dir = get_winguf_data_dir(ccnet_conf_dir);
+        if (!winguf_data_dir) {
             fprintf (stderr, "[ERROR] Failed to get wingufile data directory\n");
             return -1;
         }
         
-        if(!seaf_data_dir_is_valid()) {
+        if(!winguf_data_dir_is_valid()) {
             fprintf (stderr, "[ERROR] wingufile data directory is not valid.\n");
             return -1;
         }
     }
 
-    printf ("[INFO] wingufile data directory is %s\n", seaf_data_dir);
+    printf ("[INFO] wingufile data directory is %s\n", winguf_data_dir);
     g_type_init ();
     log_init();
 
     if (!worktree_dir)
         worktree_dir = g_build_filename (g_get_home_dir(), "wingufile", NULL);
 
-    seaf = wingufile_session_new(seaf_data_dir, worktree_dir, NULL);
-    wingufile_session_prepare(seaf);
-    if (!seaf) {
+    winguf = wingufile_session_new(winguf_data_dir, worktree_dir, NULL);
+    wingufile_session_prepare(winguf);
+    if (!winguf) {
         fprintf (stderr, "[ERROR] Failed to initialize\n");
         return -1;
     }

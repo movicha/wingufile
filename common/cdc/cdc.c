@@ -123,7 +123,7 @@ int file_chunk_cdc(int fd_src,
     SHA1_Init (&file_ctx);
 
     SeafStat sb;
-    if (seaf_fstat (fd_src, &sb) < 0) {
+    if (winguf_fstat (fd_src, &sb) < 0) {
         g_warning ("CDC: failed to stat: %s.\n", strerror(errno));
         return -1;
     }

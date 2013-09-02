@@ -9,7 +9,7 @@ proc_headers =
 
 noinst_HEADERS = \
 	unpack-trees.h \
-	seaf-tree-walk.h \
+	winguf-tree-walk.h \
 	diff-simple.h \
 	wingufile-crypt.h \
 	wingufile-config.h \
@@ -25,14 +25,14 @@ noinst_HEADERS = \
 	object-list.h \
 	gc-core.h \
 	vc-common.h \
-	seaf-utils.h \
+	winguf-utils.h \
 	obj-store.h \
 	obj-backend.h \
 	riak-client.h \
 	block-backend.h \
 	block.h \
 	mq-mgr.h \
-	seaf-db.h \
+	winguf-db.h \
 	merge-new.h \
 	block-tx-utils.h \
 	$(proc_headers)

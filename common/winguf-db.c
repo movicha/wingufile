@@ -2,7 +2,7 @@
 #include "common.h"
 
 #include <zdb.h>
-#include "seaf-db.h"
+#include "winguf-db.h"
 
 #ifdef WIN32
 #include <windows.h>
@@ -25,7 +25,7 @@ struct SeafDBTrans {
 };
 
 SeafDB *
-seaf_db_new_mysql (const char *host, 
+winguf_db_new_mysql (const char *host, 
                    const char *user, 
                    const char *passwd,
                    const char *db_name,
@@ -64,7 +64,7 @@ seaf_db_new_mysql (const char *host,
 }
 
 SeafDB *
-seaf_db_new_pgsql (const char *host,
+winguf_db_new_pgsql (const char *host,
                    const char *user,
                    const char *passwd,
                    const char *db_name,
@@ -103,7 +103,7 @@ seaf_db_new_pgsql (const char *host,
 }
 
 SeafDB *
-seaf_db_new_sqlite (const char *db_path)
+winguf_db_new_sqlite (const char *db_path)
 {
     SeafDB *db;
     GString *url;
@@ -134,7 +134,7 @@ seaf_db_new_sqlite (const char *db_path)
 }
 
 void
-seaf_db_free (SeafDB *db)
+winguf_db_free (SeafDB *db)
 {
     ConnectionPool_stop (db->pool);
     ConnectionPool_free (&db->pool);
@@ -142,7 +142,7 @@ seaf_db_free (SeafDB *db)
 }
 
 int
-seaf_db_type (SeafDB *db)
+winguf_db_type (SeafDB *db)
 {
     return db->type;
 }
@@ -175,7 +175,7 @@ out:
 }
 
 int
-seaf_db_query (SeafDB *db, const char *sql)
+winguf_db_query (SeafDB *db, const char *sql)
 {
     Connection_T conn = get_db_connection (db);
     if (!conn)
@@ -197,7 +197,7 @@ seaf_db_query (SeafDB *db, const char *sql)
 }
 
 gboolean
-seaf_db_check_for_existence (SeafDB *db, const char *sql, gboolean *db_err)
+winguf_db_check_for_existence (SeafDB *db, const char *sql, gboolean *db_err)
 {
     Connection_T conn;
     ResultSet_T result;
@@ -236,12 +236,12 @@ seaf_db_check_for_existence (SeafDB *db, const char *sql, gboolean *db_err)
 }
 
 int
-seaf_db_foreach_selected_row (SeafDB *db, const char *sql, 
+winguf_db_foreach_selected_row (SeafDB *db, const char *sql, 
                               SeafDBRowFunc callback, void *data)
 {
     Connection_T conn;
     ResultSet_T result;
-    SeafDBRow seaf_row;
+    SeafDBRow winguf_row;
     int n_rows = 0;
 
     conn = get_db_connection (db);
@@ -256,11 +256,11 @@ seaf_db_foreach_selected_row (SeafDB *db, const char *sql,
         return -1;
     END_TRY;
 
-    seaf_row.res = result;
+    winguf_row.res = result;
     TRY
         while (ResultSet_next (result)) {
             n_rows++;
-            if (!callback (&seaf_row, data))
+            if (!callback (&winguf_row, data))
                 break;
         }
     CATCH (SQLException)
@@ -274,7 +274,7 @@ seaf_db_foreach_selected_row (SeafDB *db, const char *sql,
 }
 
 const char *
-seaf_db_row_get_column_text (SeafDBRow *row, guint32 idx)
+winguf_db_row_get_column_text (SeafDBRow *row, guint32 idx)
 {
     g_assert (idx < ResultSet_getColumnCount(row->res));
 
@@ -282,7 +282,7 @@ seaf_db_row_get_column_text (SeafDBRow *row, guint32 idx)
 }
 
 int
-seaf_db_row_get_column_int (SeafDBRow *row, guint32 idx)
+winguf_db_row_get_column_int (SeafDBRow *row, guint32 idx)
 {
     g_assert (idx < ResultSet_getColumnCount(row->res));
 
@@ -290,7 +290,7 @@ seaf_db_row_get_column_int (SeafDBRow *row, guint32 idx)
 }
 
 gint64
-seaf_db_row_get_column_int64 (SeafDBRow *row, guint32 idx)
+winguf_db_row_get_column_int64 (SeafDBRow *row, guint32 idx)
 {
     g_assert (idx < ResultSet_getColumnCount(row->res));
 
@@ -298,12 +298,12 @@ seaf_db_row_get_column_int64 (SeafDBRow *row, guint32 idx)
 }
 
 int
-seaf_db_get_int (SeafDB *db, const char *sql)
+winguf_db_get_int (SeafDB *db, const char *sql)
 {
     int ret = -1;
     Connection_T conn;
     ResultSet_T result;
-    SeafDBRow seaf_row;
+    SeafDBRow winguf_row;
 
     conn = get_db_connection (db);
     if (!conn)
@@ -317,11 +317,11 @@ seaf_db_get_int (SeafDB *db, const char *sql)
         return -1;
     END_TRY;
 
-    seaf_row.res = result;
+    winguf_row.res = result;
 
     TRY
         if (ResultSet_next (result))
-            ret = seaf_db_row_get_column_int (&seaf_row, 0);
+            ret = winguf_db_row_get_column_int (&winguf_row, 0);
     CATCH (SQLException)
         g_warning ("Error exec query %s: %s.\n", sql, Exception_frame.message);
         Connection_close (conn);
@@ -333,12 +333,12 @@ seaf_db_get_int (SeafDB *db, const char *sql)
 }
 
 gint64
-seaf_db_get_int64 (SeafDB *db, const char *sql)
+winguf_db_get_int64 (SeafDB *db, const char *sql)
 {
     gint64 ret = -1;
     Connection_T conn;
     ResultSet_T result;
-    SeafDBRow seaf_row;
+    SeafDBRow winguf_row;
 
     conn = get_db_connection (db);
     if (!conn)
@@ -352,11 +352,11 @@ seaf_db_get_int64 (SeafDB *db, const char *sql)
         return -1;
     END_TRY;
 
-    seaf_row.res = result;
+    winguf_row.res = result;
 
     TRY
         if (ResultSet_next (result))
-            ret = seaf_db_row_get_column_int64 (&seaf_row, 0);
+            ret = winguf_db_row_get_column_int64 (&winguf_row, 0);
     CATCH (SQLException)
         g_warning ("Error exec query %s: %s.\n", sql, Exception_frame.message);
         Connection_close (conn);
@@ -368,13 +368,13 @@ seaf_db_get_int64 (SeafDB *db, const char *sql)
 }
 
 char *
-seaf_db_get_string (SeafDB *db, const char *sql)
+winguf_db_get_string (SeafDB *db, const char *sql)
 {
     char *ret = NULL;
     const char *s;
     Connection_T conn;
     ResultSet_T result;
-    SeafDBRow seaf_row;
+    SeafDBRow winguf_row;
 
     conn = get_db_connection (db);
     if (!conn)
@@ -388,11 +388,11 @@ seaf_db_get_string (SeafDB *db, const char *sql)
         return NULL;
     END_TRY;
 
-    seaf_row.res = result;
+    winguf_row.res = result;
     
     TRY
         if (ResultSet_next (result)) {
-            s = seaf_db_row_get_column_text (&seaf_row, 0);
+            s = winguf_db_row_get_column_text (&winguf_row, 0);
             ret = g_strdup(s);
         }
     CATCH (SQLException)
@@ -406,7 +406,7 @@ seaf_db_get_string (SeafDB *db, const char *sql)
 }
 
 SeafDBTrans *
-seaf_db_begin_transaction (SeafDB *db)
+winguf_db_begin_transaction (SeafDB *db)
 {
     Connection_T conn;
     SeafDBTrans *trans;
@@ -435,14 +435,14 @@ seaf_db_begin_transaction (SeafDB *db)
 }
 
 void
-seaf_db_trans_close (SeafDBTrans *trans)
+winguf_db_trans_close (SeafDBTrans *trans)
 {
     Connection_close (trans->conn);
     g_free (trans);
 }
 
 int
-seaf_db_commit (SeafDBTrans *trans)
+winguf_db_commit (SeafDBTrans *trans)
 {
     Connection_T conn = trans->conn;
 
@@ -457,7 +457,7 @@ seaf_db_commit (SeafDBTrans *trans)
 }
 
 int
-seaf_db_rollback (SeafDBTrans *trans)
+winguf_db_rollback (SeafDBTrans *trans)
 {
     Connection_T conn = trans->conn;
 
@@ -472,7 +472,7 @@ seaf_db_rollback (SeafDBTrans *trans)
 }
 
 int
-seaf_db_trans_query (SeafDBTrans *trans, const char *sql)
+winguf_db_trans_query (SeafDBTrans *trans, const char *sql)
 {
     /* Handle zdb "exception"s. */
     TRY
@@ -488,7 +488,7 @@ seaf_db_trans_query (SeafDBTrans *trans, const char *sql)
 }
 
 gboolean
-seaf_db_trans_check_for_existence (SeafDBTrans *trans,
+winguf_db_trans_check_for_existence (SeafDBTrans *trans,
                                    const char *sql,
                                    gboolean *db_err)
 {
@@ -518,11 +518,11 @@ seaf_db_trans_check_for_existence (SeafDBTrans *trans,
 }
 
 int
-seaf_db_trans_foreach_selected_row (SeafDBTrans *trans, const char *sql, 
+winguf_db_trans_foreach_selected_row (SeafDBTrans *trans, const char *sql, 
                               SeafDBRowFunc callback, void *data)
 {
     ResultSet_T result;
-    SeafDBRow seaf_row;
+    SeafDBRow winguf_row;
     int n_rows = 0;
 
     TRY
@@ -532,11 +532,11 @@ seaf_db_trans_foreach_selected_row (SeafDBTrans *trans, const char *sql,
         return -1;
     END_TRY;
 
-    seaf_row.res = result;
+    winguf_row.res = result;
     TRY
     while (ResultSet_next (result)) {
         n_rows++;
-        if (!callback (&seaf_row, data))
+        if (!callback (&winguf_row, data))
             break;
     }
     CATCH (SQLException)
@@ -548,7 +548,7 @@ seaf_db_trans_foreach_selected_row (SeafDBTrans *trans, const char *sql,
 }
 
 char *
-seaf_db_escape_string (SeafDB *db, const char *from)
+winguf_db_escape_string (SeafDB *db, const char *from)
 {
     const char *p = from;
     char *to, *q;
@@ -578,5 +578,5 @@ pgsql_index_exists (SeafDB *db, const char *index_name)
     snprintf (sql, sizeof(sql),
               "SELECT 1 FROM pg_class WHERE relname='%s'",
               index_name);
-    return seaf_db_check_for_existence (db, sql, &db_err);
+    return winguf_db_check_for_existence (db, sql, &db_err);
 }

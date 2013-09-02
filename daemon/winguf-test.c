@@ -26,7 +26,7 @@
 
 
 CcnetClient *client;
-SeafileSession *seaf;
+SeafileSession *winguf;
 
 #define TEST_DIR        "../tests/basic/"
 #define CCNET_DIR       TEST_DIR "conf1/"
@@ -49,14 +49,14 @@ static void setup()
         exit (1);
     }
 
-    seaf = wingufile_session_new (SEAF_DIR, 
+    winguf = wingufile_session_new (SEAF_DIR, 
                                 WORKTREE_DIR,
                                 client);
-    if (!seaf) {
+    if (!winguf) {
         fprintf (stderr, "Failed to create wingufile session.\n");
         exit (1);
     }
-    wingufile_session_prepare (seaf);
+    wingufile_session_prepare (winguf);
 }
 
 static void teardown ()
@@ -95,7 +95,7 @@ static SeafRepo* create_repo (const char *repo_name)
         fprintf (stderr, "Failed to create repo: %s.\n", error->message);
         exit (1);
     }
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
    
     g_free (wt_path);
     return repo;
@@ -155,7 +155,7 @@ static int check_wingufile (const char *id)
 {
     Seafile *wingufile;
 
-    wingufile = seaf_fs_manager_get_wingufile (seaf->fs_mgr, id);
+    wingufile = winguf_fs_manager_get_wingufile (winguf->fs_mgr, id);
     if (!wingufile) {
         fprintf (stderr, "Failed to read wingufile %s\n", id);
         return -1;
@@ -169,27 +169,27 @@ static int traverse_dir (const char *id)
 {
     SeafDir *dir;
     GList *p;
-    SeafDirent *seaf_dent;
+    SeafDirent *winguf_dent;
 
-    dir = seaf_fs_manager_get_seafdir (seaf->fs_mgr, id);
+    dir = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, id);
     if (!dir) {
         fprintf (stderr, "Failed to read dir %s\n", id);
         return -1;
     }
 
     for (p = dir->entries; p; p = p->next) {
-        seaf_dent = (SeafDirent *)p->data;
+        winguf_dent = (SeafDirent *)p->data;
 
-        if (S_ISREG(seaf_dent->mode)) {
-            printf ("check file %s\n", seaf_dent->name);
-            return check_wingufile (seaf_dent->id);
-        } else if (S_ISDIR(seaf_dent->mode)) {
-            printf ("check directory %s\n", seaf_dent->name);
-            return traverse_dir (seaf_dent->id);
+        if (S_ISREG(winguf_dent->mode)) {
+            printf ("check file %s\n", winguf_dent->name);
+            return check_wingufile (winguf_dent->id);
+        } else if (S_ISDIR(winguf_dent->mode)) {
+            printf ("check directory %s\n", winguf_dent->name);
+            return traverse_dir (winguf_dent->id);
         }
     }
 
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
     return 0;
 }
 
@@ -209,7 +209,7 @@ static int test_commit()
     if (print_index (repo) < 0)
         return -1;
 
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr, commit_id);
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr, commit_id);
     if (!commit) {
         fprintf (stderr, "Failed to get commit\n");
         return -1;
@@ -219,12 +219,12 @@ static int test_commit()
         return -1;
 
     /* status */
-    char *status = seaf_repo_status (repo);
+    char *status = winguf_repo_status (repo);
     printf ("Status\n%s", status);
     g_assert (strcmp(status, "") == 0);
     g_free (status);
 
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
 
     printf ("\n=== test commit succeeded.\n");
     return 0;
@@ -243,15 +243,15 @@ static int test_get_fs_size()
 
     commit_id = first_commit (repo);
 
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr, commit_id);
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr, commit_id);
     if (!commit) {
         fprintf (stderr, "Failed to get commit\n");
         return -1;
     }
 
-    size = seaf_fs_manager_get_fs_size (seaf->fs_mgr, commit->root_id);
+    size = winguf_fs_manager_get_fs_size (winguf->fs_mgr, commit->root_id);
     printf ("size is %"G_GINT64_FORMAT"\n", size);
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
 
     printf ("\n=== get fs size succeeded.\n");
 
@@ -354,13 +354,13 @@ test_successful_merge ()
 
     sleep (2);
 
-    if (seaf_repo_index_add (repo, "") < 0) {
+    if (winguf_repo_index_add (repo, "") < 0) {
         fprintf (stderr, "Failed to add on branch local\n");
         return -1;
     }
 
     printf ("*** creating new commit on local\n");
-    head = seaf_repo_index_commit (repo, "merge test 1.", FALSE, NULL, &error);
+    head = winguf_repo_index_commit (repo, "merge test 1.", FALSE, NULL, &error);
     if (!head) {
         fprintf (stderr, "Failed to commit on branch test\n");
         return -1;
@@ -400,13 +400,13 @@ test_successful_merge ()
 
     sleep (2);
 
-    if (seaf_repo_index_add (repo, "") < 0) {
+    if (winguf_repo_index_add (repo, "") < 0) {
         fprintf (stderr, "Failed to add on branch test\n");
         return -1;
     }
 
     printf ("*** creating new commit on branch test.\n");
-    remote = seaf_repo_index_commit (repo, "merge test 2.", FALSE, NULL, &error);
+    remote = winguf_repo_index_commit (repo, "merge test 2.", FALSE, NULL, &error);
     if (!remote) {
         fprintf (stderr, "Failed to commit on branch test\n");
         return -1;
@@ -549,13 +549,13 @@ test_merge_conflicts ()
 
     sleep (2);
 
-    if (seaf_repo_index_add (repo, "") < 0) {
+    if (winguf_repo_index_add (repo, "") < 0) {
         fprintf (stderr, "Failed to add on branch local\n");
         return -1;
     }
 
     printf ("*** creating new commit on local\n");
-    head = seaf_repo_index_commit (repo, "merge test 1.", FALSE, NULL, &error);
+    head = winguf_repo_index_commit (repo, "merge test 1.", FALSE, NULL, &error);
     if (!head) {
         fprintf (stderr, "Failed to commit on branch test\n");
         return -1;
@@ -604,13 +604,13 @@ test_merge_conflicts ()
 
     sleep (2);
 
-    if (seaf_repo_index_add (repo, "") < 0) {
+    if (winguf_repo_index_add (repo, "") < 0) {
         fprintf (stderr, "Failed to add on branch test\n");
         return -1;
     }
 
     printf ("*** creating new commit on branch test.\n");
-    remote = seaf_repo_index_commit (repo, "merge test 2.", FALSE, NULL, &error);
+    remote = winguf_repo_index_commit (repo, "merge test 2.", FALSE, NULL, &error);
     if (!remote) {
         fprintf (stderr, "Failed to commit on branch test\n");
         return -1;
@@ -694,7 +694,7 @@ test_commit_compare ()
     }
 
     printf ("*** creating new commit on local\n");
-    commit2 = seaf_repo_index_commit (repo, "commit compare 1.", FALSE, NULL, &error);
+    commit2 = winguf_repo_index_commit (repo, "commit compare 1.", FALSE, NULL, &error);
     if (!commit2) {
         fprintf (stderr, "Failed to commit on branch test\n");
         return -1;
@@ -709,19 +709,19 @@ test_commit_compare ()
     }
 
     printf ("*** creating new commit on branch test.\n");
-    commit3 = seaf_repo_index_commit (repo, "merge test 2.", FALSE, NULL, &error);
+    commit3 = winguf_repo_index_commit (repo, "merge test 2.", FALSE, NULL, &error);
     if (!commit3) {
         fprintf (stderr, "Failed to commit on branch test\n");
         return -1;
     }
 
     printf ("*** compare commit.\n");
-    g_assert (seaf_commit_manager_compare_commit (
-                  seaf->commit_mgr, commit1, commit2) == -1);
-    g_assert (seaf_commit_manager_compare_commit (
-                  seaf->commit_mgr, commit2, commit1) == 1);
-    g_assert (seaf_commit_manager_compare_commit (
-                  seaf->commit_mgr, commit2, commit3) == 0);
+    g_assert (winguf_commit_manager_compare_commit (
+                  winguf->commit_mgr, commit1, commit2) == -1);
+    g_assert (winguf_commit_manager_compare_commit (
+                  winguf->commit_mgr, commit2, commit1) == 1);
+    g_assert (winguf_commit_manager_compare_commit (
+                  winguf->commit_mgr, commit2, commit3) == 0);
 
     return 0;
 }
@@ -729,7 +729,7 @@ test_commit_compare ()
 static int
 test_block_manager ()
 {
-    SeafBlockManager *mgr = seaf->block_mgr;
+    SeafBlockManager *mgr = winguf->block_mgr;
     char *block_id = "c882e263e9d02c63ca6b61c68508761cbc74c358";
     char wr_buf[1024], rd_buf[1024];
     BlockHandle *handle;
@@ -740,38 +740,38 @@ test_block_manager ()
 
     memset (wr_buf, 1, sizeof(wr_buf));
 
-    handle = seaf_block_manager_open_block (mgr, block_id, BLOCK_WRITE);
+    handle = winguf_block_manager_open_block (mgr, block_id, BLOCK_WRITE);
     g_assert (handle != NULL);
 
-    n = seaf_block_manager_write_block (mgr, handle, wr_buf, sizeof(wr_buf));
+    n = winguf_block_manager_write_block (mgr, handle, wr_buf, sizeof(wr_buf));
     g_assert (n == sizeof(wr_buf));
 
-    md = seaf_block_manager_stat_block_by_handle (mgr, handle);
+    md = winguf_block_manager_stat_block_by_handle (mgr, handle);
     g_assert (md->size == sizeof(wr_buf));
     g_free (md);
 
-    g_assert (seaf_block_manager_close_block(mgr, handle) == 0);
-    g_assert (seaf_block_manager_commit_block(mgr, handle) == 0);
+    g_assert (winguf_block_manager_close_block(mgr, handle) == 0);
+    g_assert (winguf_block_manager_commit_block(mgr, handle) == 0);
 
-    seaf_block_manager_block_handle_free (mgr, handle);
+    winguf_block_manager_block_handle_free (mgr, handle);
 
-    handle = seaf_block_manager_open_block (mgr, block_id, BLOCK_READ);
+    handle = winguf_block_manager_open_block (mgr, block_id, BLOCK_READ);
     g_assert (handle != NULL);
 
-    n = seaf_block_manager_read_block (mgr, handle, rd_buf, sizeof(rd_buf));
+    n = winguf_block_manager_read_block (mgr, handle, rd_buf, sizeof(rd_buf));
     g_assert (n == sizeof(rd_buf));
 
-    md = seaf_block_manager_stat_block_by_handle (mgr, handle);
+    md = winguf_block_manager_stat_block_by_handle (mgr, handle);
     g_assert (md->size == sizeof(wr_buf));
     g_free (md);
 
-    g_assert (seaf_block_manager_close_block(mgr, handle) == 0);
-    seaf_block_manager_block_handle_free (mgr, handle);
+    g_assert (winguf_block_manager_close_block(mgr, handle) == 0);
+    winguf_block_manager_block_handle_free (mgr, handle);
 
 
     g_assert (memcmp (wr_buf, rd_buf, sizeof(wr_buf)) == 0);
 
-    md = seaf_block_manager_stat_block (mgr, block_id);
+    md = winguf_block_manager_stat_block (mgr, block_id);
 
     g_assert (strcmp (md->id, block_id) == 0);
     g_assert (md->size == sizeof(wr_buf));
@@ -895,13 +895,13 @@ test_checkout ()
     sleep (2);
 
     printf ("*** create new commit on local.\n");
-    if (seaf_repo_index_add (repo, "") < 0) {
+    if (winguf_repo_index_add (repo, "") < 0) {
         fprintf (stderr, "Failed to add\n");
         return -1;
     }
 
     /* a new commit. */
-    if (!seaf_repo_index_commit (repo, "second commit")) {
+    if (!winguf_repo_index_commit (repo, "second commit")) {
         fprintf (stderr, "Failed to commit\n");
         return -1;
     }
@@ -990,13 +990,13 @@ static int test_checkout_error ()
     sleep (2);
 
     printf ("*** create new commit on local.\n");
-    if (seaf_repo_index_add (repo, "") < 0) {
+    if (winguf_repo_index_add (repo, "") < 0) {
         fprintf (stderr, "Failed to add\n");
         return -1;
     }
 
     /* a new commit. */
-    if (!seaf_repo_index_commit (repo, "second commit")) {
+    if (!winguf_repo_index_commit (repo, "second commit")) {
         fprintf (stderr, "Failed to commit\n");
         return -1;
     }    

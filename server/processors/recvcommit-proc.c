@@ -16,7 +16,7 @@
 #include "commit-mgr.h"
 #include "recvcommit-proc.h"
 #include "processors/objecttx-common.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 #define CHECK_INTERVAL 100      /* 100ms */
 
@@ -105,7 +105,7 @@ recv_commit_start (CcnetProcessor *processor, int argc, char **argv)
     }
 
     session_token = argv[1];
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          processor->peer_id,
                                          session_token, NULL) == 0) {
         ccnet_processor_send_response (processor, SC_OK, SS_OK, NULL, 0);
@@ -125,7 +125,7 @@ check_commit (CcnetProcessor *processor, const char *commit_id)
 {
     USE_PRIV;
 
-    if (!seaf_commit_manager_commit_exists (seaf->commit_mgr, commit_id)) {
+    if (!winguf_commit_manager_commit_exists (winguf->commit_mgr, commit_id)) {
         request_object_batch (priv, commit_id);
     }
 }
@@ -133,7 +133,7 @@ check_commit (CcnetProcessor *processor, const char *commit_id)
 static int
 save_commit (ObjectPack *pack, int len)
 {
-    return seaf_obj_store_write_obj (seaf->commit_mgr->obj_store,
+    return winguf_obj_store_write_obj (winguf->commit_mgr->obj_store,
                                      pack->id,
                                      pack->object,
                                      len - 41);

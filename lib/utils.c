@@ -41,7 +41,7 @@
 #include <glib.h>
 #include <glib/gstdio.h>
 #include <json-glib/json-glib.h>
-#include <searpc-utils.h>
+#include <wingurpc-utils.h>
 
 extern int inet_pton(int af, const char *src, void *dst);
 
@@ -119,14 +119,14 @@ checkdir (const char *dir)
     char *path = g_strdup(dir);
     char *p = (char *)path + strlen(path) - 1;
     while (*p == '\\' || *p == '/') *p-- = '\0';
-    if ((seaf_stat(dir, &st) < 0) || !S_ISDIR(st.st_mode)) {
+    if ((winguf_stat(dir, &st) < 0) || !S_ISDIR(st.st_mode)) {
         g_free (path);
         return -1;
     }
     g_free (path);
     return 0;
 #else
-    if ((seaf_stat(dir, &st) < 0) || !S_ISDIR(st.st_mode))
+    if ((winguf_stat(dir, &st) < 0) || !S_ISDIR(st.st_mode))
         return -1;
     return 0;
 #endif
@@ -190,7 +190,7 @@ objstore_get_path (char *path, const char *base, const char *obj_id)
 }
 
 int
-seaf_stat (const char *path, SeafStat *st)
+winguf_stat (const char *path, SeafStat *st)
 {
 #ifdef WIN32
     wchar_t *wpath = g_utf8_to_utf16 (path, -1, NULL, NULL, NULL);

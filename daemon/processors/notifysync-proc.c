@@ -48,7 +48,7 @@ static int
 start (CcnetProcessor *processor, int argc, char **argv)
 {
     if (argc != 2) {
-        seaf_warning ("[notidysync] argc must be 2.\n");
+        winguf_warning ("[notidysync] argc must be 2.\n");
         ccnet_processor_done (processor, FALSE);
         return 0;
     }

@@ -93,7 +93,7 @@ wingufile_list_dir_by_path(const char *commit_id, const char *path, GError **err
     }
 
     SeafCommit *commit;
-    commit = seaf_commit_manager_get_commit(seaf->commit_mgr, commit_id);
+    commit = winguf_commit_manager_get_commit(winguf->commit_mgr, commit_id);
 
     if (!commit) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_COMMIT, "No such commit");
@@ -116,10 +116,10 @@ wingufile_list_dir_by_path(const char *commit_id, const char *path, GError **err
     GList *ptr;
     GList *res = NULL;
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr, commit->root_id,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr, commit->root_id,
                                                p, error);
     if (!dir) {
-        seaf_warning ("Can't find seaf dir for %s\n", path);
+        winguf_warning ("Can't find winguf dir for %s\n", path);
         goto out;
     }
 
@@ -133,13 +133,13 @@ wingufile_list_dir_by_path(const char *commit_id, const char *path, GError **err
         res = g_list_prepend (res, d);
     }
 
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
     res = g_list_reverse (res);
 
  out:
 
     g_free (p);
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
     return res;
 }
 
@@ -154,7 +154,7 @@ wingufile_get_dirid_by_path(const char *commit_id, const char *path, GError **er
     }
 
     SeafCommit *commit;
-    commit = seaf_commit_manager_get_commit(seaf->commit_mgr, commit_id);
+    commit = winguf_commit_manager_get_commit(winguf->commit_mgr, commit_id);
 
     if (!commit) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_COMMIT, "No such commit");
@@ -171,20 +171,20 @@ wingufile_get_dirid_by_path(const char *commit_id, const char *path, GError **er
     }
 
     SeafDir *dir;
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr, commit->root_id,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr, commit->root_id,
                                                p, error);
     if (!dir) {
-        seaf_warning ("Can't find seaf dir for %s\n", path);
+        winguf_warning ("Can't find winguf dir for %s\n", path);
         goto out;
     }
 
     res = g_strdup (dir->dir_id);
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
 
  out:
 
     g_free (p);
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
     return res;
 }
 
@@ -202,26 +202,26 @@ wingufile_get_session_info (GError **error)
     SeafileSessionInfo *info;
 
     info = wingufile_session_info_new ();
-    g_object_set (info, "datadir", seaf->seaf_dir, NULL);
+    g_object_set (info, "datadir", winguf->winguf_dir, NULL);
     return (GObject *) info;
 }
 
 int
 wingufile_set_config (const char *key, const char *value, GError **error)
 {
-    return wingufile_session_config_set_string(seaf, key, value);
+    return wingufile_session_config_set_string(winguf, key, value);
 }
 
 char *
 wingufile_get_config (const char *key, GError **error)
 {
-    return wingufile_session_config_get_string(seaf, key);
+    return wingufile_session_config_get_string(winguf, key);
 }
 
 int
 wingufile_set_config_int (const char *key, int value, GError **error)
 {
-    return wingufile_session_config_set_int(seaf, key, value);
+    return wingufile_session_config_set_int(winguf, key, value);
 }
 
 int
@@ -229,7 +229,7 @@ wingufile_get_config_int (const char *key, GError **error)
 {
     gboolean exists = TRUE;
 
-    int ret = wingufile_session_config_get_int(seaf, key, &exists);
+    int ret = wingufile_session_config_get_int(winguf, key, &exists);
 
     if (!exists) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Config not exists");
@@ -245,9 +245,9 @@ wingufile_set_upload_rate_limit (int limit, GError **error)
     if (limit < 0)
         limit = 0;
 
-    seaf->transfer_mgr->upload_limit = limit;
+    winguf->transfer_mgr->upload_limit = limit;
 
-    return wingufile_session_config_set_int (seaf, KEY_UPLOAD_LIMIT, limit);
+    return wingufile_session_config_set_int (winguf, KEY_UPLOAD_LIMIT, limit);
 }
 
 int
@@ -256,9 +256,9 @@ wingufile_set_download_rate_limit (int limit, GError **error)
     if (limit < 0)
         limit = 0;
 
-    seaf->transfer_mgr->download_limit = limit;
+    winguf->transfer_mgr->download_limit = limit;
 
-    return wingufile_session_config_set_int (seaf, KEY_DOWNLOAD_LIMIT, limit);
+    return wingufile_session_config_set_int (winguf, KEY_DOWNLOAD_LIMIT, limit);
 }
 
 int
@@ -274,7 +274,7 @@ wingufile_repo_last_modify(const char *repo_id, GError **error)
         return -1;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO, "No such repository");
         return -1;
@@ -282,11 +282,11 @@ wingufile_repo_last_modify(const char *repo_id, GError **error)
 
     if (!repo->head) {
         SeafBranch *branch =
-            seaf_branch_manager_get_branch (seaf->branch_mgr,
+            winguf_branch_manager_get_branch (winguf->branch_mgr,
                                             repo->id, "master");
         if (branch != NULL) {
             commit_id = g_strdup (branch->commit_id);
-            seaf_branch_unref (branch);
+            winguf_branch_unref (branch);
         } else {
             g_warning ("[repo-mgr] Failed to get repo %s branch master\n",
                        repo_id);
@@ -298,13 +298,13 @@ wingufile_repo_last_modify(const char *repo_id, GError **error)
         commit_id = g_strdup (repo->head->commit_id);
     }
 
-    c = seaf_commit_manager_get_commit (seaf->commit_mgr, commit_id);
+    c = winguf_commit_manager_get_commit (winguf->commit_mgr, commit_id);
     g_free (commit_id);
     if (!c)
         return -1;
 
     ctime = c->ctime;
-    seaf_commit_unref (c);
+    winguf_commit_unref (c);
     return ctime;
 }
 
@@ -312,12 +312,12 @@ GObject *
 wingufile_get_checkout_task (const char *repo_id, GError **error)
 {
     if (!repo_id) {
-        seaf_warning ("Invalid args\n");
+        winguf_warning ("Invalid args\n");
         return NULL;
     }
 
     CheckoutTask *task;
-    task = seaf_repo_manager_get_checkout_task(seaf->repo_mgr,
+    task = winguf_repo_manager_get_checkout_task(winguf->repo_mgr,
                                                repo_id);
     if (!task)
         return NULL;
@@ -343,7 +343,7 @@ wingufile_gen_default_worktree (const char *worktree_parent,
         return NULL;
     }
 
-    return seaf_clone_manager_gen_default_worktree (seaf->clone_mgr,
+    return winguf_clone_manager_gen_default_worktree (winguf->clone_mgr,
                                                     worktree_parent,
                                                     repo_name);
 }
@@ -383,7 +383,7 @@ wingufile_clone (const char *repo_id,
         return NULL;
     }
 
-    return seaf_clone_manager_add_task (seaf->clone_mgr,
+    return winguf_clone_manager_add_task (winguf->clone_mgr,
                                         repo_id, relay_id,
                                         repo_name, token,
                                         passwd, magic, worktree,
@@ -426,7 +426,7 @@ wingufile_download (const char *repo_id,
         return NULL;
     }
 
-    return seaf_clone_manager_add_download_task (seaf->clone_mgr,
+    return winguf_clone_manager_add_download_task (winguf->clone_mgr,
                                                  repo_id, relay_id,
                                                  repo_name, token,
                                                  passwd, magic, wt_parent,
@@ -437,13 +437,13 @@ wingufile_download (const char *repo_id,
 int
 wingufile_cancel_clone_task (const char *repo_id, GError **error)
 {
-    return seaf_clone_manager_cancel_task (seaf->clone_mgr, repo_id);
+    return winguf_clone_manager_cancel_task (winguf->clone_mgr, repo_id);
 }
 
 int
 wingufile_remove_clone_task (const char *repo_id, GError **error)
 {
-    return seaf_clone_manager_remove_task (seaf->clone_mgr, repo_id);
+    return winguf_clone_manager_remove_task (winguf->clone_mgr, repo_id);
 }
 
 GList *
@@ -454,7 +454,7 @@ wingufile_get_clone_tasks (GError **error)
     CloneTask *task;
     SeafileCloneTask *t;
 
-    tasks = seaf_clone_manager_get_tasks (seaf->clone_mgr);
+    tasks = winguf_clone_manager_get_tasks (winguf->clone_mgr);
     for (ptr = tasks; ptr != NULL; ptr = ptr->next) {
         task = ptr->data;
         t = g_object_new (WINGUFILE_TYPE_CLONE_TASK,
@@ -481,7 +481,7 @@ wingufile_sync (const char *repo_id, const char *peer_id, GError **error)
         return -1;
     }
 
-    return seaf_sync_manager_add_sync_task (seaf->sync_mgr, repo_id, peer_id,
+    return winguf_sync_manager_add_sync_task (winguf->sync_mgr, repo_id, peer_id,
                                             NULL, FALSE, error);
 }
 
@@ -552,8 +552,8 @@ wingufile_find_transfer_task (const char *repo_id, GError *error)
 {
     TransferTask *task;
 
-    task = seaf_transfer_manager_find_transfer_by_repo (
-        seaf->transfer_mgr, repo_id);
+    task = winguf_transfer_manager_find_transfer_by_repo (
+        winguf->transfer_mgr, repo_id);
     if (!task)
         return NULL;
 
@@ -566,7 +566,7 @@ wingufile_get_repo_sync_info (const char *repo_id, GError **error)
 {
     SyncInfo *info;
 
-    info = seaf_sync_manager_get_sync_info (seaf->sync_mgr, repo_id);
+    info = winguf_sync_manager_get_sync_info (winguf->sync_mgr, repo_id);
     if (!info)
         return NULL;
 
@@ -588,7 +588,7 @@ wingufile_get_repo_sync_info (const char *repo_id, GError **error)
 GObject *
 wingufile_get_repo_sync_task (const char *repo_id, GError **error)
 {
-    SyncInfo *info = seaf_sync_manager_get_sync_info (seaf->sync_mgr, repo_id);
+    SyncInfo *info = winguf_sync_manager_get_sync_info (winguf->sync_mgr, repo_id);
     if (!info || !info->current_task)
         return NULL;
 
@@ -611,7 +611,7 @@ wingufile_get_repo_sync_task (const char *repo_id, GError **error)
 GList *
 wingufile_get_sync_task_list (GError **error)
 {
-    GHashTable *sync_info_tbl = seaf->sync_mgr->sync_infos;
+    GHashTable *sync_info_tbl = winguf->sync_mgr->sync_infos;
     GHashTableIter iter;
     SeafileSyncTask *s_task;
     GList *task_list = NULL;
@@ -655,13 +655,13 @@ wingufile_set_repo_property (const char *repo_id,
     }
 
     SeafRepo *repo;
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO, "Can't find Repo %s", repo_id);
         return -1;
     }
 
-    ret = seaf_repo_manager_set_repo_property (seaf->repo_mgr,
+    ret = winguf_repo_manager_set_repo_property (winguf->repo_mgr,
                                                repo->id, key, value);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
@@ -685,13 +685,13 @@ wingufile_get_repo_property (const char *repo_id,
     }
 
     SeafRepo *repo;
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO, "Can't find Repo %s", repo_id);
         return NULL;
     }
 
-    value = seaf_repo_manager_get_repo_property (seaf->repo_mgr, repo->id, key);
+    value = winguf_repo_manager_get_repo_property (winguf->repo_mgr, repo->id, key);
     return value;
 }
 
@@ -706,7 +706,7 @@ wingufile_get_repo_relay_address (const char *repo_id,
         return NULL;
     }
 
-    seaf_repo_manager_get_repo_relay_info (seaf->repo_mgr, repo_id,
+    winguf_repo_manager_get_repo_relay_info (winguf->repo_mgr, repo_id,
                                            &relay_addr, NULL);
 
     return relay_addr;
@@ -723,7 +723,7 @@ wingufile_get_repo_relay_port (const char *repo_id,
         return NULL;
     }
 
-    seaf_repo_manager_get_repo_relay_info (seaf->repo_mgr, repo_id,
+    winguf_repo_manager_get_repo_relay_info (winguf->repo_mgr, repo_id,
                                            NULL, &relay_port);
 
     return relay_port;
@@ -746,30 +746,30 @@ wingufile_update_repo_relay_info (const char *repo_id,
         return -1;
     }
 
-    SeafRepo *repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    SeafRepo *repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         return -1;
     }
 
-    CcnetPeer *relay = ccnet_get_peer (seaf->ccnetrpc_client, repo->relay_id);
+    CcnetPeer *relay = ccnet_get_peer (winguf->ccnetrpc_client, repo->relay_id);
     if (!relay) {
         GString *buf = g_string_new(NULL);
         g_string_append_printf (buf, "add-relay --id %s --addr %s:%s",
                                 repo->relay_id, new_addr, new_port);
 
-        ccnet_send_command (seaf->session, buf->str, NULL, NULL);
+        ccnet_send_command (winguf->session, buf->str, NULL, NULL);
         g_string_free (buf, TRUE);
     } else {
         if (g_strcmp0(relay->public_addr, new_addr) != 0 ||
             relay->public_port != (uint16_t)port) {
-            ccnet_update_peer_address (seaf->ccnetrpc_client, repo->relay_id,
+            ccnet_update_peer_address (winguf->ccnetrpc_client, repo->relay_id,
                                        new_addr, port);
         }
 
         g_object_unref (relay);
     }
 
-    return seaf_repo_manager_update_repo_relay_info (seaf->repo_mgr, repo,
+    return winguf_repo_manager_update_repo_relay_info (winguf->repo_mgr, repo,
                                                      new_addr, new_port);
 }
 
@@ -783,7 +783,7 @@ wingufile_calc_dir_size (const char *path, GError **error)
 
     gint64 size_64 = ccnet_calc_directory_size(path, error);
     if (size_64 < 0) {
-        seaf_warning ("failed to calculate dir size for %s\n", path);
+        winguf_warning ("failed to calculate dir size for %s\n", path);
         return -1;
     }
 
@@ -795,18 +795,18 @@ wingufile_calc_dir_size (const char *path, GError **error)
 int
 wingufile_disable_auto_sync (GError **error)
 {
-    return seaf_sync_manager_disable_auto_sync (seaf->sync_mgr);
+    return winguf_sync_manager_disable_auto_sync (winguf->sync_mgr);
 }
 
 int
 wingufile_enable_auto_sync (GError **error)
 {
-    return seaf_sync_manager_enable_auto_sync (seaf->sync_mgr);
+    return winguf_sync_manager_enable_auto_sync (winguf->sync_mgr);
 }
 
 int wingufile_is_auto_sync_enabled (GError **error)
 {
-    return seaf_sync_manager_is_auto_sync_enabled (seaf->sync_mgr);
+    return winguf_sync_manager_is_auto_sync_enabled (winguf->sync_mgr);
 }
 
 
@@ -829,7 +829,7 @@ wingufile_list_dir (const char *dir_id, int offset, int limit, GError **error)
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_DIR_ID, "Bad dir id");
         return NULL;
     }
-    dir = seaf_fs_manager_get_seafdir (seaf->fs_mgr, dir_id);
+    dir = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, dir_id);
     if (!dir) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_DIR_ID, "Bad dir id");
         return NULL;
@@ -859,7 +859,7 @@ wingufile_list_dir (const char *dir_id, int offset, int limit, GError **error)
         res = g_list_prepend (res, d);
     }
 
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
     res = g_list_reverse (res);
     return res;
 }
@@ -872,7 +872,7 @@ wingufile_branch_gets (const char *repo_id, GError **error)
         return NULL;
     }
 
-    GList *blist = seaf_branch_manager_get_branch_list(seaf->branch_mgr,
+    GList *blist = winguf_branch_manager_get_branch_list(winguf->branch_mgr,
                                                        repo_id);
     GList *ptr;
     GList *ret = NULL;
@@ -883,7 +883,7 @@ wingufile_branch_gets (const char *repo_id, GError **error)
         g_object_set (branch, "repo_id", b->repo_id, "name", b->name,
                       "commit_id", b->commit_id, NULL);
         ret = g_list_prepend (ret, branch);
-        seaf_branch_unref (b);
+        winguf_branch_unref (b);
     }
     ret = g_list_reverse (ret);
     g_list_free (blist);
@@ -893,7 +893,7 @@ wingufile_branch_gets (const char *repo_id, GError **error)
 GList*
 wingufile_get_repo_list (int start, int limit, GError **error)
 {
-    GList *repos = seaf_repo_manager_get_repo_list(seaf->repo_mgr, start, limit);
+    GList *repos = winguf_repo_manager_get_repo_list(winguf->repo_mgr, start, limit);
     GList *ret = NULL;
 
     ret = convert_repo_list (repos);
@@ -901,7 +901,7 @@ wingufile_get_repo_list (int start, int limit, GError **error)
 #ifdef WINGUFILE_SERVER
     GList *ptr;
     for (ptr = repos; ptr != NULL; ptr = ptr->next)
-        seaf_repo_unref ((SeafRepo *)ptr->data);
+        winguf_repo_unref ((SeafRepo *)ptr->data);
 #endif
     g_list_free (repos);
 
@@ -922,7 +922,7 @@ wingufile_get_repo (const char *repo_id, GError **error)
         return NULL;
     }
 
-    r = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    r = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     /* Don't return repo that's not checked out. */
     if (r == NULL)
         return NULL;
@@ -973,7 +973,7 @@ wingufile_get_repo (const char *repo_id, GError **error)
 #endif  /* WINGUFILE_SERVER */
 
 #ifdef WINGUFILE_SERVER
-    seaf_repo_unref (r);
+    winguf_repo_unref (r);
 #endif
 
     return (GObject *)repo;
@@ -1003,12 +1003,12 @@ wingufile_get_commit (const gchar *id, GError **error)
     SeafileCommit *commit;
     SeafCommit *c;
 
-    c = seaf_commit_manager_get_commit (seaf->commit_mgr, id);
+    c = winguf_commit_manager_get_commit (winguf->commit_mgr, id);
     if (!c)
         return NULL;
 
     commit = convert_to_wingufile_commit (c);
-    seaf_commit_unref (c);
+    winguf_commit_unref (c);
     return (GObject *)commit;
 }
 
@@ -1102,7 +1102,7 @@ wingufile_get_commit_list (const char *repo_id,
         return NULL;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO, "No such repository");
         return NULL;
@@ -1110,18 +1110,18 @@ wingufile_get_commit_list (const char *repo_id,
 
     if (!repo->head) {
         SeafBranch *branch =
-            seaf_branch_manager_get_branch (seaf->branch_mgr,
+            winguf_branch_manager_get_branch (winguf->branch_mgr,
                                             repo->id, "master");
         if (branch != NULL) {
             commit_id = g_strdup (branch->commit_id);
-            seaf_branch_unref (branch);
+            winguf_branch_unref (branch);
         } else {
             g_warning ("[repo-mgr] Failed to get repo %s branch master\n",
                        repo_id);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO,
                          "No head and branch master");
 #ifdef WINGUFILE_SERVER
-            seaf_repo_unref (repo);
+            winguf_repo_unref (repo);
 #endif
             return NULL;
         }
@@ -1130,7 +1130,7 @@ wingufile_get_commit_list (const char *repo_id,
     }
 
 #ifdef WINGUFILE_SERVER
-    seaf_repo_unref (repo);
+    winguf_repo_unref (repo);
 #endif
 
     /* Init CollectParam */
@@ -1139,12 +1139,12 @@ wingufile_get_commit_list (const char *repo_id,
     cp.limit = limit;
 
 #ifdef WINGUFILE_SERVER
-    cp.truncate_time = seaf_repo_manager_get_repo_truncate_time (seaf->repo_mgr,
+    cp.truncate_time = winguf_repo_manager_get_repo_truncate_time (winguf->repo_mgr,
                                                                  repo_id);
 #endif
 
-    ret = seaf_commit_manager_traverse_commit_tree (
-            seaf->commit_mgr, commit_id, get_commit, &cp, FALSE);
+    ret = winguf_commit_manager_traverse_commit_tree (
+            winguf->commit_mgr, commit_id, get_commit, &cp, FALSE);
     g_free (commit_id);
 
     if (!ret) {
@@ -1171,22 +1171,22 @@ wingufile_destroy_repo (const char *repo_id, GError **error)
         return -1;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "No such repository");
         return -1;
     }
 
 #ifndef WINGUFILE_SERVER
-    if (!seaf->started) {
-        seaf_message ("System not started, skip removing repo.\n");
+    if (!winguf->started) {
+        winguf_message ("System not started, skip removing repo.\n");
         return -1;
     }
 
     if (repo->auto_sync)
-        seaf_wt_monitor_unwatch_repo (seaf->wt_monitor, repo_id);
+        winguf_wt_monitor_unwatch_repo (winguf->wt_monitor, repo_id);
 
-    SyncInfo *info = seaf_sync_manager_get_sync_info (seaf->sync_mgr, repo_id);
+    SyncInfo *info = winguf_sync_manager_get_sync_info (winguf->sync_mgr, repo_id);
 
     /* If we are syncing the repo,
      * we just mark the repo as deleted and let sync-mgr actually delete it.
@@ -1194,20 +1194,20 @@ wingufile_destroy_repo (const char *repo_id, GError **error)
      */
     char *worktree = g_strdup (repo->worktree);
     if (info != NULL && info->in_sync) {
-        seaf_repo_manager_mark_repo_deleted (seaf->repo_mgr, repo);
+        winguf_repo_manager_mark_repo_deleted (winguf->repo_mgr, repo);
     } else {
-        seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
     }
 
     /* Publish a message, for applet to notify in the system tray */
-    seaf_mq_manager_publish_notification (seaf->mq_mgr,
+    winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                           "repo.removed",
                                           worktree);
     g_free (worktree);
 #else
-    seaf_repo_manager_del_repo (seaf->repo_mgr, repo->id);
-    seaf_share_manager_remove_repo (seaf->share_mgr, repo->id);
-    seaf_repo_unref (repo);
+    winguf_repo_manager_del_repo (winguf->repo_mgr, repo->id);
+    winguf_share_manager_remove_repo (winguf->share_mgr, repo->id);
+    winguf_repo_unref (repo);
 #endif
 
     return 0;
@@ -1271,7 +1271,7 @@ wingufile_edit_repo (const char *repo_id,
     }
 
 retry:
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "No such library");
         return -1;
@@ -1286,15 +1286,15 @@ retry:
      * We only change repo_name or repo_desc, so just copy the head commit
      * and change these two fields.
      */
-    parent = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    parent = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                              repo->head->commit_id);
     if (!parent) {
-        seaf_warning ("Failed to get commit %s.\n", repo->head->commit_id);
+        winguf_warning ("Failed to get commit %s.\n", repo->head->commit_id);
         ret = -1;
         goto out;
     }
 
-    commit = seaf_commit_new (NULL,
+    commit = winguf_commit_new (NULL,
                               repo->id,
                               parent->root_id,
                               user,
@@ -1302,25 +1302,25 @@ retry:
                               "Changed library name or description",
                               0);
     commit->parent_id = g_strdup(parent->commit_id);
-    seaf_repo_to_commit (repo, commit);
+    winguf_repo_to_commit (repo, commit);
 
     g_free (commit->repo_name);
     commit->repo_name = g_strdup(name);
     g_free (commit->repo_desc);
     commit->repo_desc = g_strdup(description);
 
-    if (seaf_commit_manager_add_commit (seaf->commit_mgr, commit) < 0) {
+    if (winguf_commit_manager_add_commit (winguf->commit_mgr, commit) < 0) {
         ret = -1;
         goto out;
     }
 
-    seaf_branch_set_commit (repo->head, commit->commit_id);
-    if (seaf_branch_manager_test_and_update_branch (seaf->branch_mgr,
+    winguf_branch_set_commit (repo->head, commit->commit_id);
+    if (winguf_branch_manager_test_and_update_branch (winguf->branch_mgr,
                                                     repo->head,
                                                     parent->commit_id) < 0) {
-        seaf_repo_unref (repo);
-        seaf_commit_unref (commit);
-        seaf_commit_unref (parent);
+        winguf_repo_unref (repo);
+        winguf_commit_unref (commit);
+        winguf_commit_unref (parent);
         repo = NULL;
         commit = NULL;
         parent = NULL;
@@ -1328,9 +1328,9 @@ retry:
     }
 
 out:
-    seaf_commit_unref (commit);
-    seaf_commit_unref (parent);
-    seaf_repo_unref (repo);
+    winguf_commit_unref (commit);
+    winguf_commit_unref (parent);
+    winguf_repo_unref (repo);
 
     return ret;
 }
@@ -1373,24 +1373,24 @@ wingufile_diff (const char *repo_id, const char *arg1, const char *arg2, GError 
         return NULL;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "No such repository");
         return NULL;
     }
 
-    diff_entries = seaf_repo_diff (repo, arg1, arg2, &err_msgs);
+    diff_entries = winguf_repo_diff (repo, arg1, arg2, &err_msgs);
     if (err_msgs) {
         g_set_error (error, WINGUFILE_DOMAIN, -1, "%s", err_msgs);
         g_free (err_msgs);
 #ifdef WINGUFILE_SERVER
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
 #endif
         return NULL;
     }
 
 #ifdef WINGUFILE_SERVER
-    seaf_repo_unref (repo);
+    winguf_repo_unref (repo);
 #endif
 
     for (p = diff_entries; p != NULL; p = p->next) {
@@ -1423,7 +1423,7 @@ wingufile_is_repo_owner (const char *email,
         return 0;
     }
 
-    char *owner = seaf_repo_manager_get_repo_owner (seaf->repo_mgr, repo_id);
+    char *owner = winguf_repo_manager_get_repo_owner (winguf->repo_mgr, repo_id);
     if (!owner) {
         /* g_warning ("Failed to get owner info for repo %s.\n", repo_id); */
         return 0;
@@ -1450,7 +1450,7 @@ wingufile_get_repo_owner (const char *repo_id, GError **error)
         return NULL;
     }
 
-    char *owner = seaf_repo_manager_get_repo_owner (seaf->repo_mgr, repo_id);
+    char *owner = winguf_repo_manager_get_repo_owner (winguf->repo_mgr, repo_id);
     /* if (!owner){ */
     /*     g_warning ("Failed to get repo owner for repo %s.\n", repo_id); */
     /* } */
@@ -1467,7 +1467,7 @@ wingufile_list_owned_repos (const char *email, GError **error)
     SeafRepo *r;
     SeafileRepo *repo;
 
-    repos = seaf_repo_manager_get_repos_by_owner (seaf->repo_mgr, email);
+    repos = winguf_repo_manager_get_repos_by_owner (winguf->repo_mgr, email);
     ptr = repos;
     while (ptr) {
         r = ptr->data;
@@ -1479,7 +1479,7 @@ wingufile_list_owned_repos (const char *email, GError **error)
                       "is_virtual", (r->virtual_info != NULL),
                       NULL);
         ret = g_list_prepend (ret, repo);
-        seaf_repo_unref (r);
+        winguf_repo_unref (r);
         ptr = ptr->next;
     }
     g_list_free (repos);
@@ -1491,16 +1491,16 @@ wingufile_list_owned_repos (const char *email, GError **error)
 int
 wingufile_add_chunk_server (const char *server, GError **error)
 {
-    SeafCSManager *cs_mgr = seaf->cs_mgr;
+    SeafCSManager *cs_mgr = winguf->cs_mgr;
     CcnetPeer *peer;
 
-    peer = ccnet_get_peer_by_idname (seaf->ccnetrpc_client, server);
+    peer = ccnet_get_peer_by_idname (winguf->ccnetrpc_client, server);
     if (!peer) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid peer id or name %s", server);
         return -1;
     }
 
-    if (seaf_cs_manager_add_chunk_server (cs_mgr, peer->id) < 0) {
+    if (winguf_cs_manager_add_chunk_server (cs_mgr, peer->id) < 0) {
         g_object_unref (peer);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL, "Failed to add chunk server %s", server);
         return -1;
@@ -1513,16 +1513,16 @@ wingufile_add_chunk_server (const char *server, GError **error)
 int
 wingufile_del_chunk_server (const char *server, GError **error)
 {
-    SeafCSManager *cs_mgr = seaf->cs_mgr;
+    SeafCSManager *cs_mgr = winguf->cs_mgr;
     CcnetPeer *peer;
 
-    peer = ccnet_get_peer_by_idname (seaf->ccnetrpc_client, server);
+    peer = ccnet_get_peer_by_idname (winguf->ccnetrpc_client, server);
     if (!peer) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid peer id or name %s", server);
         return -1;
     }
 
-    if (seaf_cs_manager_del_chunk_server (cs_mgr, peer->id) < 0) {
+    if (winguf_cs_manager_del_chunk_server (cs_mgr, peer->id) < 0) {
         g_object_unref (peer);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL, "Failed to delete chunk server %s", server);
         return -1;
@@ -1535,17 +1535,17 @@ wingufile_del_chunk_server (const char *server, GError **error)
 char *
 wingufile_list_chunk_servers (GError **error)
 {
-    SeafCSManager *cs_mgr = seaf->cs_mgr;
+    SeafCSManager *cs_mgr = winguf->cs_mgr;
     GList *servers, *ptr;
     char *cs_id;
     CcnetPeer *peer;
     GString *buf = g_string_new ("");
 
-    servers = seaf_cs_manager_get_chunk_servers (cs_mgr);
+    servers = winguf_cs_manager_get_chunk_servers (cs_mgr);
     ptr = servers;
     while (ptr) {
         cs_id = ptr->data;
-        peer = ccnet_get_peer (seaf->ccnetrpc_client, cs_id);
+        peer = ccnet_get_peer (winguf->ccnetrpc_client, cs_id);
         if (!peer) {
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL, "Internal error");
             g_string_free (buf, TRUE);
@@ -1566,7 +1566,7 @@ wingufile_set_monitor (const char *monitor_id, GError **error)
 {
     CcnetPeer *peer;
 
-    peer = ccnet_get_peer (seaf->ccnetrpc_client, monitor_id);
+    peer = ccnet_get_peer (winguf->ccnetrpc_client, monitor_id);
     if (!peer) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid peer id %s",
                      monitor_id);
@@ -1574,7 +1574,7 @@ wingufile_set_monitor (const char *monitor_id, GError **error)
     }
     g_object_unref (peer);
 
-    if (wingufile_session_set_monitor (seaf, monitor_id) < 0) {
+    if (wingufile_session_set_monitor (winguf, monitor_id) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL, "Failed to set monitor to %s",
                      monitor_id);
         return -1;
@@ -1586,7 +1586,7 @@ wingufile_set_monitor (const char *monitor_id, GError **error)
 char *
 wingufile_get_monitor (GError **error)
 {
-    return g_strdup (seaf->monitor_id);
+    return g_strdup (winguf->monitor_id);
 }
 
 gint64
@@ -1599,7 +1599,7 @@ wingufile_get_user_quota_usage (const char *email, GError **error)
         return -1;
     }
 
-    ret = seaf_quota_manager_get_user_usage (seaf->quota_mgr, email);
+    ret = winguf_quota_manager_get_user_usage (winguf->quota_mgr, email);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal server error");
         return -1;
@@ -1618,7 +1618,7 @@ wingufile_get_user_share_usage (const char *email, GError **error)
         return -1;
     }
 
-    ret = seaf_quota_manager_get_user_share_usage (seaf->quota_mgr, email);
+    ret = winguf_quota_manager_get_user_share_usage (winguf->quota_mgr, email);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal server error");
         return -1;
@@ -1632,7 +1632,7 @@ wingufile_get_org_quota_usage (int org_id, GError **error)
 {
     gint64 ret;
 
-    ret = seaf_quota_manager_get_org_usage (seaf->quota_mgr, org_id);
+    ret = winguf_quota_manager_get_org_usage (winguf->quota_mgr, org_id);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal server error");
         return -1;
@@ -1651,7 +1651,7 @@ wingufile_get_org_user_quota_usage (int org_id, const char *user, GError **error
         return -1;
     }
 
-    ret = seaf_quota_manager_get_org_user_usage (seaf->quota_mgr, org_id, user);
+    ret = winguf_quota_manager_get_org_user_usage (winguf->quota_mgr, org_id, user);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal server error");
         return -1;
@@ -1675,7 +1675,7 @@ wingufile_server_repo_size(const char *repo_id, GError **error)
         return -1;
     }
 
-    ret = seaf_repo_manager_get_repo_size (seaf->repo_mgr, repo_id);
+    ret = winguf_repo_manager_get_repo_size (winguf->repo_mgr, repo_id);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal server error");
         return -1;
@@ -1699,7 +1699,7 @@ wingufile_set_repo_history_limit (const char *repo_id,
         return -1;
     }
 
-    if (seaf_repo_manager_set_repo_history_limit (seaf->repo_mgr,
+    if (winguf_repo_manager_set_repo_history_limit (winguf->repo_mgr,
                                                   repo_id,
                                                   days) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL, "DB Error");
@@ -1723,7 +1723,7 @@ wingufile_get_repo_history_limit (const char *repo_id,
         return -1;
     }
 
-    return  seaf_repo_manager_get_repo_history_limit (seaf->repo_mgr, repo_id);
+    return  winguf_repo_manager_get_repo_history_limit (winguf->repo_mgr, repo_id);
 }
 
 int
@@ -1746,7 +1746,7 @@ wingufile_repo_set_access_property (const char *repo_id, const char *ap, GError 
         return -1;
     }
 
-    ret = seaf_repo_manager_set_access_property (seaf->repo_mgr, repo_id, ap);
+    ret = winguf_repo_manager_set_access_property (winguf->repo_mgr, repo_id, ap);
     if (ret < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal server error");
         return -1;
@@ -1770,7 +1770,7 @@ wingufile_repo_query_access_property (const char *repo_id, GError **error)
         return NULL;
     }
 
-    ret = seaf_repo_manager_query_access_property (seaf->repo_mgr, repo_id);
+    ret = winguf_repo_manager_query_access_property (winguf->repo_mgr, repo_id);
 
     return ret;
 }
@@ -1789,7 +1789,7 @@ wingufile_web_get_access_token (const char *repo_id,
         return NULL;
     }
 
-    token = seaf_web_at_manager_get_access_token (seaf->web_at_mgr,
+    token = winguf_web_at_manager_get_access_token (winguf->web_at_mgr,
                                                   repo_id, obj_id, op, username);
     return token;
 }
@@ -1805,7 +1805,7 @@ wingufile_web_query_access_token (const char *token, GError **error)
         return NULL;
     }
 
-    webaccess = seaf_web_at_manager_query_access_token (seaf->web_at_mgr,
+    webaccess = winguf_web_at_manager_query_access_token (winguf->web_at_mgr,
                                                         token);
     if (webaccess)
         return (GObject *)webaccess;
@@ -1830,7 +1830,7 @@ wingufile_add_share (const char *repo_id, const char *from_email,
         return -1;
     }
 
-    ret = seaf_share_manager_add_share (seaf->share_mgr, repo_id, from_email,
+    ret = winguf_share_manager_add_share (winguf->share_mgr, repo_id, from_email,
                                         to_email, permission);
 
     return ret;
@@ -1847,7 +1847,7 @@ wingufile_list_share_repos (const char *email, const char *type,
         return NULL;
     }
 
-    return seaf_share_manager_list_share_repos (seaf->share_mgr,
+    return winguf_share_manager_list_share_repos (winguf->share_mgr,
                                                 email, type,
                                                 start, limit);
 }
@@ -1863,7 +1863,7 @@ wingufile_list_org_share_repos (int org_id, const char *email, const char *type,
         return NULL;
     }
 
-    return seaf_share_manager_list_org_share_repos (seaf->share_mgr,
+    return winguf_share_manager_list_org_share_repos (winguf->share_mgr,
                                                     org_id, email, type,
                                                     start, limit);
 }
@@ -1879,7 +1879,7 @@ wingufile_remove_share (const char *repo_id, const char *from_email,
         return -1;
     }
 
-    ret = seaf_share_manager_remove_share (seaf->share_mgr, repo_id, from_email,
+    ret = winguf_share_manager_remove_share (winguf->share_mgr, repo_id, from_email,
                                            to_email);
 
     return ret;
@@ -1892,7 +1892,7 @@ wingufile_group_share_repo (const char *repo_id, int group_id,
                           const char *user_name, const char *permission,
                           GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     int ret;
 
     if (group_id <= 0 || !user_name || !repo_id || !permission) {
@@ -1906,7 +1906,7 @@ wingufile_group_share_repo (const char *repo_id, int group_id,
         return -1;
     }
 
-    ret = seaf_repo_manager_add_group_repo (mgr, repo_id, group_id, user_name,
+    ret = winguf_repo_manager_add_group_repo (mgr, repo_id, group_id, user_name,
                                             permission, error);
 
     return ret;
@@ -1916,7 +1916,7 @@ int
 wingufile_group_unshare_repo (const char *repo_id, int group_id,
                             const char *user_name, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     int ret;
 
     if (!user_name || !repo_id) {
@@ -1930,7 +1930,7 @@ wingufile_group_unshare_repo (const char *repo_id, int group_id,
         return -1;
     }
 
-    ret = seaf_repo_manager_del_group_repo (mgr, repo_id, group_id, error);
+    ret = winguf_repo_manager_del_group_repo (mgr, repo_id, group_id, error);
 
     return ret;
 
@@ -1939,7 +1939,7 @@ wingufile_group_unshare_repo (const char *repo_id, int group_id,
 char *
 wingufile_get_shared_groups_by_repo(const char *repo_id, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GList *group_ids = NULL, *ptr;
     GString *result;
     
@@ -1954,7 +1954,7 @@ wingufile_get_shared_groups_by_repo(const char *repo_id, GError **error)
         return NULL;
     }
 
-    group_ids = seaf_repo_manager_get_groups_by_repo (mgr, repo_id, error);
+    group_ids = winguf_repo_manager_get_groups_by_repo (mgr, repo_id, error);
     if (!group_ids) {
         return NULL;
     }
@@ -1973,11 +1973,11 @@ wingufile_get_shared_groups_by_repo(const char *repo_id, GError **error)
 char *
 wingufile_get_group_repoids (int group_id, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GList *repo_ids = NULL, *ptr;
     GString *result;
 
-    repo_ids = seaf_repo_manager_get_group_repoids (mgr, group_id, error);
+    repo_ids = winguf_repo_manager_get_group_repoids (mgr, group_id, error);
     if (!repo_ids) {
         return NULL;
     }
@@ -1997,7 +1997,7 @@ wingufile_get_group_repoids (int group_id, GError **error)
 GList *
 wingufile_get_group_repos_by_owner (char *user, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GList *ret = NULL;
 
     if (!user) {
@@ -2006,7 +2006,7 @@ wingufile_get_group_repos_by_owner (char *user, GError **error)
         return NULL;
     }
 
-    ret = seaf_repo_manager_get_group_repos_by_owner (mgr, user, error);
+    ret = winguf_repo_manager_get_group_repos_by_owner (mgr, user, error);
     if (!ret) {
         return NULL;
     }
@@ -2017,7 +2017,7 @@ wingufile_get_group_repos_by_owner (char *user, GError **error)
 char *
 wingufile_get_group_repo_owner (const char *repo_id, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GString *result = g_string_new ("");
 
     if (!is_uuid_valid (repo_id)) {
@@ -2025,7 +2025,7 @@ wingufile_get_group_repo_owner (const char *repo_id, GError **error)
         return NULL;
     }
 
-    char *share_from = seaf_repo_manager_get_group_repo_owner (mgr, repo_id,
+    char *share_from = winguf_repo_manager_get_group_repo_owner (mgr, repo_id,
                                                                error);
     if (share_from) {
         g_string_append_printf (result, "%s", share_from);
@@ -2044,7 +2044,7 @@ wingufile_remove_repo_group(int group_id, const char *username, GError **error)
         return -1;
     }
 
-    return seaf_repo_manager_remove_group_repos (seaf->repo_mgr,
+    return winguf_repo_manager_remove_group_repos (winguf->repo_mgr,
                                                  group_id, username,
                                                  error);
 }
@@ -2066,7 +2066,7 @@ wingufile_set_inner_pub_repo (const char *repo_id,
         return -1;
     }
 
-    if (seaf_repo_manager_set_inner_pub_repo (seaf->repo_mgr,
+    if (winguf_repo_manager_set_inner_pub_repo (winguf->repo_mgr,
                                               repo_id, permission) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal error");
         return -1;
@@ -2088,7 +2088,7 @@ wingufile_unset_inner_pub_repo (const char *repo_id, GError **error)
         return -1;
     }
 
-    if (seaf_repo_manager_unset_inner_pub_repo (seaf->repo_mgr, repo_id) < 0) {
+    if (winguf_repo_manager_unset_inner_pub_repo (winguf->repo_mgr, repo_id) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal error");
         return -1;
     }
@@ -2099,13 +2099,13 @@ wingufile_unset_inner_pub_repo (const char *repo_id, GError **error)
 GList *
 wingufile_list_inner_pub_repos (GError **error)
 {
-    return seaf_repo_manager_list_inner_pub_repos (seaf->repo_mgr);
+    return winguf_repo_manager_list_inner_pub_repos (winguf->repo_mgr);
 }
 
 gint64
 wingufile_count_inner_pub_repos (GError **error)
 {
-    return seaf_repo_manager_count_inner_pub_repos (seaf->repo_mgr);
+    return winguf_repo_manager_count_inner_pub_repos (winguf->repo_mgr);
 }
 
 GList *
@@ -2116,7 +2116,7 @@ wingufile_list_inner_pub_repos_by_owner (const char *user, GError **error)
         return NULL;
     }
 
-    return seaf_repo_manager_list_inner_pub_repos_by_owner (seaf->repo_mgr, user);
+    return winguf_repo_manager_list_inner_pub_repos_by_owner (winguf->repo_mgr, user);
 }
 
 int
@@ -2132,7 +2132,7 @@ wingufile_is_inner_pub_repo (const char *repo_id, GError **error)
         return -1;
     }
 
-    return seaf_repo_manager_is_inner_pub_repo (seaf->repo_mgr, repo_id);
+    return winguf_repo_manager_is_inner_pub_repo (winguf->repo_mgr, repo_id);
 }
 
 /* Org Repo RPC. */
@@ -2148,13 +2148,13 @@ wingufile_get_org_repo_list (int org_id, int start, int limit, GError **error)
         return NULL;
     }
 
-    repos = seaf_repo_manager_get_org_repo_list (seaf->repo_mgr, org_id,
+    repos = winguf_repo_manager_get_org_repo_list (winguf->repo_mgr, org_id,
                                                  start ,limit);
     ret = convert_repo_list (repos);
 
     GList *ptr;
     for (ptr = repos; ptr != NULL; ptr = ptr->next)
-        seaf_repo_unref ((SeafRepo *)ptr->data);
+        winguf_repo_unref ((SeafRepo *)ptr->data);
 
     g_list_free (repos);
 
@@ -2169,7 +2169,7 @@ wingufile_remove_org_repo_by_org_id (int org_id, GError **error)
         return -1;
     }
 
-    return seaf_repo_manager_remove_org_repo_by_org_id (seaf->repo_mgr, org_id);
+    return winguf_repo_manager_remove_org_repo_by_org_id (winguf->repo_mgr, org_id);
 }
 
 /* Org Group Repo RPC. */
@@ -2192,7 +2192,7 @@ wingufile_add_org_group_repo (const char *repo_id,
         return -1;
     }
 
-    return seaf_repo_manager_add_org_group_repo (seaf->repo_mgr,
+    return winguf_repo_manager_add_org_group_repo (winguf->repo_mgr,
                                                  repo_id,
                                                  org_id,
                                                  group_id,
@@ -2217,7 +2217,7 @@ wingufile_del_org_group_repo (const char *repo_id,
         return -1;
     }
 
-    return seaf_repo_manager_del_org_group_repo (seaf->repo_mgr,
+    return winguf_repo_manager_del_org_group_repo (winguf->repo_mgr,
                                                  repo_id,
                                                  org_id,
                                                  group_id,
@@ -2227,7 +2227,7 @@ wingufile_del_org_group_repo (const char *repo_id,
 char *
 wingufile_get_org_group_repoids (int org_id, int group_id, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GList *repo_ids = NULL, *ptr;
     GString *result;
 
@@ -2236,7 +2236,7 @@ wingufile_get_org_group_repoids (int org_id, int group_id, GError **error)
         return NULL;
     }
     
-    repo_ids = seaf_repo_manager_get_org_group_repoids (mgr, org_id, group_id,
+    repo_ids = winguf_repo_manager_get_org_group_repoids (mgr, org_id, group_id,
                                                         error);
     if (!repo_ids) {
         return NULL;
@@ -2258,7 +2258,7 @@ char *
 wingufile_get_org_group_repo_owner (int org_id, int group_id,
                                   const char *repo_id, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GString *result = g_string_new ("");
 
     if (!is_uuid_valid (repo_id)) {
@@ -2266,7 +2266,7 @@ wingufile_get_org_group_repo_owner (int org_id, int group_id,
         return NULL;
     }
 
-    char *owner = seaf_repo_manager_get_org_group_repo_owner (mgr, org_id,
+    char *owner = winguf_repo_manager_get_org_group_repo_owner (mgr, org_id,
                                                               group_id,
                                                               repo_id, error);
     if (owner) {
@@ -2282,7 +2282,7 @@ GList *
 wingufile_get_org_group_repos_by_owner (int org_id, const char *user,
                                       GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GList *ret = NULL;
 
     if (!user || org_id < 0) {
@@ -2291,7 +2291,7 @@ wingufile_get_org_group_repos_by_owner (int org_id, const char *user,
         return NULL;
     }
 
-    ret = seaf_repo_manager_get_org_group_repos_by_owner (mgr, org_id, user,
+    ret = winguf_repo_manager_get_org_group_repos_by_owner (mgr, org_id, user,
                                                           error);
     if (!ret) {
         return NULL;
@@ -2304,7 +2304,7 @@ char *
 wingufile_get_org_groups_by_repo (int org_id, const char *repo_id,
                                 GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GList *group_ids = NULL, *ptr;
     GString *result;
     
@@ -2319,7 +2319,7 @@ wingufile_get_org_groups_by_repo (int org_id, const char *repo_id,
         return NULL;
     }
 
-    group_ids = seaf_repo_manager_get_org_groups_by_repo (mgr, org_id,
+    group_ids = winguf_repo_manager_get_org_groups_by_repo (mgr, org_id,
                                                           repo_id, error);
     if (!group_ids) {
         return NULL;
@@ -2354,7 +2354,7 @@ wingufile_set_org_inner_pub_repo (int org_id,
         return -1;
     }
 
-    if (seaf_repo_manager_set_org_inner_pub_repo (seaf->repo_mgr,
+    if (winguf_repo_manager_set_org_inner_pub_repo (winguf->repo_mgr,
                                                   org_id, repo_id,
                                                   permission) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal error");
@@ -2377,7 +2377,7 @@ wingufile_unset_org_inner_pub_repo (int org_id, const char *repo_id, GError **er
         return -1;
     }
 
-    if (seaf_repo_manager_unset_org_inner_pub_repo (seaf->repo_mgr,
+    if (winguf_repo_manager_unset_org_inner_pub_repo (winguf->repo_mgr,
                                                     org_id, repo_id) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Internal error");
         return -1;
@@ -2389,7 +2389,7 @@ wingufile_unset_org_inner_pub_repo (int org_id, const char *repo_id, GError **er
 GList *
 wingufile_list_org_inner_pub_repos (int org_id, GError **error)
 {
-    return seaf_repo_manager_list_org_inner_pub_repos (seaf->repo_mgr, org_id);
+    return winguf_repo_manager_list_org_inner_pub_repos (winguf->repo_mgr, org_id);
 }
 
 GList *
@@ -2402,7 +2402,7 @@ wingufile_list_org_inner_pub_repos_by_owner (int org_id,
         return NULL;
     }
 
-    return seaf_repo_manager_list_org_inner_pub_repos_by_owner (seaf->repo_mgr,
+    return winguf_repo_manager_list_org_inner_pub_repos_by_owner (winguf->repo_mgr,
                                                                 org_id, user);
 }
 
@@ -2417,7 +2417,7 @@ wingufile_get_file_size (const char *file_id, GError **error)
         return -1;
     }
 
-    file_size = seaf_fs_manager_get_file_size (seaf->fs_mgr, file_id);
+    file_size = winguf_fs_manager_get_file_size (winguf->fs_mgr, file_id);
     if (file_size < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
                      "failed to read file size");
@@ -2438,7 +2438,7 @@ wingufile_get_dir_size (const char *dir_id, GError **error)
         return -1;
     }
 
-    dir_size = seaf_fs_manager_get_fs_size (seaf->fs_mgr, dir_id);
+    dir_size = winguf_fs_manager_get_fs_size (winguf->fs_mgr, dir_id);
     if (dir_size < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Failed to caculate dir size");
@@ -2460,7 +2460,7 @@ wingufile_set_passwd (const char *repo_id,
         return -1;
     }
 
-    if (seaf_passwd_manager_set_passwd (seaf->passwd_mgr,
+    if (winguf_passwd_manager_set_passwd (winguf->passwd_mgr,
                                         repo_id, user, passwd,
                                         error) < 0) {
         return -1;
@@ -2480,7 +2480,7 @@ wingufile_unset_passwd (const char *repo_id,
         return -1;
     }
 
-    if (seaf_passwd_manager_unset_passwd (seaf->passwd_mgr,
+    if (winguf_passwd_manager_unset_passwd (winguf->passwd_mgr,
                                           repo_id, user,
                                           error) < 0) {
         return -1;
@@ -2498,7 +2498,7 @@ wingufile_is_passwd_set (const char *repo_id, const char *user, GError **error)
         return -1;
     }
 
-    return seaf_passwd_manager_is_passwd_set (seaf->passwd_mgr,
+    return winguf_passwd_manager_is_passwd_set (winguf->passwd_mgr,
                                               repo_id, user);
 }
 
@@ -2513,7 +2513,7 @@ wingufile_get_decrypt_key (const char *repo_id, const char *user, GError **error
         return NULL;
     }
 
-    ret = seaf_passwd_manager_get_decrypt_key (seaf->passwd_mgr,
+    ret = winguf_passwd_manager_get_decrypt_key (winguf->passwd_mgr,
                                                repo_id, user);
     if (!ret) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
@@ -2543,7 +2543,7 @@ wingufile_revert_on_server (const char *repo_id,
         return -1;
     }
 
-    return seaf_repo_manager_revert_on_server (seaf->repo_mgr,
+    return winguf_repo_manager_revert_on_server (winguf->repo_mgr,
                                                repo_id,
                                                commit_id,
                                                user_name,
@@ -2567,7 +2567,7 @@ wingufile_post_file (const char *repo_id, const char *temp_file_path,
         return -1;
     }
 
-    if (seaf_repo_manager_post_file (seaf->repo_mgr, repo_id,
+    if (winguf_repo_manager_post_file (winguf->repo_mgr, repo_id,
                                      temp_file_path, parent_dir,
                                      file_name, user,
                                      error) < 0) {
@@ -2597,7 +2597,7 @@ wingufile_post_multi_files (const char *repo_id,
     }
 
     char *new_ids = NULL;
-    if (seaf_repo_manager_post_multi_files (seaf->repo_mgr,
+    if (winguf_repo_manager_post_multi_files (winguf->repo_mgr,
                                             repo_id,
                                             parent_dir,
                                             filenames_json,
@@ -2629,7 +2629,7 @@ wingufile_put_file (const char *repo_id, const char *temp_file_path,
     }
 
     char *new_file_id = NULL;
-    seaf_repo_manager_put_file (seaf->repo_mgr, repo_id,
+    winguf_repo_manager_put_file (winguf->repo_mgr, repo_id,
                                 temp_file_path, parent_dir,
                                 file_name, user, head_id,
                                 &new_file_id, error);
@@ -2651,7 +2651,7 @@ wingufile_post_dir (const char *repo_id, const char *parent_dir,
         return -1;
     }
 
-    if (seaf_repo_manager_post_dir (seaf->repo_mgr, repo_id,
+    if (winguf_repo_manager_post_dir (winguf->repo_mgr, repo_id,
                                     parent_dir, new_dir_name,
                                     user, error) < 0) {
         return -1;
@@ -2675,7 +2675,7 @@ wingufile_post_empty_file (const char *repo_id, const char *parent_dir,
         return -1;
     }
 
-    if (seaf_repo_manager_post_empty_file (seaf->repo_mgr, repo_id,
+    if (winguf_repo_manager_post_empty_file (winguf->repo_mgr, repo_id,
                                            parent_dir, new_file_name,
                                            user, error) < 0) {
         return -1;
@@ -2699,7 +2699,7 @@ wingufile_del_file (const char *repo_id, const char *parent_dir,
         return -1;
     }
 
-    if (seaf_repo_manager_del_file (seaf->repo_mgr, repo_id,
+    if (winguf_repo_manager_del_file (winguf->repo_mgr, repo_id,
                                     parent_dir, file_name,
                                     user, error) < 0) {
         return -1;
@@ -2729,7 +2729,7 @@ wingufile_copy_file (const char *src_repo_id,
         return -1;
     }
 
-    if (seaf_repo_manager_copy_file (seaf->repo_mgr,
+    if (winguf_repo_manager_copy_file (winguf->repo_mgr,
                                      src_repo_id, src_dir, src_filename,
                                      dst_repo_id, dst_dir, dst_filename,
                                      user, error) < 0) {
@@ -2760,7 +2760,7 @@ wingufile_move_file (const char *src_repo_id,
         return -1;
     }
 
-    if (seaf_repo_manager_move_file (seaf->repo_mgr,
+    if (winguf_repo_manager_move_file (winguf->repo_mgr,
                                      src_repo_id, src_dir, src_filename,
                                      dst_repo_id, dst_dir, dst_filename,
                                      user, error) < 0) {
@@ -2788,7 +2788,7 @@ wingufile_rename_file (const char *repo_id,
         return -1;
     }
 
-    if (seaf_repo_manager_rename_file (seaf->repo_mgr, repo_id,
+    if (winguf_repo_manager_rename_file (winguf->repo_mgr, repo_id,
                                        parent_dir, oldname, newname,
                                        user, error) < 0) {
         return -1;
@@ -2807,7 +2807,7 @@ wingufile_is_valid_filename (const char *repo_id,
         return -1;
     }
 
-    int ret = seaf_repo_manager_is_valid_filename (seaf->repo_mgr,
+    int ret = winguf_repo_manager_is_valid_filename (winguf->repo_mgr,
                                                    repo_id,
                                                    filename,
                                                    error);
@@ -2828,7 +2828,7 @@ wingufile_create_repo (const char *repo_name,
 
     char *repo_id;
 
-    repo_id = seaf_repo_manager_create_new_repo (seaf->repo_mgr,
+    repo_id = winguf_repo_manager_create_new_repo (winguf->repo_mgr,
                                                  repo_name, repo_desc,
                                                  owner_email, passwd,
                                                  error);
@@ -2850,7 +2850,7 @@ wingufile_create_org_repo (const char *repo_name,
 
     char *repo_id;
 
-    repo_id = seaf_repo_manager_create_org_repo (seaf->repo_mgr,
+    repo_id = winguf_repo_manager_create_org_repo (winguf->repo_mgr,
                                                  repo_name, repo_desc,
                                                  user, passwd,
                                                  org_id, error);
@@ -2866,7 +2866,7 @@ wingufile_list_org_repos_by_owner (int org_id, const char *user, GError **error)
     SeafRepo *r;
     SeafileRepo *repo;
 
-    repos = seaf_repo_manager_get_org_repos_by_owner (seaf->repo_mgr, org_id,
+    repos = winguf_repo_manager_get_org_repos_by_owner (winguf->repo_mgr, org_id,
                                                       user);
     ptr = repos;
     while (ptr) {
@@ -2875,7 +2875,7 @@ wingufile_list_org_repos_by_owner (int org_id, const char *user, GError **error)
         g_object_set (repo, "id", r->id, "name", r->name,
                       "desc", r->desc, "encrypted", r->encrypted, NULL);
         ret = g_list_prepend (ret, repo);
-        seaf_repo_unref (r);
+        winguf_repo_unref (r);
         ptr = ptr->next;
     }
     g_list_free (repos);
@@ -2887,7 +2887,7 @@ wingufile_list_org_repos_by_owner (int org_id, const char *user, GError **error)
 char *
 wingufile_get_org_repo_owner (const char *repo_id, GError **error)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     GString *result = g_string_new ("");
 
     if (!is_uuid_valid (repo_id)) {
@@ -2895,7 +2895,7 @@ wingufile_get_org_repo_owner (const char *repo_id, GError **error)
         return NULL;
     }
 
-    char *owner = seaf_repo_manager_get_org_repo_owner (mgr, repo_id);
+    char *owner = winguf_repo_manager_get_org_repo_owner (mgr, repo_id);
     if (owner) {
         g_string_append_printf (result, "%s", owner);
         g_free (owner);
@@ -2917,7 +2917,7 @@ wingufile_get_org_id_by_repo_id (const char *repo_id, GError **error)
         return -1;
     }
 
-    return seaf_repo_manager_get_org_id_by_repo_id (seaf->repo_mgr, repo_id,
+    return winguf_repo_manager_get_org_id_by_repo_id (winguf->repo_mgr, repo_id,
                                                     error);
 }
 
@@ -2930,7 +2930,7 @@ wingufile_set_user_quota (const char *user, gint64 quota, GError **error)
         return -1;
     }
 
-    return seaf_quota_manager_set_user_quota (seaf->quota_mgr, user, quota);
+    return winguf_quota_manager_set_user_quota (winguf->quota_mgr, user, quota);
 }
 
 gint64
@@ -2942,19 +2942,19 @@ wingufile_get_user_quota (const char *user, GError **error)
         return -1;
     }
 
-    return seaf_quota_manager_get_user_quota (seaf->quota_mgr, user);
+    return winguf_quota_manager_get_user_quota (winguf->quota_mgr, user);
 }
 
 int
 wingufile_set_org_quota (int org_id, gint64 quota, GError **error)
 {
-    return seaf_quota_manager_set_org_quota (seaf->quota_mgr, org_id, quota);
+    return winguf_quota_manager_set_org_quota (winguf->quota_mgr, org_id, quota);
 }
 
 gint64
 wingufile_get_org_quota (int org_id, GError **error)
 {
-    return seaf_quota_manager_get_org_quota (seaf->quota_mgr, org_id);
+    return winguf_quota_manager_get_org_quota (winguf->quota_mgr, org_id);
 }
 
 int
@@ -2966,7 +2966,7 @@ wingufile_set_org_user_quota (int org_id, const char *user, gint64 quota, GError
         return -1;
     }
 
-    return seaf_quota_manager_set_org_user_quota (seaf->quota_mgr,
+    return winguf_quota_manager_set_org_user_quota (winguf->quota_mgr,
                                                   org_id, user, quota);
 }
 
@@ -2979,7 +2979,7 @@ wingufile_get_org_user_quota (int org_id, const char *user, GError **error)
         return -1;
     }
 
-    return seaf_quota_manager_get_org_user_quota (seaf->quota_mgr, org_id, user);
+    return winguf_quota_manager_get_org_user_quota (winguf->quota_mgr, org_id, user);
 }
 
 int
@@ -2990,7 +2990,7 @@ wingufile_check_quota (const char *repo_id, GError **error)
         return -1;
     }
 
-    return seaf_quota_manager_check_quota (seaf->quota_mgr, repo_id);
+    return winguf_quota_manager_check_quota (winguf->quota_mgr, repo_id);
 }
 
 static char *
@@ -3014,14 +3014,14 @@ get_obj_id_by_path (const char *repo_id,
         return NULL;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
                      "Get repo error");
         goto out;
     }
 
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                              repo->head->commit_id);
     if (!commit) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
@@ -3030,14 +3030,14 @@ get_obj_id_by_path (const char *repo_id,
     }
 
     guint32 mode = 0;
-    obj_id = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr, commit->root_id,
+    obj_id = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr, commit->root_id,
                                              path, &mode, error);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (commit)
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
     if (obj_id) {
         /* check if the mode matches */
         if ((want_dir && !S_ISDIR(mode)) || ((!want_dir) && S_ISDIR(mode))) {
@@ -3082,7 +3082,7 @@ wingufile_list_file_revisions (const char *repo_id,
     }
 
     GList *commit_list;
-    commit_list = seaf_repo_manager_list_file_revisions (seaf->repo_mgr,
+    commit_list = winguf_repo_manager_list_file_revisions (winguf->repo_mgr,
                                                          repo_id, path,
                                                          max_revision,
                                                          limit, error);
@@ -3093,7 +3093,7 @@ wingufile_list_file_revisions (const char *repo_id,
             SeafCommit *commit = p->data;
             SeafileCommit *c = convert_to_wingufile_commit(commit);
             l = g_list_prepend (l, c);
-            seaf_commit_unref (commit);
+            winguf_commit_unref (commit);
         }
         g_list_free (commit_list);
         l = g_list_reverse (l);
@@ -3119,7 +3119,7 @@ wingufile_calc_files_last_modified (const char *repo_id,
         return NULL;
     }
 
-    return seaf_repo_manager_calc_files_last_modified (seaf->repo_mgr,
+    return winguf_repo_manager_calc_files_last_modified (winguf->repo_mgr,
                                 repo_id, parent_dir, limit, error);
 }
 
@@ -3141,7 +3141,7 @@ wingufile_revert_file (const char *repo_id,
         return -1;
     }
 
-    return seaf_repo_manager_revert_file (seaf->repo_mgr,
+    return winguf_repo_manager_revert_file (winguf->repo_mgr,
                                           repo_id, commit_id,
                                           path, user, error);
 }
@@ -3164,7 +3164,7 @@ wingufile_revert_dir (const char *repo_id,
         return -1;
     }
 
-    return seaf_repo_manager_revert_dir (seaf->repo_mgr,
+    return winguf_repo_manager_revert_dir (winguf->repo_mgr,
                                          repo_id, commit_id,
                                          path, user, error);
 }
@@ -3183,7 +3183,7 @@ wingufile_get_deleted (const char *repo_id, int show_days, GError **error)
         return NULL;
     }
 
-    return seaf_repo_manager_get_deleted_entries (seaf->repo_mgr,
+    return winguf_repo_manager_get_deleted_entries (winguf->repo_mgr,
                                                   repo_id, show_days, error);
 }
 
@@ -3204,7 +3204,7 @@ wingufile_generate_repo_token (const char *repo_id,
         return NULL;
     }
 
-    token = seaf_repo_manager_generate_repo_token (seaf->repo_mgr, repo_id, email, error);    
+    token = winguf_repo_manager_generate_repo_token (winguf->repo_mgr, repo_id, email, error);    
 
     return token;
 }
@@ -3225,7 +3225,7 @@ wingufile_delete_repo_token (const char *repo_id,
         return -1;
     }
 
-    return seaf_repo_manager_delete_token (seaf->repo_mgr,
+    return winguf_repo_manager_delete_token (winguf->repo_mgr,
                                            repo_id, token, user, error);
 }
 
@@ -3245,7 +3245,7 @@ wingufile_list_repo_tokens (const char *repo_id,
         return NULL;
     }
 
-    ret_list = seaf_repo_manager_list_repo_tokens (seaf->repo_mgr, repo_id, error);
+    ret_list = winguf_repo_manager_list_repo_tokens (winguf->repo_mgr, repo_id, error);
 
     return ret_list;
 }
@@ -3261,7 +3261,7 @@ wingufile_list_repo_tokens_by_email (const char *email,
         return NULL;
     }
 
-    ret_list = seaf_repo_manager_list_repo_tokens_by_email (seaf->repo_mgr, email, error);
+    ret_list = winguf_repo_manager_list_repo_tokens_by_email (winguf->repo_mgr, email, error);
 
     return ret_list;
 }
@@ -3280,7 +3280,7 @@ wingufile_check_permission (const char *repo_id, const char *user, GError **erro
         return NULL;
     }
 
-    return seaf_repo_manager_check_permission (seaf->repo_mgr,
+    return winguf_repo_manager_check_permission (winguf->repo_mgr,
                                                repo_id, user, error);
 }
 
@@ -3296,7 +3296,7 @@ wingufile_set_share_permission (const char *repo_id,
         return -1;
     }
 
-    return seaf_share_manager_set_permission (seaf->share_mgr,
+    return winguf_share_manager_set_permission (winguf->share_mgr,
                                               repo_id,
                                               from_email,
                                               to_email,
@@ -3319,7 +3319,7 @@ wingufile_set_group_repo_permission (int group_id,
         return -1;
     }
 
-    return seaf_repo_manager_set_group_repo_perm (seaf->repo_mgr,
+    return winguf_repo_manager_set_group_repo_perm (winguf->repo_mgr,
                                                   repo_id,
                                                   group_id,
                                                   permission,
@@ -3343,7 +3343,7 @@ wingufile_set_org_group_repo_permission (int org_id,
         return -1;
     }
 
-    return seaf_repo_manager_set_org_group_repo_perm (seaf->repo_mgr,
+    return winguf_repo_manager_set_org_group_repo_perm (winguf->repo_mgr,
                                                       repo_id,
                                                       org_id,
                                                       group_id,
@@ -3365,17 +3365,17 @@ wingufile_get_file_id_by_commit_and_path(const char *commit_id,
         return NULL;
     }
 
-    commit = seaf_commit_manager_get_commit(seaf->commit_mgr, commit_id);
+    commit = winguf_commit_manager_get_commit(winguf->commit_mgr, commit_id);
     if (!commit) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "bad commit id");
         return NULL;
     }
 
-    file_id = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr,
+    file_id = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr,
                         commit->root_id, path, NULL, error);
 
-    seaf_commit_unref(commit);
+    winguf_commit_unref(commit);
 
     return file_id;
 }
@@ -3402,7 +3402,7 @@ wingufile_create_virtual_repo (const char *origin_repo_id,
 
     char *repo_id;
 
-    repo_id = seaf_repo_manager_create_virtual_repo (seaf->repo_mgr,
+    repo_id = winguf_repo_manager_create_virtual_repo (winguf->repo_mgr,
                                                      origin_repo_id, path,
                                                      repo_name, repo_desc,
                                                      owner, error);
@@ -3423,21 +3423,21 @@ wingufile_get_virtual_repos_by_owner (const char *owner, GError **error)
         return NULL;
     }
 
-    repos = seaf_repo_manager_get_virtual_repos_by_owner (seaf->repo_mgr,
+    repos = winguf_repo_manager_get_virtual_repos_by_owner (winguf->repo_mgr,
                                                           owner,
                                                           error);
     for (ptr = repos; ptr != NULL; ptr = ptr->next) {
         r = ptr->data;
 
         orig_repo_id = r->virtual_info->origin_repo_id;
-        o = seaf_repo_manager_get_repo (seaf->repo_mgr, orig_repo_id);
+        o = winguf_repo_manager_get_repo (winguf->repo_mgr, orig_repo_id);
         if (!o) {
-            seaf_warning ("Failed to get origin repo %.10s.\n", orig_repo_id);
-            seaf_repo_unref (r);
+            winguf_warning ("Failed to get origin repo %.10s.\n", orig_repo_id);
+            winguf_repo_unref (r);
             continue;
         }
 
-        char *orig_owner = seaf_repo_manager_get_repo_owner (seaf->repo_mgr,
+        char *orig_owner = winguf_repo_manager_get_repo_owner (winguf->repo_mgr,
                                                              orig_repo_id);
         if (g_strcmp0 (orig_owner, owner) == 0)
             is_original_owner = TRUE;
@@ -3445,7 +3445,7 @@ wingufile_get_virtual_repos_by_owner (const char *owner, GError **error)
             is_original_owner = FALSE;
         g_free (orig_owner);
 
-        char *perm = seaf_repo_manager_check_permission (seaf->repo_mgr,
+        char *perm = winguf_repo_manager_check_permission (winguf->repo_mgr,
                                                          r->id, owner, NULL);
 
         repo = wingufile_repo_new ();
@@ -3461,8 +3461,8 @@ wingufile_get_virtual_repos_by_owner (const char *owner, GError **error)
                       NULL);
 
         ret = g_list_prepend (ret, repo);
-        seaf_repo_unref (r);
-        seaf_repo_unref (o);
+        winguf_repo_unref (r);
+        winguf_repo_unref (o);
         g_free (perm);
     }
     g_list_free (repos);
@@ -3479,7 +3479,7 @@ wingufile_get_virtual_repo (const char *origin_repo,
     char *repo_id;
     GObject *repo_obj;
 
-    repo_id = seaf_repo_manager_get_virtual_repo_id (seaf->repo_mgr,
+    repo_id = winguf_repo_manager_get_virtual_repo_id (winguf->repo_mgr,
                                                      origin_repo,
                                                      path,
                                                      owner);

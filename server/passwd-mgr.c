@@ -38,7 +38,7 @@ decrypt_key_free (DecryptKey *key)
 }
 
 SeafPasswdManager *
-seaf_passwd_manager_new (struct _SeafileSession *session)
+winguf_passwd_manager_new (struct _SeafileSession *session)
 {
     SeafPasswdManager *mgr = g_new0 (SeafPasswdManager, 1);
 
@@ -52,7 +52,7 @@ seaf_passwd_manager_new (struct _SeafileSession *session)
 }
 
 int
-seaf_passwd_manager_start (SeafPasswdManager *mgr)
+winguf_passwd_manager_start (SeafPasswdManager *mgr)
 {
     mgr->priv->reap_timer = ccnet_timer_new (reap_expired_passwd,
                                              mgr, REAP_INTERVAL * 1000);
@@ -60,13 +60,13 @@ seaf_passwd_manager_start (SeafPasswdManager *mgr)
 }
 
 int
-seaf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
+winguf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
                                 const char *repo_id,
                                 const char *user,
                                 const char *passwd,
                                 GError **error)
 {
-    SeafRepo *repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    SeafRepo *repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     DecryptKey *crypt_key;
     GString *hash_key;
 
@@ -77,14 +77,14 @@ seaf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
     }
 
     if (!repo->encrypted) {
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Repo is not encrypted");
         return -1;
     }
 
-    if (seaf_repo_verify_passwd (repo, passwd) < 0) {
-        seaf_repo_unref (repo);
+    if (winguf_repo_verify_passwd (repo, passwd) < 0) {
+        winguf_repo_unref (repo);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Incorrect password");
         return -1;
@@ -93,7 +93,7 @@ seaf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
     crypt_key = g_new0 (DecryptKey, 1);
     if (!crypt_key) {
         g_warning ("Failed to alloc crypt key struct.\n");
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
                      "Internal server error");
         return -1;
@@ -112,13 +112,13 @@ seaf_passwd_manager_set_passwd (SeafPasswdManager *mgr,
     g_hash_table_insert (mgr->priv->decrypt_keys,
                          g_string_free (hash_key, FALSE),
                          crypt_key);
-    seaf_repo_unref (repo);
+    winguf_repo_unref (repo);
 
     return 0;
 }
 
 int
-seaf_passwd_manager_unset_passwd (SeafPasswdManager *mgr,
+winguf_passwd_manager_unset_passwd (SeafPasswdManager *mgr,
                                   const char *repo_id,
                                   const char *user,
                                   GError **error)
@@ -134,7 +134,7 @@ seaf_passwd_manager_unset_passwd (SeafPasswdManager *mgr,
 }     
 
 gboolean
-seaf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
+winguf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
                                    const char *repo_id,
                                    const char *user)
 {
@@ -151,7 +151,7 @@ seaf_passwd_manager_is_passwd_set (SeafPasswdManager *mgr,
 }
 
 SeafileCryptKey *
-seaf_passwd_manager_get_decrypt_key (SeafPasswdManager *mgr,
+winguf_passwd_manager_get_decrypt_key (SeafPasswdManager *mgr,
                                      const char *repo_id,
                                      const char *user)
 {
@@ -182,7 +182,7 @@ seaf_passwd_manager_get_decrypt_key (SeafPasswdManager *mgr,
 }
 
 int
-seaf_passwd_manager_get_decrypt_key_raw (SeafPasswdManager *mgr,
+winguf_passwd_manager_get_decrypt_key_raw (SeafPasswdManager *mgr,
                                          const char *repo_id,
                                          const char *user,
                                          unsigned char *key_out,
@@ -208,7 +208,7 @@ seaf_passwd_manager_get_decrypt_key_raw (SeafPasswdManager *mgr,
 }
 
 char *
-seaf_passwd_manager_get_repo_passwd (SeafPasswdManager *mgr,
+winguf_passwd_manager_get_repo_passwd (SeafPasswdManager *mgr,
                                      const char *repo_id,
                                      const char *user)
 {

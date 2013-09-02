@@ -70,8 +70,8 @@ static GPatternSpec** ignore_patterns;
 static SeafRepo *
 load_repo (SeafRepoManager *manager, const char *repo_id);
 
-static void load_repos (SeafRepoManager *manager, const char *seaf_dir);
-static void seaf_repo_manager_del_repo_property (SeafRepoManager *manager,
+static void load_repos (SeafRepoManager *manager, const char *winguf_dir);
+static void winguf_repo_manager_del_repo_property (SeafRepoManager *manager,
                                                  const char *repo_id);
 
 static int save_branch_repo_map (SeafRepoManager *manager, SeafBranch *branch);
@@ -86,7 +86,7 @@ is_repo_id_valid (const char *id)
 }
 
 SeafRepo*
-seaf_repo_new (const char *id, const char *name, const char *desc)
+winguf_repo_new (const char *id, const char *name, const char *desc)
 {
     SeafRepo* repo;
 
@@ -110,29 +110,29 @@ seaf_repo_new (const char *id, const char *name, const char *desc)
 }
 
 int
-seaf_repo_check_worktree (SeafRepo *repo)
+winguf_repo_check_worktree (SeafRepo *repo)
 {
     SeafStat st;
 
     if (repo->worktree == NULL) {
-        seaf_warning ("Worktree for repo '%s'(%.8s) is not set.\n",
+        winguf_warning ("Worktree for repo '%s'(%.8s) is not set.\n",
                       repo->name, repo->id);
         return -1;
     }
 
     /* check repo worktree */
     if (g_access(repo->worktree, F_OK) < 0) {
-        seaf_warning ("Failed to access worktree %s for repo '%s'(%.8s)\n",
+        winguf_warning ("Failed to access worktree %s for repo '%s'(%.8s)\n",
                       repo->worktree, repo->name, repo->id);
         return -1;
     }
-    if (seaf_stat(repo->worktree, &st) < 0) {
-        seaf_warning ("Failed to stat worktree %s for repo '%s'(%.8s)\n",
+    if (winguf_stat(repo->worktree, &st) < 0) {
+        winguf_warning ("Failed to stat worktree %s for repo '%s'(%.8s)\n",
                       repo->worktree, repo->name, repo->id);
         return -1;
     }
     if (!S_ISDIR(st.st_mode)) {
-        seaf_warning ("Worktree %s for repo '%s'(%.8s) is not a directory.\n",
+        winguf_warning ("Worktree %s for repo '%s'(%.8s) is not a directory.\n",
                       repo->worktree, repo->name, repo->id);
         return -1;
     }
@@ -143,14 +143,14 @@ seaf_repo_check_worktree (SeafRepo *repo)
 static void
 send_wktree_notification (SeafRepo *repo, int addordel)
 {
-    if (seaf_repo_check_worktree(repo) < 0)
+    if (winguf_repo_check_worktree(repo) < 0)
         return;
     if (addordel) {
-        seaf_mq_manager_publish_notification (seaf->mq_mgr,
+        winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                               "repo.setwktree",
                                               repo->worktree);
     } else {
-        seaf_mq_manager_publish_notification (seaf->mq_mgr,
+        winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                               "repo.unsetwktree",
                                               repo->worktree);
     }
@@ -161,25 +161,25 @@ static gboolean
 check_worktree_common (SeafRepo *repo)
 {
     if (!repo->head) {
-        seaf_warning ("Head for repo '%s'(%.8s) is not set.\n",
+        winguf_warning ("Head for repo '%s'(%.8s) is not set.\n",
                       repo->name, repo->id);
         return FALSE;
     }
 
-    if (seaf_repo_check_worktree (repo) < 0) {
+    if (winguf_repo_check_worktree (repo) < 0) {
         /* The worktree is invalid */
-        seaf_repo_manager_invalidate_repo_worktree (repo->manager, repo);
+        winguf_repo_manager_invalidate_repo_worktree (repo->manager, repo);
         return FALSE;
     }
-    seaf_repo_manager_validate_repo_worktree (repo->manager, repo);
+    winguf_repo_manager_validate_repo_worktree (repo->manager, repo);
 
     return TRUE;
 }
 
 void
-seaf_repo_free (SeafRepo *repo)
+winguf_repo_free (SeafRepo *repo)
 {
-    if (repo->head) seaf_branch_unref (repo->head);
+    if (repo->head) winguf_branch_unref (repo->head);
 
     g_free (repo->name);
     g_free (repo->desc);
@@ -196,13 +196,13 @@ static void
 set_head_common (SeafRepo *repo, SeafBranch *branch)
 {
     if (repo->head)
-        seaf_branch_unref (repo->head);
+        winguf_branch_unref (repo->head);
     repo->head = branch;
-    seaf_branch_ref(branch);
+    winguf_branch_ref(branch);
 }
 
 int
-seaf_repo_set_head (SeafRepo *repo, SeafBranch *branch)
+winguf_repo_set_head (SeafRepo *repo, SeafBranch *branch)
 {
     if (save_branch_repo_map (repo->manager, branch) < 0)
         return -1;
@@ -211,7 +211,7 @@ seaf_repo_set_head (SeafRepo *repo, SeafBranch *branch)
 }
 
 void
-seaf_repo_from_commit (SeafRepo *repo, SeafCommit *commit)
+winguf_repo_from_commit (SeafRepo *repo, SeafCommit *commit)
 {
     repo->name = g_strdup (commit->repo_name);
     repo->desc = g_strdup (commit->repo_desc);
@@ -225,7 +225,7 @@ seaf_repo_from_commit (SeafRepo *repo, SeafCommit *commit)
 }
 
 void
-seaf_repo_to_commit (SeafRepo *repo, SeafCommit *commit)
+winguf_repo_to_commit (SeafRepo *repo, SeafCommit *commit)
 {
     commit->repo_name = g_strdup (repo->name);
     commit->repo_desc = g_strdup (repo->desc);
@@ -245,20 +245,20 @@ collect_commit (SeafCommit *commit, void *vlist, gboolean *stop)
 
     /* The traverse function will unref the commit, so we need to ref it.
      */
-    seaf_commit_ref (commit);
+    winguf_commit_ref (commit);
     *commits = g_list_prepend (*commits, commit);
     return TRUE;
 }
 
 GList *
-seaf_repo_get_commits (SeafRepo *repo)
+winguf_repo_get_commits (SeafRepo *repo)
 {
     GList *branches;
     GList *ptr;
     SeafBranch *branch;
     GList *commits = NULL;
 
-    branches = seaf_branch_manager_get_branch_list (seaf->branch_mgr, repo->id);
+    branches = winguf_branch_manager_get_branch_list (winguf->branch_mgr, repo->id);
     if (branches == NULL) {
         g_warning ("Failed to get branch list of repo %s.\n", repo->id);
         return NULL;
@@ -266,13 +266,13 @@ seaf_repo_get_commits (SeafRepo *repo)
 
     for (ptr = branches; ptr != NULL; ptr = ptr->next) {
         branch = ptr->data;
-        gboolean res = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+        gboolean res = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                                  branch->commit_id,
                                                                  collect_commit,
                                                                  &commits, FALSE);
         if (!res) {
             for (ptr = commits; ptr != NULL; ptr = ptr->next)
-                seaf_commit_unref ((SeafCommit *)(ptr->data));
+                winguf_commit_unref ((SeafCommit *)(ptr->data));
             g_list_free (commits);
             goto out;
         }
@@ -282,13 +282,13 @@ seaf_repo_get_commits (SeafRepo *repo)
 
 out:
     for (ptr = branches; ptr != NULL; ptr = ptr->next) {
-        seaf_branch_unref ((SeafBranch *)ptr->data);
+        winguf_branch_unref ((SeafBranch *)ptr->data);
     }
     return commits;
 }
 
 int
-seaf_repo_verify_passwd (const char *repo_id,
+winguf_repo_verify_passwd (const char *repo_id,
                          const char *passwd,
                          const char *magic)
 {
@@ -371,7 +371,7 @@ should_ignore(const char *basepath, const char *filename, void *data)
     }
 
     char *fullpath = g_build_path ("/", basepath, filename, NULL);
-    if (seaf_repo_check_ignore_file (ignore_list, fullpath)) {
+    if (winguf_repo_check_ignore_file (ignore_list, fullpath)) {
         g_free (fullpath);
         return TRUE;
     }
@@ -386,7 +386,7 @@ index_cb (const char *path,
           SeafileCrypt *crypt)
 {
     /* Check in blocks and get object ID. */
-    if (seaf_fs_manager_index_blocks (seaf->fs_mgr, path, sha1, crypt) < 0) {
+    if (winguf_fs_manager_index_blocks (winguf->fs_mgr, path, sha1, crypt) < 0) {
         g_warning ("Failed to index file %s.\n", path);
         return -1;
     }
@@ -410,7 +410,7 @@ add_recursive (struct index_state *istate,
     int ret = 0;
 
     full_path = g_build_path (PATH_SEPERATOR, worktree, path, NULL);
-    if (seaf_stat (full_path, &st) < 0) {
+    if (winguf_stat (full_path, &st) < 0) {
 #ifndef WIN32
         /* Ignore broken symlinks on Linux and Mac OS X */
         if (lstat (full_path, &st) == 0 && S_ISLNK(st.st_mode)) {
@@ -516,7 +516,7 @@ remove_deleted (struct index_state *istate, const char *worktree,
         if (strncmp (ce->name, prefix, len) != 0)
             continue;
         snprintf (path, SEAF_PATH_MAX, "%s/%s", worktree, ce->name);
-        ret = seaf_stat (path, &st);
+        ret = winguf_stat (path, &st);
 
         if (S_ISDIR (ce->ce_mode)) {
             if (ret < 0 || !S_ISDIR (st.st_mode) || !is_empty_dir (path, ignore_list))
@@ -549,19 +549,19 @@ index_add (SeafRepo *repo, struct index_state *istate, const char *path)
         crypt = wingufile_crypt_new (repo->enc_version, repo->enc_key, repo->enc_iv);
     }
 
-    ignore_list = seaf_repo_load_ignore_files (repo->worktree);
+    ignore_list = winguf_repo_load_ignore_files (repo->worktree);
 
     if (add_recursive (istate, repo->worktree, path, crypt, TRUE, ignore_list) < 0)
         goto error;
 
     remove_deleted (istate, repo->worktree, path, ignore_list);
 
-    seaf_repo_free_ignore_files (ignore_list);
+    winguf_repo_free_ignore_files (ignore_list);
     g_free (crypt);
     return 0;
 
 error:
-    seaf_repo_free_ignore_files (ignore_list);
+    winguf_repo_free_ignore_files (ignore_list);
     g_free (crypt);
     return -1;
 }
@@ -571,7 +571,7 @@ error:
  * @root_id. The repo doesn't have to exist.
  */
 int
-seaf_repo_index_worktree_files (const char *repo_id,
+winguf_repo_index_worktree_files (const char *repo_id,
                                 const char *worktree,
                                 const char *passwd,
                                 char *root_id)
@@ -584,7 +584,7 @@ seaf_repo_index_worktree_files (const char *repo_id,
     GList *ignore_list = NULL;
 
     memset (&istate, 0, sizeof(istate));
-    snprintf (index_path, SEAF_PATH_MAX, "%s/%s", seaf->repo_mgr->index_dir, repo_id);
+    snprintf (index_path, SEAF_PATH_MAX, "%s/%s", winguf->repo_mgr->index_dir, repo_id);
 
     /* Remove existing index. An existing index signifies an interrupted
      * clone-merge. Removing it assures that new blocks from the worktree
@@ -602,7 +602,7 @@ seaf_repo_index_worktree_files (const char *repo_id,
         crypt = wingufile_crypt_new (1, key, iv);
     }
 
-    ignore_list = seaf_repo_load_ignore_files(worktree);
+    ignore_list = winguf_repo_load_ignore_files(worktree);
 
     /* Add empty dir to index. Otherwise if the repo on relay contains an empty
      * dir, we'll fail to detect fast-forward relationship later.
@@ -628,7 +628,7 @@ seaf_repo_index_worktree_files (const char *repo_id,
     g_free (crypt);
     if (it)
         cache_tree_free (&it);
-    seaf_repo_free_ignore_files(ignore_list);
+    winguf_repo_free_ignore_files(ignore_list);
     return 0;
 
 error:
@@ -636,12 +636,12 @@ error:
     g_free (crypt);
     if (it)
         cache_tree_free (&it);
-    seaf_repo_free_ignore_files(ignore_list);
+    winguf_repo_free_ignore_files(ignore_list);
     return -1;
 }
 
 gboolean
-seaf_repo_is_worktree_changed (SeafRepo *repo)
+winguf_repo_is_worktree_changed (SeafRepo *repo)
 {
     SeafRepoManager *mgr = repo->manager;
     GList *res = NULL, *p;
@@ -693,7 +693,7 @@ changed:
         de = p->data;
 
         full_path = g_build_path ("/", repo->worktree, de->name, NULL);
-        if (seaf_stat (full_path, &sb) < 0) {
+        if (winguf_stat (full_path, &sb) < 0) {
             g_warning ("Failed to stat %s: %s.\n", full_path, strerror(errno));
             g_free (full_path);
             continue;
@@ -866,7 +866,7 @@ gen_commit_description (SeafRepo *repo, struct index_state *istate)
 }
 
 gboolean
-seaf_repo_is_index_unmerged (SeafRepo *repo)
+winguf_repo_is_index_unmerged (SeafRepo *repo)
 {
     SeafRepoManager *mgr = repo->manager;
     struct index_state istate;
@@ -901,16 +901,16 @@ commit_tree (SeafRepo *repo, struct cache_tree *it,
     rawdata_to_hex (it->sha1, root_id, 20);
 
     if (!unmerged) {
-        commit = seaf_commit_new (NULL, repo->id, root_id,
+        commit = winguf_commit_new (NULL, repo->id, root_id,
                                   repo->email ? repo->email
-                                  : seaf->session->base.user_name,
-                                  seaf->session->base.id,
+                                  : winguf->session->base.user_name,
+                                  winguf->session->base.id,
                                   desc, 0);
     } else {
-        commit = seaf_commit_new (NULL, repo->id, root_id,
+        commit = winguf_commit_new (NULL, repo->id, root_id,
                                   repo->email ? repo->email
-                                  : seaf->session->base.user_name,
-                                  seaf->session->base.id,
+                                  : winguf->session->base.user_name,
+                                  winguf->session->base.id,
                                   "Auto merge by wingufile system",
                                   0);
     }
@@ -925,30 +925,30 @@ commit_tree (SeafRepo *repo, struct cache_tree *it,
          * been updated after the last merge.
          */
         memset (&minfo, 0, sizeof(minfo));
-        if (seaf_repo_manager_get_merge_info (repo->manager, repo->id, &minfo) < 0) {
-            seaf_warning ("Failed to get merge info of repo %.10s.\n", repo->id);
+        if (winguf_repo_manager_get_merge_info (repo->manager, repo->id, &minfo) < 0) {
+            winguf_warning ("Failed to get merge info of repo %.10s.\n", repo->id);
             return -1;
         }
 
         commit->second_parent_id = g_strdup (minfo.remote_head);
     }
 
-    seaf_repo_to_commit (repo, commit);
+    winguf_repo_to_commit (repo, commit);
 
-    if (seaf_commit_manager_add_commit (seaf->commit_mgr, commit) < 0)
+    if (winguf_commit_manager_add_commit (winguf->commit_mgr, commit) < 0)
         return -1;
 
-    seaf_branch_set_commit (repo->head, commit->commit_id);
-    seaf_branch_manager_update_branch (seaf->branch_mgr, repo->head);
+    winguf_branch_set_commit (repo->head, commit->commit_id);
+    winguf_branch_manager_update_branch (winguf->branch_mgr, repo->head);
 
     strcpy (commit_id, commit->commit_id);
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
 
     return 0;
 }
 
 char *
-seaf_repo_index_commit (SeafRepo *repo, const char *desc, GError **error)
+winguf_repo_index_commit (SeafRepo *repo, const char *desc, GError **error)
 {
     SeafRepoManager *mgr = repo->manager;
     struct index_state istate;
@@ -1018,7 +1018,7 @@ seaf_repo_index_commit (SeafRepo *repo, const char *desc, GError **error)
 
     discard_index (&istate);
 
-    g_signal_emit_by_name (seaf, "repo-committed", repo);
+    g_signal_emit_by_name (winguf, "repo-committed", repo);
 
     return g_strdup(commit_id);
 
@@ -1067,7 +1067,7 @@ print_index (struct index_state *istate)
 #endif  /* DEBUG_UNPACK_TREES */
 
 int
-seaf_repo_checkout_commit (SeafRepo *repo, SeafCommit *commit, gboolean recover_merge,
+winguf_repo_checkout_commit (SeafRepo *repo, SeafCommit *commit, gboolean recover_merge,
                            char **error)
 {
     SeafRepoManager *mgr = repo->manager;
@@ -1095,15 +1095,15 @@ seaf_repo_checkout_commit (SeafRepo *repo, SeafCommit *commit, gboolean recover_
             return -1;
         }
         SeafCommit *head =
-            seaf_commit_manager_get_commit (seaf->commit_mgr,
+            winguf_commit_manager_get_commit (winguf->commit_mgr,
                                             repo->head->commit_id);
         if (!head) {
-            seaf_warning ("Failed to get commit %s.\n", repo->head->commit_id);
+            winguf_warning ("Failed to get commit %s.\n", repo->head->commit_id);
             discard_index (&istate);
             return -1;
         }
         fill_tree_descriptor (&trees[0], head->root_id);
-        seaf_commit_unref (head);
+        winguf_commit_unref (head);
     } else {
         fill_tree_descriptor (&trees[0], NULL);
     }
@@ -1144,7 +1144,7 @@ seaf_repo_checkout_commit (SeafRepo *repo, SeafCommit *commit, gboolean recover_
 #endif
 
     int *finished_entries = NULL;
-    CheckoutTask *c_task = seaf_repo_manager_get_checkout_task (repo->manager, repo->id);
+    CheckoutTask *c_task = winguf_repo_manager_get_checkout_task (repo->manager, repo->id);
     if (c_task) {
         finished_entries = &c_task->finished_files;
     }
@@ -1185,7 +1185,7 @@ out:
  * The worktree will be set to this place too.
  */
 int
-seaf_repo_checkout (SeafRepo *repo, const char *worktree, char **error)
+winguf_repo_checkout (SeafRepo *repo, const char *worktree, char **error)
 {
     const char *commit_id;
     SeafBranch *branch;
@@ -1197,7 +1197,7 @@ seaf_repo_checkout (SeafRepo *repo, const char *worktree, char **error)
     snprintf (index_path, SEAF_PATH_MAX, "%s/%s", repo->manager->index_dir, repo->id);
     g_unlink (index_path);
 
-    branch = seaf_branch_manager_get_branch (seaf->branch_mgr,
+    branch = winguf_branch_manager_get_branch (winguf->branch_mgr,
                                              repo->id, "local");
     if (!branch) {
         g_warning ("[repo-mgr] Checkout repo failed: local branch does not exists\n");
@@ -1206,14 +1206,14 @@ seaf_repo_checkout (SeafRepo *repo, const char *worktree, char **error)
     }
     commit_id = branch->commit_id;
         
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr, commit_id);
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr, commit_id);
     if (!commit) {
         err_msgs = g_string_new ("");
         g_string_append_printf (err_msgs, "Commit %s does not exist.\n",
                                 commit_id);
         g_warning ("%s", err_msgs->str);
         *error = g_string_free (err_msgs, FALSE);
-        seaf_branch_unref (branch);
+        winguf_branch_unref (branch);
         goto error;
     }
 
@@ -1223,34 +1223,34 @@ seaf_repo_checkout (SeafRepo *repo, const char *worktree, char **error)
                                 commit_id, repo->id);
         g_warning ("%s", err_msgs->str);
         *error = g_string_free (err_msgs, FALSE);
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
         if (branch)
-            seaf_branch_unref (branch);
+            winguf_branch_unref (branch);
         goto error;
     }
 
-    CheckoutTask *task = seaf_repo_manager_get_checkout_task (seaf->repo_mgr,
+    CheckoutTask *task = winguf_repo_manager_get_checkout_task (winguf->repo_mgr,
                                                               repo->id);
     if (!task) {
-        seaf_warning ("No checkout task found for repo %.10s.\n", repo->id);
+        winguf_warning ("No checkout task found for repo %.10s.\n", repo->id);
         goto error;
     }
-    task->total_files = seaf_fs_manager_count_fs_files (seaf->fs_mgr, commit->root_id);
+    task->total_files = winguf_fs_manager_count_fs_files (winguf->fs_mgr, commit->root_id);
 
     if (task->total_files < 0) {
-        seaf_warning ("Failed to count files for repo %.10s .\n", repo->id);
+        winguf_warning ("Failed to count files for repo %.10s .\n", repo->id);
         goto error;
     }
 
-    if (seaf_repo_checkout_commit (repo, commit, FALSE, error) < 0) {
-        seaf_commit_unref (commit);
+    if (winguf_repo_checkout_commit (repo, commit, FALSE, error) < 0) {
+        winguf_commit_unref (commit);
         if (branch)
-            seaf_branch_unref (branch);
+            winguf_branch_unref (branch);
         goto error;
     }
 
-    seaf_branch_unref (branch);
-    seaf_commit_unref (commit);
+    winguf_branch_unref (branch);
+    winguf_commit_unref (commit);
 
     return 0;
 
@@ -1259,7 +1259,7 @@ error:
 }
 
 int
-seaf_repo_merge (SeafRepo *repo, const char *branch, char **error,
+winguf_repo_merge (SeafRepo *repo, const char *branch, char **error,
                  gboolean *real_merge)
 {
     SeafBranch *remote_branch;
@@ -1268,7 +1268,7 @@ seaf_repo_merge (SeafRepo *repo, const char *branch, char **error,
     if (!check_worktree_common (repo))
         return -1;
 
-    remote_branch = seaf_branch_manager_get_branch (seaf->branch_mgr,
+    remote_branch = winguf_branch_manager_get_branch (winguf->branch_mgr,
                                                     repo->id,
                                                     branch);
     if (!remote_branch) {
@@ -1278,12 +1278,12 @@ seaf_repo_merge (SeafRepo *repo, const char *branch, char **error,
 
     if (g_strcmp0 (remote_branch->repo_id, repo->id) != 0) {
         *error = g_strdup ("Remote branch is not in this repository.\n");
-        seaf_branch_unref (remote_branch);
+        winguf_branch_unref (remote_branch);
         goto error;
     }
 
     ret = merge_branches (repo, remote_branch, error, real_merge);
-    seaf_branch_unref (remote_branch);
+    winguf_branch_unref (remote_branch);
 
     return ret;
 
@@ -1292,7 +1292,7 @@ error:
 }
 
 int
-seaf_repo_manager_set_repo_worktree (SeafRepoManager *mgr,
+winguf_repo_manager_set_repo_worktree (SeafRepoManager *mgr,
                                      SeafRepo *repo,
                                      const char *worktree)
 {
@@ -1304,7 +1304,7 @@ seaf_repo_manager_set_repo_worktree (SeafRepoManager *mgr,
     repo->worktree = g_strdup(worktree);
     send_wktree_notification (repo, TRUE);
 
-    if (seaf_repo_manager_set_repo_property (mgr, repo->id,
+    if (winguf_repo_manager_set_repo_property (mgr, repo->id,
                                              "worktree",
                                              repo->worktree) < 0)
         return -1;
@@ -1315,7 +1315,7 @@ seaf_repo_manager_set_repo_worktree (SeafRepoManager *mgr,
 }
 
 void
-seaf_repo_manager_invalidate_repo_worktree (SeafRepoManager *mgr,
+winguf_repo_manager_invalidate_repo_worktree (SeafRepoManager *mgr,
                                             SeafRepo *repo)
 {
     if (repo->worktree_invalid)
@@ -1324,14 +1324,14 @@ seaf_repo_manager_invalidate_repo_worktree (SeafRepoManager *mgr,
     repo->worktree_invalid = TRUE;
 
     if (repo->auto_sync) {
-        if (seaf_wt_monitor_unwatch_repo (seaf->wt_monitor, repo->id) < 0) {
+        if (winguf_wt_monitor_unwatch_repo (winguf->wt_monitor, repo->id) < 0) {
             g_warning ("failed to unwatch repo %s.\n", repo->id);
         }
     }
 }
 
 void
-seaf_repo_manager_validate_repo_worktree (SeafRepoManager *mgr,
+winguf_repo_manager_validate_repo_worktree (SeafRepoManager *mgr,
                                           SeafRepo *repo)
 {
     if (!repo->worktree_invalid)
@@ -1340,7 +1340,7 @@ seaf_repo_manager_validate_repo_worktree (SeafRepoManager *mgr,
     repo->worktree_invalid = FALSE;
 
     if (repo->auto_sync) {
-        if (seaf_wt_monitor_watch_repo (seaf->wt_monitor, repo->id) < 0) {
+        if (winguf_wt_monitor_watch_repo (winguf->wt_monitor, repo->id) < 0) {
             g_warning ("failed to watch repo %s.\n", repo->id);
             /* If we fail to add watch, sync manager
              * will periodically check repo status and retry.
@@ -1350,7 +1350,7 @@ seaf_repo_manager_validate_repo_worktree (SeafRepoManager *mgr,
 }
 
 void
-seaf_repo_generate_magic (SeafRepo *repo, const char *passwd)
+winguf_repo_generate_magic (SeafRepo *repo, const char *passwd)
 {
     GString *buf = g_string_new (NULL);
     unsigned char key[16], iv[16];
@@ -1375,13 +1375,13 @@ compare_repo (const SeafRepo *srepo, const SeafRepo *trepo)
 }
 
 SeafRepoManager*
-seaf_repo_manager_new (SeafileSession *seaf)
+winguf_repo_manager_new (SeafileSession *winguf)
 {
     SeafRepoManager *mgr = g_new0 (SeafRepoManager, 1);
 
     mgr->priv = g_new0 (SeafRepoManagerPriv, 1);
-    mgr->seaf = seaf;
-    mgr->index_dir = g_build_path (PATH_SEPERATOR, seaf->seaf_dir, INDEX_DIR, NULL);
+    mgr->winguf = winguf;
+    mgr->index_dir = g_build_path (PATH_SEPERATOR, winguf->winguf_dir, INDEX_DIR, NULL);
 
     pthread_mutex_init (&mgr->priv->db_lock, NULL);
 
@@ -1403,7 +1403,7 @@ seaf_repo_manager_new (SeafileSession *seaf)
 }
 
 int
-seaf_repo_manager_init (SeafRepoManager *mgr)
+winguf_repo_manager_init (SeafRepoManager *mgr)
 {
     if (checkdir_with_mkdir (mgr->index_dir) < 0) {
         g_warning ("Index dir %s does not exist and is unable to create\n",
@@ -1412,7 +1412,7 @@ seaf_repo_manager_init (SeafRepoManager *mgr)
     }
 
     /* Load all the repos into memory on the client side. */
-    load_repos (mgr, mgr->seaf->seaf_dir);
+    load_repos (mgr, mgr->winguf->winguf_dir);
 
     return 0;
 }
@@ -1426,7 +1426,7 @@ watch_repos (SeafRepoManager *mgr)
     for (node = mgr->priv->repo_tree->head; node; node = node->next) {
         repo = node->item;
         if (repo->auto_sync && !repo->worktree_invalid) {
-            if (seaf_wt_monitor_watch_repo (seaf->wt_monitor, repo->id) < 0) {
+            if (winguf_wt_monitor_watch_repo (winguf->wt_monitor, repo->id) < 0) {
                 g_warning ("failed to watch repo %s.\n", repo->id);
                 /* If we fail to add watch at the beginning, sync manager
                  * will periodically check repo status and retry.
@@ -1437,7 +1437,7 @@ watch_repos (SeafRepoManager *mgr)
 }
 
 int
-seaf_repo_manager_start (SeafRepoManager *mgr)
+winguf_repo_manager_start (SeafRepoManager *mgr)
 {
     watch_repos (mgr);
 
@@ -1445,7 +1445,7 @@ seaf_repo_manager_start (SeafRepoManager *mgr)
 }
 
 SeafRepo*
-seaf_repo_manager_create_new_repo (SeafRepoManager *mgr,
+winguf_repo_manager_create_new_repo (SeafRepoManager *mgr,
                                    const char *name,
                                    const char *desc)
 {
@@ -1453,7 +1453,7 @@ seaf_repo_manager_create_new_repo (SeafRepoManager *mgr,
     char *repo_id;
     
     repo_id = gen_uuid ();
-    repo = seaf_repo_new (repo_id, name, desc);
+    repo = winguf_repo_new (repo_id, name, desc);
     if (!repo) {
         g_free (repo_id);
         return NULL;
@@ -1461,17 +1461,17 @@ seaf_repo_manager_create_new_repo (SeafRepoManager *mgr,
     g_free (repo_id);
 
     /* we directly create dir because it shouldn't exist */
-    /* if (seaf_repo_mkdir (repo, base) < 0) { */
-    /*     seaf_repo_free (repo); */
+    /* if (winguf_repo_mkdir (repo, base) < 0) { */
+    /*     winguf_repo_free (repo); */
     /*     goto out; */
     /* } */
 
-    seaf_repo_manager_add_repo (mgr, repo);
+    winguf_repo_manager_add_repo (mgr, repo);
     return repo;
 }
 
 int
-seaf_repo_manager_add_repo (SeafRepoManager *manager,
+winguf_repo_manager_add_repo (SeafRepoManager *manager,
                             SeafRepo *repo)
 {
     char sql[256];
@@ -1500,7 +1500,7 @@ seaf_repo_manager_add_repo (SeafRepoManager *manager,
 }
 
 int
-seaf_repo_manager_mark_repo_deleted (SeafRepoManager *mgr, SeafRepo *repo)
+winguf_repo_manager_mark_repo_deleted (SeafRepoManager *mgr, SeafRepo *repo)
 {
     char sql[256];
 
@@ -1553,16 +1553,16 @@ remove_repo_ondisk (SeafRepoManager *mgr, const char *repo_id)
     /* remove branch */
     GList *p;
     GList *branch_list = 
-        seaf_branch_manager_get_branch_list (seaf->branch_mgr, repo_id);
+        winguf_branch_manager_get_branch_list (winguf->branch_mgr, repo_id);
     for (p = branch_list; p; p = p->next) {
         SeafBranch *b = (SeafBranch *)p->data;
-        seaf_repo_manager_branch_repo_unmap (mgr, b);
-        seaf_branch_manager_del_branch (seaf->branch_mgr, repo_id, b->name);
+        winguf_repo_manager_branch_repo_unmap (mgr, b);
+        winguf_branch_manager_del_branch (winguf->branch_mgr, repo_id, b->name);
     }
-    seaf_branch_list_free (branch_list);
+    winguf_branch_list_free (branch_list);
 
     /* delete repo property firstly */
-    seaf_repo_manager_del_repo_property (mgr, repo_id);
+    winguf_repo_manager_del_repo_property (mgr, repo_id);
 
     pthread_mutex_lock (&mgr->priv->db_lock);
 #ifdef HAVE_KEYSTORAGE_GK
@@ -1584,7 +1584,7 @@ out:
 }
 
 int
-seaf_repo_manager_del_repo (SeafRepoManager *mgr,
+winguf_repo_manager_del_repo (SeafRepoManager *mgr,
                             SeafRepo *repo)
 {
     remove_repo_ondisk (mgr, repo->id);
@@ -1600,13 +1600,13 @@ seaf_repo_manager_del_repo (SeafRepoManager *mgr,
 
     send_wktree_notification (repo, FALSE);
 
-    seaf_repo_free (repo);
+    winguf_repo_free (repo);
 
     return 0;
 }
 
 SeafRepo*
-seaf_repo_manager_get_repo (SeafRepoManager *manager, const gchar *id)
+winguf_repo_manager_get_repo (SeafRepoManager *manager, const gchar *id)
 {
     SeafRepo repo;
     int len = strlen(id);
@@ -1633,7 +1633,7 @@ seaf_repo_manager_get_repo (SeafRepoManager *manager, const gchar *id)
 }
 
 SeafRepo*
-seaf_repo_manager_get_repo_prefix (SeafRepoManager *manager, const gchar *id)
+winguf_repo_manager_get_repo_prefix (SeafRepoManager *manager, const gchar *id)
 {
     avl_node_t *node;
     SeafRepo repo, *result;
@@ -1654,7 +1654,7 @@ seaf_repo_manager_get_repo_prefix (SeafRepoManager *manager, const gchar *id)
 }
 
 gboolean
-seaf_repo_manager_repo_exists (SeafRepoManager *manager, const gchar *id)
+winguf_repo_manager_repo_exists (SeafRepoManager *manager, const gchar *id)
 {
     SeafRepo repo;
     memcpy (repo.id, id, 37);
@@ -1677,7 +1677,7 @@ seaf_repo_manager_repo_exists (SeafRepoManager *manager, const gchar *id)
 }
 
 gboolean
-seaf_repo_manager_repo_exists_prefix (SeafRepoManager *manager, const gchar *id)
+winguf_repo_manager_repo_exists_prefix (SeafRepoManager *manager, const gchar *id)
 {
     avl_node_t *node;
     SeafRepo repo;
@@ -1701,7 +1701,7 @@ get_token (sqlite3_stmt *stmt, void *data)
 }
 
 char *
-seaf_repo_manager_get_repo_lantoken (SeafRepoManager *manager,
+winguf_repo_manager_get_repo_lantoken (SeafRepoManager *manager,
                                      const char *repo_id)
 {
     char sql[256];
@@ -1725,7 +1725,7 @@ seaf_repo_manager_get_repo_lantoken (SeafRepoManager *manager,
 }
 
 int
-seaf_repo_manager_set_repo_lantoken (SeafRepoManager *manager,
+winguf_repo_manager_set_repo_lantoken (SeafRepoManager *manager,
                                      const char *repo_id,
                                      const char *token)
 {
@@ -1747,7 +1747,7 @@ seaf_repo_manager_set_repo_lantoken (SeafRepoManager *manager,
 }
 
 int
-seaf_repo_manager_verify_repo_lantoken (SeafRepoManager *manager,
+winguf_repo_manager_verify_repo_lantoken (SeafRepoManager *manager,
                                         const char *repo_id,
                                         const char *token)
 {
@@ -1755,7 +1755,7 @@ seaf_repo_manager_verify_repo_lantoken (SeafRepoManager *manager,
     if (!token)
         return 0;
 
-    char *my_token = seaf_repo_manager_get_repo_lantoken (manager, repo_id);
+    char *my_token = winguf_repo_manager_get_repo_lantoken (manager, repo_id);
 
     if (!my_token) {
         if (memcmp (DEFAULT_REPO_TOKEN, token, strlen(token)) == 0)
@@ -1770,7 +1770,7 @@ seaf_repo_manager_verify_repo_lantoken (SeafRepoManager *manager,
 }
 
 char *
-seaf_repo_manager_generate_tmp_token (SeafRepoManager *manager,
+winguf_repo_manager_generate_tmp_token (SeafRepoManager *manager,
                                       const char *repo_id,
                                       const char *peer_id)
 {
@@ -1795,7 +1795,7 @@ seaf_repo_manager_generate_tmp_token (SeafRepoManager *manager,
 }
 
 int
-seaf_repo_manager_verify_tmp_token (SeafRepoManager *manager,
+winguf_repo_manager_verify_tmp_token (SeafRepoManager *manager,
                                     const char *repo_id,
                                     const char *peer_id,
                                     const char *token)
@@ -1840,7 +1840,7 @@ save_branch_repo_map (SeafRepoManager *manager, SeafBranch *branch)
 }
 
 int
-seaf_repo_manager_branch_repo_unmap (SeafRepoManager *manager, SeafBranch *branch)
+winguf_repo_manager_branch_repo_unmap (SeafRepoManager *manager, SeafBranch *branch)
 {
     char *sql;
     sqlite3 *db = manager->priv->db;
@@ -1870,7 +1870,7 @@ load_repo_commit (SeafRepoManager *manager,
 {
     SeafCommit *commit;
 
-    commit = seaf_commit_manager_get_commit (manager->seaf->commit_mgr,
+    commit = winguf_commit_manager_get_commit (manager->winguf->commit_mgr,
                                              branch->commit_id);
     if (!commit) {
         g_warning ("Commit %s is missing\n", branch->commit_id);
@@ -1879,9 +1879,9 @@ load_repo_commit (SeafRepoManager *manager,
     }
 
     set_head_common (repo, branch);
-    seaf_repo_from_commit (repo, commit);
+    winguf_repo_from_commit (repo, commit);
 
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
 }
 
 static gboolean
@@ -2023,7 +2023,7 @@ load_branch_cb (sqlite3_stmt *stmt, void *vrepo)
 
     char *branch_name = (char *) sqlite3_column_text (stmt, 0);
     SeafBranch *branch =
-        seaf_branch_manager_get_branch (manager->seaf->branch_mgr,
+        winguf_branch_manager_get_branch (manager->winguf->branch_mgr,
                                         repo->id, branch_name);
     if (branch == NULL) {
         g_warning ("Broken branch name for repo %s\n", repo->id); 
@@ -2031,7 +2031,7 @@ load_branch_cb (sqlite3_stmt *stmt, void *vrepo)
         return FALSE;
     }
     load_repo_commit (manager, repo, branch);
-    seaf_branch_unref (branch);
+    winguf_branch_unref (branch);
 
     /* Only one result. */
     return FALSE;
@@ -2042,7 +2042,7 @@ load_repo (SeafRepoManager *manager, const char *repo_id)
 {
     char sql[256];
 
-    SeafRepo *repo = seaf_repo_new(repo_id, NULL, NULL);
+    SeafRepo *repo = winguf_repo_new(repo_id, NULL, NULL);
     if (!repo) {
         g_warning ("[repo mgr] failed to alloc repo.\n");
         return NULL;
@@ -2055,13 +2055,13 @@ load_repo (SeafRepoManager *manager, const char *repo_id)
     if (sqlite_foreach_selected_row (manager->priv->db, sql, 
                                      load_branch_cb, repo) < 0) {
         g_warning ("Error read branch for repo %s.\n", repo->id);
-        seaf_repo_free (repo);
+        winguf_repo_free (repo);
         return NULL;
     }
 
     /* If repo head is set but failed to load branch or commit. */
     if (repo->is_corrupted) {
-        seaf_repo_free (repo);
+        winguf_repo_free (repo);
         /* remove_repo_ondisk (manager, repo_id); */
         return NULL;
     }
@@ -2070,23 +2070,23 @@ load_repo (SeafRepoManager *manager, const char *repo_id)
     if (repo->head == NULL) {
         /* the repo do not have a head branch, try to load 'master' branch */
         SeafBranch *branch =
-            seaf_branch_manager_get_branch (manager->seaf->branch_mgr,
+            winguf_branch_manager_get_branch (manager->winguf->branch_mgr,
                                             repo->id, "master");
         if (branch != NULL) {
              SeafCommit *commit;
 
-             commit = seaf_commit_manager_get_commit (manager->seaf->commit_mgr,
+             commit = winguf_commit_manager_get_commit (manager->winguf->commit_mgr,
                                                       branch->commit_id);
              if (commit) {
-                 seaf_repo_from_commit (repo, commit);
-                 seaf_commit_unref (commit);
+                 winguf_repo_from_commit (repo, commit);
+                 winguf_commit_unref (commit);
              } else {
                  g_warning ("[repo-mgr] Can not find commit %s\n",
                             branch->commit_id);
                  repo->is_corrupted = TRUE;
              }
 
-             seaf_branch_unref (branch);
+             winguf_branch_unref (branch);
         } else {
             g_warning ("[repo-mgr] Failed to get branch master");
             repo->is_corrupted = TRUE;
@@ -2094,7 +2094,7 @@ load_repo (SeafRepoManager *manager, const char *repo_id)
     }
 
     if (repo->is_corrupted) {
-        seaf_repo_free (repo);
+        winguf_repo_free (repo);
         /* remove_repo_ondisk (manager, repo_id); */
         return NULL;
     }
@@ -2128,10 +2128,10 @@ load_repo (SeafRepoManager *manager, const char *repo_id)
     repo->email = load_repo_property (manager, repo->id, REPO_PROP_EMAIL);
     repo->token = load_repo_property (manager, repo->id, REPO_PROP_TOKEN);
     
-    if (repo->head != NULL && seaf_repo_check_worktree (repo) < 0) {
-        seaf_message ("Worktree for repo \"%s\" is invalid, delte it.\n",
+    if (repo->head != NULL && winguf_repo_check_worktree (repo) < 0) {
+        winguf_message ("Worktree for repo \"%s\" is invalid, delte it.\n",
                       repo->name);
-        seaf_repo_manager_del_repo (manager, repo);
+        winguf_repo_manager_del_repo (manager, repo);
         return NULL;
     }
 
@@ -2142,12 +2142,12 @@ load_repo (SeafRepoManager *manager, const char *repo_id)
 }
 
 static sqlite3*
-open_db (SeafRepoManager *manager, const char *seaf_dir)
+open_db (SeafRepoManager *manager, const char *winguf_dir)
 {
     sqlite3 *db;
     char *db_path;
 
-    db_path = g_build_filename (seaf_dir, "repo.db", NULL);
+    db_path = g_build_filename (winguf_dir, "repo.db", NULL);
     if (sqlite_open_db (db_path, &db) < 0)
         return NULL;
     g_free (db_path);
@@ -2221,9 +2221,9 @@ remove_deleted_repo (sqlite3_stmt *stmt, void *vmanager)
 }
 
 static void
-load_repos (SeafRepoManager *manager, const char *seaf_dir)
+load_repos (SeafRepoManager *manager, const char *winguf_dir)
 {
-    sqlite3 *db = open_db(manager, seaf_dir);
+    sqlite3 *db = open_db(manager, winguf_dir);
     if (!db) return;
 
     char *sql;
@@ -2273,7 +2273,7 @@ save_repo_property (SeafRepoManager *manager,
 
 inline static gboolean is_peer_relay (const char *peer_id)
 {
-    CcnetPeer *peer = ccnet_get_peer(seaf->ccnetrpc_client, peer_id);
+    CcnetPeer *peer = ccnet_get_peer(winguf->ccnetrpc_client, peer_id);
 
     if (!peer)
         return FALSE;
@@ -2284,7 +2284,7 @@ inline static gboolean is_peer_relay (const char *peer_id)
 }
 
 int
-seaf_repo_manager_set_repo_relay_id (SeafRepoManager *mgr,
+winguf_repo_manager_set_repo_relay_id (SeafRepoManager *mgr,
                                      SeafRepo *repo,
                                      const char *relay_id)
 {
@@ -2305,31 +2305,31 @@ seaf_repo_manager_set_repo_relay_id (SeafRepoManager *mgr,
 }
 
 int
-seaf_repo_manager_set_repo_property (SeafRepoManager *manager, 
+winguf_repo_manager_set_repo_property (SeafRepoManager *manager, 
                                      const char *repo_id,
                                      const char *key,
                                      const char *value)
 {
     SeafRepo *repo;
 
-    repo = seaf_repo_manager_get_repo (manager, repo_id);
+    repo = winguf_repo_manager_get_repo (manager, repo_id);
     if (!repo)
         return -1;
 
     if (strcmp(key, REPO_AUTO_SYNC) == 0) {
-        if (!seaf->started) {
-            seaf_message ("System not started, skip setting auto sync value.\n");
+        if (!winguf->started) {
+            winguf_message ("System not started, skip setting auto sync value.\n");
             return 0;
         }
 
         if (g_strcmp0(value, "true") == 0) {
             repo->auto_sync = 1;
-            seaf_wt_monitor_watch_repo (seaf->wt_monitor, repo->id);
+            winguf_wt_monitor_watch_repo (winguf->wt_monitor, repo->id);
         } else {
             repo->auto_sync = 0;
-            seaf_wt_monitor_unwatch_repo (seaf->wt_monitor, repo->id);
+            winguf_wt_monitor_unwatch_repo (winguf->wt_monitor, repo->id);
             /* Cancel current sync task if any. */
-            seaf_sync_manager_cancel_sync_task (seaf->sync_mgr, repo->id);
+            winguf_sync_manager_cancel_sync_task (winguf->sync_mgr, repo->id);
         }
     }
     if (strcmp(key, REPO_NET_BROWSABLE) == 0) {
@@ -2340,14 +2340,14 @@ seaf_repo_manager_set_repo_property (SeafRepoManager *manager,
     }
 
     if (strcmp(key, REPO_RELAY_ID) == 0)
-        return seaf_repo_manager_set_repo_relay_id (manager, repo, value);
+        return winguf_repo_manager_set_repo_relay_id (manager, repo, value);
 
     save_repo_property (manager, repo_id, key, value);
     return 0;
 }
 
 char *
-seaf_repo_manager_get_repo_property (SeafRepoManager *manager, 
+winguf_repo_manager_get_repo_property (SeafRepoManager *manager, 
                                      const char *repo_id,
                                      const char *key)
 {
@@ -2355,7 +2355,7 @@ seaf_repo_manager_get_repo_property (SeafRepoManager *manager,
 }
 
 static void
-seaf_repo_manager_del_repo_property (SeafRepoManager *manager, 
+winguf_repo_manager_del_repo_property (SeafRepoManager *manager, 
                                      const char *repo_id)
 {
     char *sql;
@@ -2413,7 +2413,7 @@ generate_repo_enc_key (SeafRepo *repo, const char *passwd)
 }
 
 int 
-seaf_repo_manager_set_repo_passwd (SeafRepoManager *manager,
+winguf_repo_manager_set_repo_passwd (SeafRepoManager *manager,
                                    SeafRepo *repo,
                                    const char *passwd)
 {
@@ -2433,7 +2433,7 @@ seaf_repo_manager_set_repo_passwd (SeafRepoManager *manager,
 }
 
 int
-seaf_repo_manager_set_merge (SeafRepoManager *manager,
+winguf_repo_manager_set_merge (SeafRepoManager *manager,
                              const char *repo_id,
                              const char *remote_head)
 {
@@ -2450,7 +2450,7 @@ seaf_repo_manager_set_merge (SeafRepoManager *manager,
 }
 
 int
-seaf_repo_manager_clear_merge (SeafRepoManager *manager,
+winguf_repo_manager_clear_merge (SeafRepoManager *manager,
                                const char *repo_id)
 {
     char sql[256];
@@ -2487,7 +2487,7 @@ get_merge_info (sqlite3_stmt *stmt, void *vinfo)
 }
 
 int
-seaf_repo_manager_get_merge_info (SeafRepoManager *manager,
+winguf_repo_manager_get_merge_info (SeafRepoManager *manager,
                                   const char *repo_id,
                                   SeafRepoMergeInfo *info)
 {
@@ -2512,7 +2512,7 @@ seaf_repo_manager_get_merge_info (SeafRepoManager *manager,
 }
 
 GList*
-seaf_repo_manager_get_repo_list (SeafRepoManager *manager, int start, int limit)
+winguf_repo_manager_get_repo_list (SeafRepoManager *manager, int start, int limit)
 {
     GList *repo_list = NULL;
     avl_node_t *node, *tail;
@@ -2563,23 +2563,23 @@ checkout_job_done (void *vresult)
     if (!cdata->task->success)
         goto out;
 
-    seaf_repo_manager_set_repo_worktree (repo->manager,
+    winguf_repo_manager_set_repo_worktree (repo->manager,
                                          repo,
                                          cdata->task->worktree);
 
-    local = seaf_branch_manager_get_branch (seaf->branch_mgr, repo->id, "local");
+    local = winguf_branch_manager_get_branch (winguf->branch_mgr, repo->id, "local");
     if (!local) {
-        seaf_warning ("Cannot get branch local for repo %s(%.10s).\n",
+        winguf_warning ("Cannot get branch local for repo %s(%.10s).\n",
                       repo->name, repo->id);
         return;
     }
     /* Set repo head to mark checkout done. */
-    seaf_repo_set_head (repo, local);
-    seaf_branch_unref (local);
+    winguf_repo_set_head (repo, local);
+    winguf_branch_unref (local);
 
     if (repo->auto_sync) {
-        if (seaf_wt_monitor_watch_repo (seaf->wt_monitor, repo->id) < 0) {
-            seaf_warning ("failed to watch repo %s(%.10s).\n", repo->name, repo->id);
+        if (winguf_wt_monitor_watch_repo (winguf->wt_monitor, repo->id) < 0) {
+            winguf_warning ("failed to watch repo %s(%.10s).\n", repo->name, repo->id);
             return;
         }
     }
@@ -2594,14 +2594,14 @@ out:
 static void *
 checkout_repo_job (void *data)
 {
-    SeafRepoManager *mgr = seaf->repo_mgr;
+    SeafRepoManager *mgr = winguf->repo_mgr;
     CheckoutData *cdata = data;
     SeafRepo *repo = cdata->repo;
     CheckoutTask *task;
 
     task = g_hash_table_lookup (mgr->priv->checkout_tasks_hash, repo->id);
     if (!task) {
-        seaf_warning ("Failed to find checkout task for repo %.10s\n", repo->id);
+        winguf_warning ("Failed to find checkout task for repo %.10s\n", repo->id);
         return NULL;
     }
 
@@ -2610,8 +2610,8 @@ checkout_repo_job (void *data)
     repo->worktree = g_strdup (task->worktree);
 
     char *error_msg = NULL;
-    if (seaf_repo_checkout (repo, task->worktree, &error_msg) < 0) {
-        seaf_warning ("Failed to checkout repo %.10s to %s : %s\n",
+    if (winguf_repo_checkout (repo, task->worktree, &error_msg) < 0) {
+        winguf_warning ("Failed to checkout repo %.10s to %s : %s\n",
                       repo->id, task->worktree, error_msg);
         g_free (error_msg);
         task->success = FALSE;
@@ -2625,14 +2625,14 @@ ret:
 }
 
 int
-seaf_repo_manager_add_checkout_task (SeafRepoManager *mgr,
+winguf_repo_manager_add_checkout_task (SeafRepoManager *mgr,
                                      SeafRepo *repo,
                                      const char *worktree,
                                      CheckoutDoneCallback done_cb,
                                      void *cb_data)
 {
     if (!repo || !worktree) {
-        seaf_warning ("Invaid args\n");
+        winguf_warning ("Invaid args\n");
         return -1;
     }
 
@@ -2649,7 +2649,7 @@ seaf_repo_manager_add_checkout_task (SeafRepoManager *mgr,
     cdata->task = task;
     cdata->done_cb = done_cb;
     cdata->cb_data = cb_data;
-    ccnet_job_manager_schedule_job(seaf->job_mgr,
+    ccnet_job_manager_schedule_job(winguf->job_mgr,
                                    (JobThreadFunc)checkout_repo_job,
                                    (JobDoneCallback)checkout_job_done,
                                    cdata);
@@ -2657,11 +2657,11 @@ seaf_repo_manager_add_checkout_task (SeafRepoManager *mgr,
 }
 
 CheckoutTask *
-seaf_repo_manager_get_checkout_task (SeafRepoManager *mgr,
+winguf_repo_manager_get_checkout_task (SeafRepoManager *mgr,
                                      const char *repo_id)
 {
     if (!repo_id || strlen(repo_id) != 36) {
-        seaf_warning ("Invalid args\n");
+        winguf_warning ("Invalid args\n");
         return NULL;
     }
 
@@ -2669,7 +2669,7 @@ seaf_repo_manager_get_checkout_task (SeafRepoManager *mgr,
 }
 
 int
-seaf_repo_manager_set_repo_email (SeafRepoManager *mgr,
+winguf_repo_manager_set_repo_email (SeafRepoManager *mgr,
                                   SeafRepo *repo,
                                   const char *email)
 {
@@ -2681,7 +2681,7 @@ seaf_repo_manager_set_repo_email (SeafRepoManager *mgr,
 }
 
 int
-seaf_repo_manager_set_repo_token (SeafRepoManager *manager, 
+winguf_repo_manager_set_repo_token (SeafRepoManager *manager, 
                                   SeafRepo *repo,
                                   const char *token)
 {
@@ -2693,7 +2693,7 @@ seaf_repo_manager_set_repo_token (SeafRepoManager *manager,
 }
 
 int
-seaf_repo_manager_set_repo_relay_info (SeafRepoManager *mgr,
+winguf_repo_manager_set_repo_relay_info (SeafRepoManager *mgr,
                                        const char *repo_id,
                                        const char *relay_addr,
                                        const char *relay_port)
@@ -2704,7 +2704,7 @@ seaf_repo_manager_set_repo_relay_info (SeafRepoManager *mgr,
 }
 
 void
-seaf_repo_manager_get_repo_relay_info (SeafRepoManager *mgr,
+winguf_repo_manager_get_repo_relay_info (SeafRepoManager *mgr,
                                        const char *repo_id,
                                        char **relay_addr,
                                        char **relay_port)
@@ -2721,12 +2721,12 @@ seaf_repo_manager_get_repo_relay_info (SeafRepoManager *mgr,
 }
 
 int
-seaf_repo_manager_update_repo_relay_info (SeafRepoManager *mgr,
+winguf_repo_manager_update_repo_relay_info (SeafRepoManager *mgr,
                                           SeafRepo *repo,
                                           const char *new_addr,
                                           const char *new_port)
 {
-    GList *ptr, *repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, 0, -1);
+    GList *ptr, *repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, 0, -1);
     SeafRepo *r;
     for (ptr = repos; ptr; ptr = ptr->next) {
         r = ptr->data;
@@ -2735,11 +2735,11 @@ seaf_repo_manager_update_repo_relay_info (SeafRepoManager *mgr,
                 
         char *relay_addr = NULL;
         char *relay_port = NULL;
-        seaf_repo_manager_get_repo_relay_info (seaf->repo_mgr, r->id, 
+        winguf_repo_manager_get_repo_relay_info (winguf->repo_mgr, r->id, 
                                                &relay_addr, &relay_port);
         if (g_strcmp0(relay_addr, new_addr) != 0 ||
             g_strcmp0(relay_port, new_port) != 0) {
-            seaf_repo_manager_set_repo_relay_info (seaf->repo_mgr, r->id,
+            winguf_repo_manager_set_repo_relay_info (winguf->repo_mgr, r->id,
                                                    new_addr, new_port);
         }
 
@@ -2755,7 +2755,7 @@ seaf_repo_manager_update_repo_relay_info (SeafRepoManager *mgr,
 /*
  * Read ignored files from ignore.txt
  */
-GList *seaf_repo_load_ignore_files (const char *worktree)
+GList *winguf_repo_load_ignore_files (const char *worktree)
 {
     GList *list = NULL;
     SeafStat st;
@@ -2767,7 +2767,7 @@ GList *seaf_repo_load_ignore_files (const char *worktree)
                               IGNORE_FILE, NULL);
     if (g_access (full_path, F_OK) < 0)
         goto error;
-    if (seaf_stat (full_path, &st) < 0)
+    if (winguf_stat (full_path, &st) < 0)
         goto error;
     if (!S_ISREG(st.st_mode))
         goto error;
@@ -2802,7 +2802,7 @@ error:
 }
 
 gboolean
-seaf_repo_check_ignore_file (GList *ignore_list, const char *fullpath)
+winguf_repo_check_ignore_file (GList *ignore_list, const char *fullpath)
 {
     char *str;
     SeafStat st;
@@ -2812,7 +2812,7 @@ seaf_repo_check_ignore_file (GList *ignore_list, const char *fullpath)
     str = g_strdup(fullpath);
 
     /* first check the path is a reg file or a dir */
-    if (seaf_stat(str, &st) < 0) {
+    if (winguf_stat(str, &st) < 0) {
         g_free(str);
         return TRUE;
     }
@@ -2840,7 +2840,7 @@ seaf_repo_check_ignore_file (GList *ignore_list, const char *fullpath)
 /*
  * Free ignored file list
  */
-void seaf_repo_free_ignore_files (GList *ignore_list)
+void winguf_repo_free_ignore_files (GList *ignore_list)
 {
     GList *p;
 

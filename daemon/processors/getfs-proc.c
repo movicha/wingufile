@@ -11,7 +11,7 @@
 
 #include <ccnet.h>
 #include "utils.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 #include "wingufile-session.h"
 #include "commit-mgr.h"
@@ -131,7 +131,7 @@ request_object_batch (CcnetProcessor *processor,
 }
 
 static void
-check_seafdir (CcnetProcessor *processor, SeafDir *dir)
+check_wingufdir (CcnetProcessor *processor, SeafDir *dir)
 {
     USE_PRIV;
     GList *ptr;
@@ -139,7 +139,7 @@ check_seafdir (CcnetProcessor *processor, SeafDir *dir)
 
     for (ptr = dir->entries; ptr; ptr = ptr->next) {
         dent = ptr->data;
-        if (!seaf_fs_manager_object_exists(seaf->fs_mgr, dent->id)) {
+        if (!winguf_fs_manager_object_exists(winguf->fs_mgr, dent->id)) {
             request_object_batch (processor, priv, dent->id);
             continue;
         }
@@ -167,16 +167,16 @@ check_object (CcnetProcessor *processor)
         obj_id = (char *) g_queue_pop_head (priv->inspect_queue);
         if (obj_id == NULL)
             break;
-        if (!seaf_fs_manager_object_exists(seaf->fs_mgr, obj_id)) {
+        if (!winguf_fs_manager_object_exists(winguf->fs_mgr, obj_id)) {
             request_object_batch (processor, priv, obj_id);
         } else {
-            dir = seaf_fs_manager_get_seafdir (seaf->fs_mgr, obj_id);
+            dir = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, obj_id);
             if (!dir) {
                 /* corrupt dir object */
                 request_object_batch (processor, priv, obj_id);
             } else {
-                check_seafdir(processor, dir);
-                seaf_dir_free (dir);
+                check_wingufdir(processor, dir);
+                winguf_dir_free (dir);
             }
         }
         g_free (obj_id);        /* free the memory */
@@ -186,7 +186,7 @@ check_object (CcnetProcessor *processor)
 
     /* check end condition */
     if (i%10 == 0)
-        seaf_debug ("[getfs] pending objects num: %d\n", priv->pending_objects);
+        winguf_debug ("[getfs] pending objects num: %d\n", priv->pending_objects);
     ++i;
 
     if (priv->pending_objects == 0 && g_queue_is_empty(priv->inspect_queue)) {
@@ -225,7 +225,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
 static int
 save_fs_object (ObjectPack *pack, int len)
 {
-    return seaf_obj_store_write_obj (seaf->fs_mgr->obj_store,
+    return winguf_obj_store_write_obj (winguf->fs_mgr->obj_store,
                                      pack->id,
                                      pack->object,
                                      len - 41);
@@ -246,16 +246,16 @@ recv_fs_object (CcnetProcessor *processor, char *content, int clen)
 
     --priv->pending_objects;
 
-    type = seaf_metadata_type_from_data(pack->object, clen);
+    type = winguf_metadata_type_from_data(pack->object, clen);
     if (type == SEAF_METADATA_TYPE_DIR) {
         SeafDir *dir;
-        dir = seaf_dir_from_data (pack->id, pack->object, clen - 41);
+        dir = winguf_dir_from_data (pack->id, pack->object, clen - 41);
         if (!dir) {
             g_warning ("[getfs] Bad directory object %s.\n", pack->id);
             goto bad;
         }
         g_queue_push_tail (priv->inspect_queue, g_strdup(dir->dir_id));
-        seaf_dir_free (dir);
+        winguf_dir_free (dir);
     } else if (type == SEAF_METADATA_TYPE_FILE) {
         /* TODO: check wingufile format. */
 #if 0
@@ -295,7 +295,7 @@ recv_fs_object_seg (CcnetProcessor *processor, char *content, int clen)
     priv->obj_seg = g_realloc (priv->obj_seg, priv->obj_seg_len + clen);
     memcpy (priv->obj_seg + priv->obj_seg_len, content, clen);
 
-    seaf_debug ("[recvfs] Get obj seg: <id= %40s, offset= %d, lenth= %d>\n",
+    winguf_debug ("[recvfs] Get obj seg: <id= %40s, offset= %d, lenth= %d>\n",
                 priv->obj_seg, priv->obj_seg_len, clen);
 
     priv->obj_seg_len += clen;

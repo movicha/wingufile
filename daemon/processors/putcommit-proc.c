@@ -100,7 +100,7 @@ send_commit_ids (CcnetProcessor *processor, const char *head)
     int ret;
     
     ObjectList *ol = object_list_new ();
-    ret = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    ret = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                     head,
                                                     commit_collector,
                                                     ol, FALSE);
@@ -153,7 +153,7 @@ send_commit (CcnetProcessor *processor, char *object_id)
     ObjectPack *pack = NULL;
     int pack_size;
 
-    if (seaf_obj_store_read_obj (seaf->commit_mgr->obj_store,
+    if (winguf_obj_store_read_obj (winguf->commit_mgr->obj_store,
                                  object_id, (void**)&data, &len) < 0) {
         g_warning ("Failed to read commit %s.\n", object_id);
         goto fail;

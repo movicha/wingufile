@@ -43,7 +43,7 @@ struct _SeafCommit {
  * Any new commit should be added to commit manager before used.
  */
 SeafCommit *
-seaf_commit_new (const char *commit_id,
+winguf_commit_new (const char *commit_id,
                  const char *repo_id,
                  const char *root_id,
                  const char *author_name,
@@ -52,16 +52,16 @@ seaf_commit_new (const char *commit_id,
                  guint64 ctime);
 
 char *
-seaf_commit_to_data (SeafCommit *commit, gsize *len);
+winguf_commit_to_data (SeafCommit *commit, gsize *len);
 
 SeafCommit *
-seaf_commit_from_data (const char *id, const char *data, gsize len);
+winguf_commit_from_data (const char *id, const char *data, gsize len);
 
 void
-seaf_commit_ref (SeafCommit *commit);
+winguf_commit_ref (SeafCommit *commit);
 
 void
-seaf_commit_unref (SeafCommit *commit);
+winguf_commit_unref (SeafCommit *commit);
 
 /* Set stop to TRUE if you want to stop traversing a branch in the history graph. 
    Note, if currently there are multi branches, this function will be called again. 
@@ -75,7 +75,7 @@ typedef struct _SeafCommitManager SeafCommitManager;
 typedef struct _SeafCommitManagerPriv SeafCommitManagerPriv;
 
 struct _SeafCommitManager {
-    struct _SeafileSession *seaf;
+    struct _SeafileSession *winguf;
 
     sqlite3    *db;
     struct SeafObjStore *obj_store;
@@ -84,10 +84,10 @@ struct _SeafCommitManager {
 };
 
 SeafCommitManager *
-seaf_commit_manager_new (struct _SeafileSession *seaf);
+winguf_commit_manager_new (struct _SeafileSession *winguf);
 
 int
-seaf_commit_manager_init (SeafCommitManager *mgr);
+winguf_commit_manager_init (SeafCommitManager *mgr);
 
 /**
  * Add a commit to commit manager and persist it to disk.
@@ -96,7 +96,7 @@ seaf_commit_manager_init (SeafCommitManager *mgr);
  * Not MT safe.
  */
 int
-seaf_commit_manager_add_commit (SeafCommitManager *mgr, SeafCommit *commit);
+winguf_commit_manager_add_commit (SeafCommitManager *mgr, SeafCommit *commit);
 
 /**
  * Delete a commit from commit manager and permanently remove it from disk.
@@ -104,7 +104,7 @@ seaf_commit_manager_add_commit (SeafCommitManager *mgr, SeafCommit *commit);
  * Not MT safe.
  */
 void
-seaf_commit_manager_del_commit (SeafCommitManager *mgr, const char *id);
+winguf_commit_manager_del_commit (SeafCommitManager *mgr, const char *id);
 
 /**
  * Find a commit object.
@@ -112,7 +112,7 @@ seaf_commit_manager_del_commit (SeafCommitManager *mgr, const char *id);
  * Not MT safe.
  */
 SeafCommit* 
-seaf_commit_manager_get_commit (SeafCommitManager *mgr, const char *id);
+winguf_commit_manager_get_commit (SeafCommitManager *mgr, const char *id);
 
 /**
  * Traverse the commits DAG start from head in topological order.
@@ -120,19 +120,19 @@ seaf_commit_manager_get_commit (SeafCommitManager *mgr, const char *id);
  * return FALSE if some commits is missing, TRUE otherwise.
  */
 gboolean
-seaf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
+winguf_commit_manager_traverse_commit_tree (SeafCommitManager *mgr,
                                           const char *head,
                                           CommitTraverseFunc func,
                                           void *data,
                                           gboolean skip_errors);
 
 /**
- * Works the same as seaf_commit_manager_traverse_commit_tree, but stops
+ * Works the same as winguf_commit_manager_traverse_commit_tree, but stops
  * traversing when a total number of _limit_ commits is reached. If
  * limit <= 0, there is no limit
  */
 gboolean
-seaf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
+winguf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
                                                      const char *head,
                                                      CommitTraverseFunc func,
                                                      int limit,
@@ -145,7 +145,7 @@ seaf_commit_manager_traverse_commit_tree_with_limit (SeafCommitManager *mgr,
  *     0  if commit1 is equal to commit2, or not comparable
  */
 int
-seaf_commit_manager_compare_commit (SeafCommitManager *mgr,
+winguf_commit_manager_compare_commit (SeafCommitManager *mgr,
                                     const char *commit1,
                                     const char *commit2);
 
@@ -154,9 +154,9 @@ seaf_commit_manager_compare_commit (SeafCommitManager *mgr,
  * Get commits belong to a repo
  */
 GList* 
-seaf_commit_manager_get_repo_commits (SeafCommitManager *mgr, const char *repo_id);
+winguf_commit_manager_get_repo_commits (SeafCommitManager *mgr, const char *repo_id);
 
 gboolean
-seaf_commit_manager_commit_exists (SeafCommitManager *mgr, const char *id);
+winguf_commit_manager_commit_exists (SeafCommitManager *mgr, const char *id);
 
 #endif

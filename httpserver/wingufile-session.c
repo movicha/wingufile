@@ -10,7 +10,7 @@
 
 #include "wingufile-session.h"
 #include "wingufile-config.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 
 /* Zip filename in windows should be encoded in UTF-8 to be consistent across
@@ -76,7 +76,7 @@ wingufile_session_new(const char *wingufile_dir,
     }
 
     session = g_new0(SeafileSession, 1);
-    session->seaf_dir = abs_wingufile_dir;
+    session->winguf_dir = abs_wingufile_dir;
     session->tmp_file_dir = tmp_file_dir;
     session->session = ccnet_session;
     session->config = config;
@@ -87,19 +87,19 @@ wingufile_session_new(const char *wingufile_dir,
     }
     load_zip_encoding_config (session);
 
-    session->fs_mgr = seaf_fs_manager_new (session, abs_wingufile_dir);
+    session->fs_mgr = winguf_fs_manager_new (session, abs_wingufile_dir);
     if (!session->fs_mgr)
         goto onerror;
-    session->block_mgr = seaf_block_manager_new (session, abs_wingufile_dir);
+    session->block_mgr = winguf_block_manager_new (session, abs_wingufile_dir);
     if (!session->block_mgr)
         goto onerror;
-    session->commit_mgr = seaf_commit_manager_new (session);
+    session->commit_mgr = winguf_commit_manager_new (session);
     if (!session->commit_mgr)
         goto onerror;
-    session->repo_mgr = seaf_repo_manager_new (session);
+    session->repo_mgr = winguf_repo_manager_new (session);
     if (!session->repo_mgr)
         goto onerror;
-    session->branch_mgr = seaf_branch_manager_new (session);
+    session->branch_mgr = winguf_branch_manager_new (session);
     if (!session->branch_mgr)
         goto onerror;
 
@@ -116,16 +116,16 @@ onerror:
 int
 wingufile_session_init (SeafileSession *session)
 {
-    if (seaf_commit_manager_init (session->commit_mgr) < 0)
+    if (winguf_commit_manager_init (session->commit_mgr) < 0)
         return -1;
 
-    if (seaf_fs_manager_init (session->fs_mgr) < 0)
+    if (winguf_fs_manager_init (session->fs_mgr) < 0)
         return -1;
 
-    if (seaf_branch_manager_init (session->branch_mgr) < 0)
+    if (winguf_branch_manager_init (session->branch_mgr) < 0)
         return -1;
 
-    if (seaf_repo_manager_init (session->repo_mgr) < 0)
+    if (winguf_repo_manager_init (session->repo_mgr) < 0)
         return -1;
 
     return 0;

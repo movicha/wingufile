@@ -11,31 +11,31 @@ typedef struct _SeafPermManager SeafPermManager;
 typedef struct _SeafPermManagerPriv SeafPermManagerPriv;
 
 struct _SeafPermManager {
-    struct _SeafileSession *seaf;
+    struct _SeafileSession *winguf;
 
     SeafPermManagerPriv *priv;
 };
 
 SeafPermManager*
-seaf_perm_manager_new (struct _SeafileSession *seaf);
+winguf_perm_manager_new (struct _SeafileSession *winguf);
 
 int
-seaf_perm_manager_init (SeafPermManager *mgr);
+winguf_perm_manager_init (SeafPermManager *mgr);
 
 int
-seaf_perm_manager_set_repo_owner (SeafPermManager *mgr,
+winguf_perm_manager_set_repo_owner (SeafPermManager *mgr,
                                   const char *repo_id,
                                   const char *user_id);
 
 char *
-seaf_perm_manager_get_repo_owner (SeafPermManager *mgr,
+winguf_perm_manager_get_repo_owner (SeafPermManager *mgr,
                                   const char *repo_id);
 
 /* TODO: add start and limit. */
 /* Get repos owned by this user.
  */
 GList *
-seaf_perm_manager_get_repos_by_owner (SeafPermManager *mgr,
+winguf_perm_manager_get_repos_by_owner (SeafPermManager *mgr,
                                       const char *user_id);
 
 #endif

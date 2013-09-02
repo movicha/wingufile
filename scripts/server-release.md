@@ -1,7 +1,7 @@
 # Server Release Package
 
-1. Libsearpc
-    cd libsearpc;
+1. libwingurpc
+    cd libwingurpc;
     CFLAGS="-O2" configure --prefix=$dest
     make install
 2. Ccnet

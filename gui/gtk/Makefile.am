@@ -10,7 +10,7 @@ AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 	-I$(top_srcdir)/gui/common \
 	@CCNET_CFLAGS@ \
 	@LIBNOTIFY_CFLAGS@ @GTK_CFLAGS@ @APP_INDICATOR_CFLAGS@ \
-	@SEARPC_CFLAGS@
+	@WINGURPC_CFLAGS@
 
 noinst_HEADERS = trayicon.h misc.h \
 	../common/ccnet-init.h \
@@ -33,7 +33,7 @@ wingufile_applet_LDADD  = @CCNET_LIBS@  \
 	$(top_builddir)/lib/libwingufile_common.la \
 	@GTK_LIBS@ -lssl -lcrypto @LIB_RT@ @LIB_UUID@ \
 	-lsqlite3 -levent \
-	$(LIBNOTIFY_LIBS) $(APP_INDICATOR_LIBS) @SEARPC_LIBS@
+	$(LIBNOTIFY_LIBS) $(APP_INDICATOR_LIBS) @WINGURPC_LIBS@
 
 wingufile_applet_LDFLAGS = @STATIC_COMPILE@ @CONSOLE@
 

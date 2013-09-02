@@ -166,7 +166,7 @@ block_backend_fs_stat_block (BlockBackend *bend,
     BMetadata *block_md;
 
     get_block_path (bend, block_id, path);
-    if (seaf_stat (path, &st) < 0) {
+    if (winguf_stat (path, &st) < 0) {
         g_warning ("[block bend] Failed to stat block %s.\n", block_id);
         return NULL;
     }
@@ -184,7 +184,7 @@ block_backend_fs_stat_block_by_handle (BlockBackend *bend,
     SeafStat st;
     BMetadata *block_md;
 
-    if (seaf_fstat (handle->fd, &st) < 0) {
+    if (winguf_fstat (handle->fd, &st) < 0) {
         g_warning ("[block bend] Failed to stat block %s.\n", handle->block_id);
         return NULL;
     }

@@ -10,34 +10,34 @@ AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\" \
 
 bin_PROGRAMS = wingufile
 if COMPILE_SERVER
-bin_PROGRAMS += seafserv-tool
+bin_PROGRAMS += wingufserv-tool
 endif
 
 if COMPILE_CLIENT
-bin_SCRIPTS = seaf-cli
+bin_SCRIPTS = winguf-cli
 endif
 
 wingufile_SOURCES = wingufile.c
 wingufile_LDADD =  @CCNET_LIBS@ \
 	$(top_builddir)/lib/libwingufile.la \
 	$(top_builddir)/lib/libwingufile_common.la \
-	@SEARPC_LIBS@ \
+	@WINGURPC_LIBS@ \
 	@GLIB2_LIBS@  @GOBJECT_LIBS@ -lssl @LIB_RT@ @LIB_UUID@ -lsqlite3
 
 wingufile_LDFALGS = @STATIC_COMPILE@ @CONSOLE@
 
 if COMPILE_SERVER
-seafserv_tool_SOURCES = seafserv-tool.c
-seafserv_tool_LDADD =  @CCNET_LIBS@ \
-	$(top_builddir)/lib/libwingufile.la @SEARPC_LIBS@ \
+wingufserv_tool_SOURCES = wingufserv-tool.c
+wingufserv_tool_LDADD =  @CCNET_LIBS@ \
+	$(top_builddir)/lib/libwingufile.la @WINGURPC_LIBS@ \
 	@GLIB2_LIBS@  @GOBJECT_LIBS@ -lssl @LIB_RT@ @LIB_UUID@ -lsqlite3
 
-seafserv_tool_LDFLAGS = @STATIC_COMPILE@ @CONSOLE@ @SERVER_PKG_RPATH@
+wingufserv_tool_LDFLAGS = @STATIC_COMPILE@ @CONSOLE@ @SERVER_PKG_RPATH@
 endif
 
 # monitor_tool_SOURCES = monitor-tool.c
 # monitor_tool_LDADD = @CCNET_CFLAGS@ \
-# 	-lsearpc \
+# 	-lwingurpc \
 # 	@GLIB2_LIBS@  @GOBJECT_LIBS@ -lssl -lrt -luuid -lsqlite3
 
-EXTRA_DIST = seaf-cli
+EXTRA_DIST = winguf-cli

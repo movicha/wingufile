@@ -19,7 +19,7 @@
 #define CHECK_CONNECT_INTERVAL 5 /* 5s */
 
 static void
-on_repo_fetched (SeafileSession *seaf,
+on_repo_fetched (SeafileSession *winguf,
                  TransferTask *tx_task,
                  SeafCloneManager *mgr);
 
@@ -125,11 +125,11 @@ clone_task_error_to_str (int error)
 }
 
 SeafCloneManager *
-seaf_clone_manager_new (SeafileSession *session)
+winguf_clone_manager_new (SeafileSession *session)
 {
     SeafCloneManager *mgr = g_new0 (SeafCloneManager, 1);
 
-    char *db_path = g_build_path ("/", session->seaf_dir, CLONE_DB, NULL);
+    char *db_path = g_build_path ("/", session->winguf_dir, CLONE_DB, NULL);
     if (sqlite_open_db (db_path, &mgr->db) < 0) {
         g_critical ("[Clone mgr] Failed to open db\n");
         g_free (db_path);
@@ -137,7 +137,7 @@ seaf_clone_manager_new (SeafileSession *session)
         return NULL;
     }
 
-    mgr->seaf = session;
+    mgr->winguf = session;
     mgr->tasks = g_hash_table_new_full (g_str_hash, g_str_equal,
                                         g_free, (GDestroyNotify)clone_task_free);
     return mgr;
@@ -167,7 +167,7 @@ restart_task (sqlite3_stmt *stmt, void *data)
                            peer_addr, peer_port, email);
     task->manager = mgr;
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (repo != NULL) {
         if (repo->head != NULL) {
             /* If repo exists and its head is set, we are done actually.
@@ -185,7 +185,7 @@ restart_task (sqlite3_stmt *stmt, void *data)
         /* Repo was not created last time. In this case, we just
          * restart from the very beginning.
          */
-        if (!ccnet_peer_is_ready (seaf->ccnetrpc_client, task->peer_id)) {
+        if (!ccnet_peer_is_ready (winguf->ccnetrpc_client, task->peer_id)) {
             /* the relay is not ready yet */
             start_connect_task_relay (task, NULL);
         } else {
@@ -198,7 +198,7 @@ restart_task (sqlite3_stmt *stmt, void *data)
 }
 
 int
-seaf_clone_manager_init (SeafCloneManager *mgr)
+winguf_clone_manager_init (SeafCloneManager *mgr)
 {
     const char *sql;
 
@@ -216,7 +216,7 @@ seaf_clone_manager_init (SeafCloneManager *mgr)
 static void
 continue_task_when_peer_connected (CloneTask *task)
 {
-    if (ccnet_peer_is_ready (seaf->ccnetrpc_client, task->peer_id)) {
+    if (ccnet_peer_is_ready (winguf->ccnetrpc_client, task->peer_id)) {
         start_index_or_transfer (task->manager, task, NULL);
     }
 }
@@ -240,7 +240,7 @@ static int check_connect_pulse (void *vmanager)
 }
 
 int
-seaf_clone_manager_start (SeafCloneManager *mgr)
+winguf_clone_manager_start (SeafCloneManager *mgr)
 {
     mgr->check_timer = ccnet_timer_new (check_connect_pulse, mgr,
                                         CHECK_CONNECT_INTERVAL * 1000);
@@ -249,7 +249,7 @@ seaf_clone_manager_start (SeafCloneManager *mgr)
     if (sqlite_foreach_selected_row (mgr->db, sql, restart_task, mgr) < 0)
         return -1;
 
-    g_signal_connect (seaf, "repo-fetched",
+    g_signal_connect (winguf, "repo-fetched",
                       (GCallback)on_repo_fetched, mgr);
 
     return 0;
@@ -301,7 +301,7 @@ remove_task_from_db (SeafCloneManager *mgr, const char *repo_id)
 static void
 transition_state (CloneTask *task, int new_state)
 {
-    seaf_message ("Transition clone state for %.8s from [%s] to [%s].\n",
+    winguf_message ("Transition clone state for %.8s from [%s] to [%s].\n",
                   task->repo_id,
                   state_str[task->state], state_str[new_state]);
 
@@ -318,7 +318,7 @@ transition_state (CloneTask *task, int new_state)
 static void
 transition_to_error (CloneTask *task, int error)
 {
-    seaf_message ("Transition clone state for %.8s from [%s] to [error]: %s.\n",
+    winguf_message ("Transition clone state for %.8s from [%s] to [error]: %s.\n",
                   task->repo_id,
                   state_str[task->state], 
                   error_str[error]);
@@ -333,7 +333,7 @@ transition_to_error (CloneTask *task, int error)
 static int
 add_transfer_task (SeafCloneManager *mgr, CloneTask *task, GError **error)
 {
-    task->tx_id = seaf_transfer_manager_add_download (seaf->transfer_mgr,
+    task->tx_id = winguf_transfer_manager_add_download (winguf->transfer_mgr,
                                                       task->repo_id,
                                                       task->peer_id,
                                                       "fetch_head",
@@ -358,7 +358,7 @@ index_files_job (void *data)
     IndexAux *aux = data;
     CloneTask *task = aux->task;
 
-    if (seaf_repo_index_worktree_files (task->repo_id, task->worktree,
+    if (winguf_repo_index_worktree_files (task->repo_id, task->worktree,
                                         task->passwd, task->root_id) == 0)
         aux->success = TRUE;
 
@@ -422,7 +422,7 @@ start_index_or_transfer (SeafCloneManager *mgr, CloneTask *task, GError **error)
         aux->mgr = mgr;
         aux->task = task;
 
-        ccnet_job_manager_schedule_job (seaf->job_mgr,
+        ccnet_job_manager_schedule_job (winguf->job_mgr,
                                         index_files_job,
                                         index_files_done,
                                         aux);
@@ -440,16 +440,16 @@ start_index_or_transfer (SeafCloneManager *mgr, CloneTask *task, GError **error)
 static void
 start_connect_task_relay (CloneTask *task, GError **error)
 {
-    CcnetPeer *peer = ccnet_get_peer (seaf->ccnetrpc_client, task->peer_id);
+    CcnetPeer *peer = ccnet_get_peer (winguf->ccnetrpc_client, task->peer_id);
     if (!peer) {
         /* clone from a new relay */
         GString *buf = NULL; 
-        seaf_message ("add relay before clone, %s:%s\n",
+        winguf_message ("add relay before clone, %s:%s\n",
                       task->peer_addr, task->peer_port);
         buf = g_string_new(NULL);
         g_string_append_printf (buf, "add-relay --id %s --addr %s:%s",
                                 task->peer_id, task->peer_addr, task->peer_port);
-        ccnet_send_command (seaf->session, buf->str, NULL, NULL);
+        ccnet_send_command (winguf->session, buf->str, NULL, NULL);
         transition_state (task, CLONE_STATE_CONNECT);
         g_string_free (buf, TRUE);
     } else {
@@ -484,7 +484,7 @@ is_worktree_of_repo (SeafCloneManager *mgr, const char *path)
     gpointer key, value;
     CloneTask *task;
 
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1);
     for (ptr = repos; ptr != NULL; ptr = ptr->next) {
         repo = ptr->data;
         if (g_strcmp0 (path, repo->worktree) == 0) {
@@ -555,7 +555,7 @@ make_worktree (SeafCloneManager *mgr,
 
     remove_trail_slash (wt);
 
-    rc = seaf_stat (wt, &st);
+    rc = winguf_stat (wt, &st);
     if (rc < 0 && errno == ENOENT) {
         ret = wt;
         return ret;
@@ -592,10 +592,10 @@ make_worktree (SeafCloneManager *mgr,
 /*
  * Generate a conflict-free path to be used as worktree.
  * This worktree path can be used as the @worktree parameter
- * for seaf_clone_manager_add_task().
+ * for winguf_clone_manager_add_task().
  */
 char *
-seaf_clone_manager_gen_default_worktree (SeafCloneManager *mgr,
+winguf_clone_manager_gen_default_worktree (SeafCloneManager *mgr,
                                          const char *worktree_parent,
                                          const char *repo_name)
 {
@@ -676,22 +676,22 @@ check_worktree_path (SeafCloneManager *mgr, const char *path, GError **error)
     gpointer key, value;
     CloneTask *task;
 
-    if (check_dir_inclusiveness (path, seaf->seaf_dir) != 0 ||
+    if (check_dir_inclusiveness (path, winguf->winguf_dir) != 0 ||
         /* It's OK if path is included by the default worktree parent. */
-        check_dir_inclusiveness (path, seaf->worktree_dir) < 0 ||
-        check_dir_inclusiveness (path, seaf->session->config_dir) != 0) {
-        seaf_warning ("Worktree path conflicts with wingufile system path.\n");
+        check_dir_inclusiveness (path, winguf->worktree_dir) < 0 ||
+        check_dir_inclusiveness (path, winguf->session->config_dir) != 0) {
+        winguf_warning ("Worktree path conflicts with wingufile system path.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Worktree conflicts system path");
         return FALSE;
     }
 
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1);
     for (ptr = repos; ptr != NULL; ptr = ptr->next) {
         repo = ptr->data;
         if (repo->worktree != NULL &&
             check_dir_inclusiveness (path, repo->worktree) != 0) {
-            seaf_warning ("Worktree path conflict with repo %s.\n", repo->name);
+            winguf_warning ("Worktree path conflict with repo %s.\n", repo->name);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Worktree conflicts existing repo");
             g_list_free (repos);
@@ -708,7 +708,7 @@ check_worktree_path (SeafCloneManager *mgr, const char *path, GError **error)
             task->state == CLONE_STATE_CANCELED)
             continue;
         if (check_dir_inclusiveness (path, task->worktree) != 0) {
-            seaf_warning ("Worktree path conflict with clone %.8s.\n",
+            winguf_warning ("Worktree path conflict with clone %.8s.\n",
                           task->repo_id);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Worktree conflicts existing repo");
@@ -741,7 +741,7 @@ add_task_common (SeafCloneManager *mgr,
     task->manager = mgr;
 
     if (save_task_to_db (mgr, task) < 0) {
-        seaf_warning ("[Clone mgr] failed to save task.\n");
+        winguf_warning ("[Clone mgr] failed to save task.\n");
         clone_task_free (task);
         return NULL;
     }
@@ -752,7 +752,7 @@ add_task_common (SeafCloneManager *mgr,
          * can then clone the repo again.
          */
         start_checkout (repo, task);
-    } else if (!ccnet_peer_is_ready(seaf->ccnetrpc_client, task->peer_id)) {
+    } else if (!ccnet_peer_is_ready(winguf->ccnetrpc_client, task->peer_id)) {
         /* the relay is not connected yet */
         start_connect_task_relay (task, error);
         
@@ -767,7 +767,7 @@ add_task_common (SeafCloneManager *mgr,
 }
 
 char *
-seaf_clone_manager_add_task (SeafCloneManager *mgr, 
+winguf_clone_manager_add_task (SeafCloneManager *mgr, 
                              const char *repo_id,
                              const char *peer_id,
                              const char *repo_name,
@@ -784,14 +784,14 @@ seaf_clone_manager_add_task (SeafCloneManager *mgr,
     char *worktree;
     char *ret;
 
-    if (!seaf->started) {
-        seaf_message ("System not started, skip adding clone task.\n");
+    if (!winguf->started) {
+        winguf_message ("System not started, skip adding clone task.\n");
         return NULL;
     }
 
     g_assert (strlen(repo_id) == 36);
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
 
     if (repo != NULL && repo->head != NULL) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
@@ -806,7 +806,7 @@ seaf_clone_manager_add_task (SeafCloneManager *mgr,
     }
 
     /* If magic is not given, check password before checkout. */
-    if (passwd && magic && seaf_repo_verify_passwd(repo_id, passwd, magic) < 0) {
+    if (passwd && magic && winguf_repo_verify_passwd(repo_id, passwd, magic) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Incorrect password");
         return NULL;
@@ -852,7 +852,7 @@ make_worktree_for_download (SeafCloneManager *mgr,
 }
 
 char *
-seaf_clone_manager_add_download_task (SeafCloneManager *mgr, 
+winguf_clone_manager_add_download_task (SeafCloneManager *mgr, 
                                       const char *repo_id,
                                       const char *peer_id,
                                       const char *repo_name,
@@ -869,14 +869,14 @@ seaf_clone_manager_add_download_task (SeafCloneManager *mgr,
     char *wt_tmp, *worktree;
     char *ret;
 
-    if (!seaf->started) {
-        seaf_message ("System not started, skip adding clone task.\n");
+    if (!winguf->started) {
+        winguf_message ("System not started, skip adding clone task.\n");
         return NULL;
     }
 
     g_assert (strlen(repo_id) == 36);
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
 
     if (repo != NULL && repo->head != NULL) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
@@ -891,7 +891,7 @@ seaf_clone_manager_add_download_task (SeafCloneManager *mgr,
     }
 
     /* If magic is not given, check password before checkout. */
-    if (passwd && magic && seaf_repo_verify_passwd(repo_id, passwd, magic) < 0) {
+    if (passwd && magic && winguf_repo_verify_passwd(repo_id, passwd, magic) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Incorrect password");
         return NULL;
@@ -914,13 +914,13 @@ seaf_clone_manager_add_download_task (SeafCloneManager *mgr,
 }
 
 int
-seaf_clone_manager_cancel_task (SeafCloneManager *mgr,
+winguf_clone_manager_cancel_task (SeafCloneManager *mgr,
                                 const char *repo_id)
 {
     CloneTask *task;
 
-    if (!seaf->started) {
-        seaf_message ("System not started, skip canceling clone task.\n");
+    if (!winguf->started) {
+        winguf_message ("System not started, skip canceling clone task.\n");
         return -1;
     }
 
@@ -934,7 +934,7 @@ seaf_clone_manager_cancel_task (SeafCloneManager *mgr,
         transition_state (task, CLONE_STATE_CANCELED);
         break;
     case CLONE_STATE_FETCH:
-        seaf_transfer_manager_cancel_task (seaf->transfer_mgr,
+        winguf_transfer_manager_cancel_task (winguf->transfer_mgr,
                                            task->tx_id,
                                            TASK_TYPE_DOWNLOAD);
         transition_state (task, CLONE_STATE_CANCEL_PENDING);
@@ -950,7 +950,7 @@ seaf_clone_manager_cancel_task (SeafCloneManager *mgr,
     case CLONE_STATE_CANCEL_PENDING:
         break;
     default:
-        seaf_warning ("[Clone mgr] cannot cancel a not-running task.\n");
+        winguf_warning ("[Clone mgr] cannot cancel a not-running task.\n");
         return -1;
     }
 
@@ -958,13 +958,13 @@ seaf_clone_manager_cancel_task (SeafCloneManager *mgr,
 }
 
 int
-seaf_clone_manager_remove_task (SeafCloneManager *mgr,
+winguf_clone_manager_remove_task (SeafCloneManager *mgr,
                                 const char *repo_id)
 {
     CloneTask *task;
 
-    if (!seaf->started) {
-        seaf_message ("System not started, skip removing clone task.\n");
+    if (!winguf->started) {
+        winguf_message ("System not started, skip removing clone task.\n");
         return -1;
     }
 
@@ -975,12 +975,12 @@ seaf_clone_manager_remove_task (SeafCloneManager *mgr,
     if (task->state != CLONE_STATE_DONE &&
         task->state != CLONE_STATE_ERROR &&
         task->state != CLONE_STATE_CANCELED) {
-        seaf_warning ("[Clone mgr] cannot remove running task.\n");
+        winguf_warning ("[Clone mgr] cannot remove running task.\n");
         return -1;
     }
 
     if (task->tx_id)
-        seaf_transfer_manager_remove_task (seaf->transfer_mgr,
+        winguf_transfer_manager_remove_task (winguf->transfer_mgr,
                                            task->tx_id,
                                            TASK_TYPE_DOWNLOAD);
 
@@ -992,14 +992,14 @@ seaf_clone_manager_remove_task (SeafCloneManager *mgr,
 }
 
 CloneTask *
-seaf_clone_manager_get_task (SeafCloneManager *mgr,
+winguf_clone_manager_get_task (SeafCloneManager *mgr,
                              const char *repo_id)
 {
     return (CloneTask *) g_hash_table_lookup (mgr->tasks, repo_id);
 }
 
 GList *
-seaf_clone_manager_get_tasks (SeafCloneManager *mgr)
+winguf_clone_manager_get_tasks (SeafCloneManager *mgr)
 {
     return g_hash_table_get_values (mgr->tasks);
 }
@@ -1041,7 +1041,7 @@ check_fast_forward (SeafCommit *head, const char *root_id)
     gboolean ret;
 
     memcpy (aux->root_id, root_id, 41);
-    if (!seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    if (!winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                    head->commit_id,
                                                    compare_root,
                                                    aux, FALSE)) {
@@ -1066,7 +1066,7 @@ real_merge (SeafRepo *repo, SeafCommit *head, CloneTask *task)
     memset (&istate, 0, sizeof(istate));
     snprintf (index_path, SEAF_PATH_MAX, "%s/%s", repo->manager->index_dir, repo->id);
     if (read_index_from (&istate, index_path) < 0) {
-        seaf_warning ("Failed to load index.\n");
+        winguf_warning ("Failed to load index.\n");
         return -1;
     }
 
@@ -1074,7 +1074,7 @@ real_merge (SeafRepo *repo, SeafCommit *head, CloneTask *task)
     opts.index = &istate;
     opts.worktree = task->worktree;
     opts.ancestor = "common ancestor";
-    opts.branch1 = seaf->session->base.user_name;
+    opts.branch1 = winguf->session->base.user_name;
     opts.branch2 = head->creator_name;
     opts.remote_head = head->commit_id;
     /* Don't need to check locked files on windows. */
@@ -1121,7 +1121,7 @@ fast_forward_checkout (SeafRepo *repo, SeafCommit *head, CloneTask *task)
     memset (&istate, 0, sizeof(istate));
     snprintf (index_path, SEAF_PATH_MAX, "%s/%s", mgr->index_dir, repo->id);
     if (read_index_from (&istate, index_path) < 0) {
-        seaf_warning ("Failed to load index.\n");
+        winguf_warning ("Failed to load index.\n");
         return -1;
     }
     repo->index_corrupted = FALSE;
@@ -1143,7 +1143,7 @@ fast_forward_checkout (SeafRepo *repo, SeafCommit *head, CloneTask *task)
     }
 
     if (unpack_trees (2, trees, &topts) < 0) {
-        seaf_warning ("Failed to merge commit %s with work tree.\n", head->commit_id);
+        winguf_warning ("Failed to merge commit %s with work tree.\n", head->commit_id);
         ret = -1;
         goto out;
     }
@@ -1152,7 +1152,7 @@ fast_forward_checkout (SeafRepo *repo, SeafCommit *head, CloneTask *task)
                          head->commit_id,
                          head->creator_name,
                          NULL) < 0) {
-        seaf_warning ("Failed to update worktree.\n");
+        winguf_warning ("Failed to update worktree.\n");
         /* Still finishe checkout even have I/O errors. */
     }
 
@@ -1160,7 +1160,7 @@ fast_forward_checkout (SeafRepo *repo, SeafCommit *head, CloneTask *task)
     istate = topts.result;
 
     if (update_index (&istate, index_path) < 0) {
-        seaf_warning ("Failed to update index.\n");
+        winguf_warning ("Failed to update index.\n");
         ret = -1;
     }
 
@@ -1182,34 +1182,34 @@ create_index_branch (SeafRepo *repo, const char *root_id)
     SeafBranch *branch = NULL;
     int ret = 0;
 
-    commit = seaf_commit_new (NULL, repo->id, root_id,
+    commit = winguf_commit_new (NULL, repo->id, root_id,
                               repo->email ? repo->email
-                              : seaf->session->base.user_name,
-                              seaf->session->base.id,
+                              : winguf->session->base.user_name,
+                              winguf->session->base.id,
                               "Temp commit for index", 0);
-    seaf_repo_to_commit (repo, commit);
-    if (seaf_commit_manager_add_commit (seaf->commit_mgr, commit) < 0) {
-        seaf_warning ("Failed to add commit.\n");
+    winguf_repo_to_commit (repo, commit);
+    if (winguf_commit_manager_add_commit (winguf->commit_mgr, commit) < 0) {
+        winguf_warning ("Failed to add commit.\n");
         ret = -1;
         goto out;
     }
 
-    branch = seaf_branch_manager_get_branch (seaf->branch_mgr, repo->id, "index");
+    branch = winguf_branch_manager_get_branch (winguf->branch_mgr, repo->id, "index");
     if (!branch) {
-        branch = seaf_branch_new ("index", repo->id, commit->commit_id);
-        if (seaf_branch_manager_add_branch (seaf->branch_mgr, branch) < 0) {
-            seaf_warning ("Failed to add branch.\n");
+        branch = winguf_branch_new ("index", repo->id, commit->commit_id);
+        if (winguf_branch_manager_add_branch (winguf->branch_mgr, branch) < 0) {
+            winguf_warning ("Failed to add branch.\n");
             ret = -1;
             goto out;
         }
     } else {
-        seaf_branch_set_commit (branch, commit->commit_id);
-        seaf_branch_manager_update_branch (seaf->branch_mgr, branch);
+        winguf_branch_set_commit (branch, commit->commit_id);
+        winguf_branch_manager_update_branch (winguf->branch_mgr, branch);
     }
 
 out:
-    seaf_commit_unref (commit);
-    seaf_branch_unref (branch);
+    winguf_commit_unref (commit);
+    winguf_branch_unref (branch);
     return ret;
 }
 
@@ -1224,27 +1224,27 @@ merge_job (void *data)
 
     /* If we haven't indexed files in the worktree, index them now. */
     if (task->root_id[0] == 0) {
-        if (seaf_repo_index_worktree_files (task->repo_id,
+        if (winguf_repo_index_worktree_files (task->repo_id,
                                             task->worktree,
                                             task->passwd,
                                             task->root_id) < 0)
             return aux;
     }
 
-    local = seaf_branch_manager_get_branch (seaf->branch_mgr, repo->id, "local");
+    local = winguf_branch_manager_get_branch (winguf->branch_mgr, repo->id, "local");
     if (!local) {
         aux->success = FALSE;
         goto out;
     }
 
-    head = seaf_commit_manager_get_commit (seaf->commit_mgr, local->commit_id);
+    head = winguf_commit_manager_get_commit (winguf->commit_mgr, local->commit_id);
     if (!head) {
         aux->success = FALSE;
         goto out;
     }
 
     if (check_fast_forward (head, task->root_id)) {
-        seaf_debug ("[clone mgr] Fast forward.\n");
+        winguf_debug ("[clone mgr] Fast forward.\n");
         if (fast_forward_checkout (repo, head, task) < 0)
             goto out;
     } else {
@@ -1261,11 +1261,11 @@ merge_job (void *data)
     }
 
     /* Save head id for GC. */
-    seaf_repo_manager_set_repo_property (seaf->repo_mgr,
+    winguf_repo_manager_set_repo_property (winguf->repo_mgr,
                                          repo->id,
                                          REPO_REMOTE_HEAD,
                                          head->commit_id);
-    seaf_repo_manager_set_repo_property (seaf->repo_mgr,
+    winguf_repo_manager_set_repo_property (winguf->repo_mgr,
                                          repo->id,
                                          REPO_LOCAL_HEAD,
                                          head->commit_id);
@@ -1273,8 +1273,8 @@ merge_job (void *data)
     aux->success = TRUE;
 
 out:
-    seaf_branch_unref (local);
-    seaf_commit_unref (head);
+    winguf_branch_unref (local);
+    winguf_commit_unref (head);
     return aux;
 }
 
@@ -1290,23 +1290,23 @@ merge_job_done (void *data)
         goto error;
     }
 
-    seaf_repo_manager_set_repo_worktree (repo->manager,
+    winguf_repo_manager_set_repo_worktree (repo->manager,
                                          repo,
                                          task->worktree);
 
-    local = seaf_branch_manager_get_branch (seaf->branch_mgr, repo->id, "local");
+    local = winguf_branch_manager_get_branch (winguf->branch_mgr, repo->id, "local");
     if (!local) {
-        seaf_warning ("Cannot get branch local for repo %s(%.10s).\n",
+        winguf_warning ("Cannot get branch local for repo %s(%.10s).\n",
                       repo->name, repo->id);
         goto error;
     }
     /* Set repo head to mark checkout done. */
-    seaf_repo_set_head (repo, local);
-    seaf_branch_unref (local);
+    winguf_repo_set_head (repo, local);
+    winguf_branch_unref (local);
 
     if (repo->auto_sync) {
-        if (seaf_wt_monitor_watch_repo (seaf->wt_monitor, repo->id) < 0) {
-            seaf_warning ("failed to watch repo %s(%.10s).\n", repo->name, repo->id);
+        if (winguf_wt_monitor_watch_repo (winguf->wt_monitor, repo->id) < 0) {
+            winguf_warning ("failed to watch repo %s(%.10s).\n", repo->name, repo->id);
             goto error;
         }
     }
@@ -1333,21 +1333,21 @@ start_checkout (SeafRepo *repo, CloneTask *task)
     if (repo->encrypted && task->passwd != NULL) {
         /* keep this password check to be compatible with old servers. */
         if (repo->enc_version >= 1 && 
-            seaf_repo_verify_passwd (repo->id, task->passwd, repo->magic) < 0) {
-            seaf_warning ("[Clone mgr] incorrect password.\n");
+            winguf_repo_verify_passwd (repo->id, task->passwd, repo->magic) < 0) {
+            winguf_warning ("[Clone mgr] incorrect password.\n");
             transition_to_error (task, CLONE_ERROR_PASSWD);
             return;
         }
 
-        if (seaf_repo_manager_set_repo_passwd (seaf->repo_mgr,
+        if (winguf_repo_manager_set_repo_passwd (winguf->repo_mgr,
                                                repo,
                                                task->passwd) < 0) {
-            seaf_warning ("[Clone mgr] failed to set passwd for %s.\n", repo->id);
+            winguf_warning ("[Clone mgr] failed to set passwd for %s.\n", repo->id);
             transition_to_error (task, CLONE_ERROR_INTERNAL);
             return;
         }
     } else if (repo->encrypted) {
-        seaf_warning ("[Clone mgr] Password is empty for encrypted repo %s.\n",
+        winguf_warning ("[Clone mgr] Password is empty for encrypted repo %s.\n",
                    repo->id);
         transition_to_error (task, CLONE_ERROR_PASSWD);
         return;
@@ -1355,7 +1355,7 @@ start_checkout (SeafRepo *repo, CloneTask *task)
 
     if (g_access (task->worktree, F_OK) != 0 &&
         g_mkdir_with_parents (task->worktree, 0777) < 0) {
-        seaf_warning ("[clone mgr] Failed to create worktree %s.\n",
+        winguf_warning ("[clone mgr] Failed to create worktree %s.\n",
                       task->worktree);
         transition_to_error (task, CLONE_ERROR_CHECKOUT);
         return;
@@ -1363,7 +1363,7 @@ start_checkout (SeafRepo *repo, CloneTask *task)
 
     if (!is_non_empty_directory (task->worktree)) {
         transition_state (task, CLONE_STATE_CHECKOUT);
-        seaf_repo_manager_add_checkout_task (seaf->repo_mgr,
+        winguf_repo_manager_add_checkout_task (winguf->repo_mgr,
                                              repo,
                                              task->worktree,
                                              on_checkout_done,
@@ -1374,7 +1374,7 @@ start_checkout (SeafRepo *repo, CloneTask *task)
         aux->repo = repo;
 
         transition_state (task, CLONE_STATE_MERGE);
-        ccnet_job_manager_schedule_job (seaf->job_mgr,
+        ccnet_job_manager_schedule_job (winguf->job_mgr,
                                         merge_job,
                                         merge_job_done,
                                         aux);
@@ -1382,7 +1382,7 @@ start_checkout (SeafRepo *repo, CloneTask *task)
 }
 
 static void
-on_repo_fetched (SeafileSession *seaf,
+on_repo_fetched (SeafileSession *winguf,
                  TransferTask *tx_task,
                  SeafCloneManager *mgr)
 {
@@ -1404,18 +1404,18 @@ on_repo_fetched (SeafileSession *seaf,
         return;
     }
 
-    SeafRepo *repo = seaf_repo_manager_get_repo (seaf->repo_mgr,
+    SeafRepo *repo = winguf_repo_manager_get_repo (winguf->repo_mgr,
                                                  tx_task->repo_id);
     if (repo == NULL) {
-        seaf_warning ("[Clone mgr] cannot find repo %s after fetched.\n", 
+        winguf_warning ("[Clone mgr] cannot find repo %s after fetched.\n", 
                    tx_task->repo_id);
         transition_to_error (task, CLONE_ERROR_INTERNAL);
         return;
     }
 
-    seaf_repo_manager_set_repo_token (seaf->repo_mgr, repo, task->token);
-    seaf_repo_manager_set_repo_email (seaf->repo_mgr, repo, task->email);
-    seaf_repo_manager_set_repo_relay_info (seaf->repo_mgr, repo->id,
+    winguf_repo_manager_set_repo_token (winguf->repo_mgr, repo, task->token);
+    winguf_repo_manager_set_repo_email (winguf->repo_mgr, repo, task->email);
+    winguf_repo_manager_set_repo_relay_info (winguf->repo_mgr, repo->id,
                                            task->peer_addr, task->peer_port);
 
     start_checkout (repo, task);
@@ -1437,11 +1437,11 @@ on_checkout_done (CheckoutTask *ctask, SeafRepo *repo, void *data)
         transition_state (task, CLONE_STATE_CANCELED);
     else if (task->state == CLONE_STATE_CHECKOUT) {
         /* Save repo head if for GC. */
-        seaf_repo_manager_set_repo_property (seaf->repo_mgr,
+        winguf_repo_manager_set_repo_property (winguf->repo_mgr,
                                              repo->id,
                                              REPO_REMOTE_HEAD,
                                              repo->head->commit_id);
-        seaf_repo_manager_set_repo_property (seaf->repo_mgr,
+        winguf_repo_manager_set_repo_property (winguf->repo_mgr,
                                              repo->id,
                                              REPO_LOCAL_HEAD,
                                              repo->head->commit_id);

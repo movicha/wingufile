@@ -3,7 +3,7 @@
 #ifndef WINGUFILE_SERVER
 #include "db.h"
 #else
-#include "seaf-db.h"
+#include "winguf-db.h"
 #endif
 
 #include "wingufile-session.h"
@@ -13,7 +13,7 @@
 #define BRANCH_DB "branch.db"
 
 SeafBranch *
-seaf_branch_new (const char *name, const char *repo_id, const char *commit_id)
+winguf_branch_new (const char *name, const char *repo_id, const char *commit_id)
 {
     SeafBranch *branch;
 
@@ -31,7 +31,7 @@ seaf_branch_new (const char *name, const char *repo_id, const char *commit_id)
 }
 
 void
-seaf_branch_free (SeafBranch *branch)
+winguf_branch_free (SeafBranch *branch)
 {
     if (branch == NULL) return;
     g_free (branch->name);
@@ -39,38 +39,38 @@ seaf_branch_free (SeafBranch *branch)
 }
 
 void
-seaf_branch_list_free (GList *blist)
+winguf_branch_list_free (GList *blist)
 {
     GList *ptr;
 
     for (ptr = blist; ptr; ptr = ptr->next) {
-        seaf_branch_unref (ptr->data);
+        winguf_branch_unref (ptr->data);
     }
     g_list_free (blist);
 }
 
 
 void
-seaf_branch_set_commit (SeafBranch *branch, const char *commit_id)
+winguf_branch_set_commit (SeafBranch *branch, const char *commit_id)
 {
     memcpy (branch->commit_id, commit_id, 40);
     branch->commit_id[40] = '\0';
 }
 
 void
-seaf_branch_ref (SeafBranch *branch)
+winguf_branch_ref (SeafBranch *branch)
 {
     branch->ref++;
 }
 
 void
-seaf_branch_unref (SeafBranch *branch)
+winguf_branch_unref (SeafBranch *branch)
 {
     if (!branch)
         return;
 
     if (--branch->ref <= 0)
-        seaf_branch_free (branch);
+        winguf_branch_free (branch);
 }
 
 struct _SeafBranchManagerPriv {
@@ -95,13 +95,13 @@ static void publish_repo_update_event (CEvent *event, void *data);
 static int open_db (SeafBranchManager *mgr);
 
 SeafBranchManager *
-seaf_branch_manager_new (struct _SeafileSession *seaf)
+winguf_branch_manager_new (struct _SeafileSession *winguf)
 {
     SeafBranchManager *mgr;
 
     mgr = g_new0 (SeafBranchManager, 1);
     mgr->priv = g_new0 (SeafBranchManagerPriv, 1);
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
 
 #ifndef WINGUFILE_SERVER
     pthread_mutex_init (&mgr->priv->db_lock, NULL);
@@ -111,10 +111,10 @@ seaf_branch_manager_new (struct _SeafileSession *seaf)
 }
 
 int
-seaf_branch_manager_init (SeafBranchManager *mgr)
+winguf_branch_manager_init (SeafBranchManager *mgr)
 {
 #if defined( WINGUFILE_SERVER ) && defined( FULL_FEATURE )
-    mgr->priv->cevent_id = cevent_manager_register (seaf->ev_mgr,
+    mgr->priv->cevent_id = cevent_manager_register (winguf->ev_mgr,
                                     (cevent_handler)publish_repo_update_event,
                                                     NULL);
 #endif    
@@ -130,7 +130,7 @@ open_db (SeafBranchManager *mgr)
     char *db_path;
     const char *sql;
 
-    db_path = g_build_filename (mgr->seaf->seaf_dir, BRANCH_DB, NULL);
+    db_path = g_build_filename (mgr->winguf->winguf_dir, BRANCH_DB, NULL);
     if (sqlite_open_db (db_path, &mgr->priv->db) < 0) {
         g_critical ("[Branch mgr] Failed to open branch db\n");
         g_free (db_path);
@@ -150,26 +150,26 @@ open_db (SeafBranchManager *mgr)
 #elif defined FULL_FEATURE
 
     char *sql;
-    switch (seaf_db_type (mgr->seaf->db)) {
+    switch (winguf_db_type (mgr->winguf->db)) {
     case SEAF_DB_TYPE_MYSQL:
         sql = "CREATE TABLE IF NOT EXISTS Branch ("
             "name VARCHAR(10), repo_id CHAR(41), commit_id CHAR(41),"
             "PRIMARY KEY (repo_id, name)) ENGINE = INNODB";
-        if (seaf_db_query (mgr->seaf->db, sql) < 0)
+        if (winguf_db_query (mgr->winguf->db, sql) < 0)
             return -1;
         break;
     case SEAF_DB_TYPE_PGSQL:
         sql = "CREATE TABLE IF NOT EXISTS Branch ("
             "name VARCHAR(10), repo_id CHAR(40), commit_id CHAR(40),"
             "PRIMARY KEY (repo_id, name))";
-        if (seaf_db_query (mgr->seaf->db, sql) < 0)
+        if (winguf_db_query (mgr->winguf->db, sql) < 0)
             return -1;
         break;
     case SEAF_DB_TYPE_SQLITE:
         sql = "CREATE TABLE IF NOT EXISTS Branch ("
             "name VARCHAR(10), repo_id CHAR(41), commit_id CHAR(41),"
             "PRIMARY KEY (repo_id, name))";
-        if (seaf_db_query (mgr->seaf->db, sql) < 0)
+        if (winguf_db_query (mgr->winguf->db, sql) < 0)
             return -1;
         break;
     }
@@ -180,7 +180,7 @@ open_db (SeafBranchManager *mgr)
 }
 
 int
-seaf_branch_manager_add_branch (SeafBranchManager *mgr, SeafBranch *branch)
+winguf_branch_manager_add_branch (SeafBranchManager *mgr, SeafBranch *branch)
 {
 #ifndef WINGUFILE_SERVER
     char sql[256];
@@ -207,15 +207,15 @@ seaf_branch_manager_add_branch (SeafBranchManager *mgr, SeafBranch *branch)
     return 0;
 #else
     char sql[256];
-    SeafDB *db = mgr->seaf->db;
+    SeafDB *db = mgr->winguf->db;
 
-    if (seaf_db_type(db) == SEAF_DB_TYPE_PGSQL) {
+    if (winguf_db_type(db) == SEAF_DB_TYPE_PGSQL) {
         gboolean err;
         snprintf(sql, sizeof(sql),
                  "SELECT repo_id FROM Branch WHERE "
                  "name='%s' AND repo_id='%s'",
                  branch->name, branch->repo_id);
-        if (seaf_db_check_for_existence(db, sql, &err))
+        if (winguf_db_check_for_existence(db, sql, &err))
             snprintf(sql, sizeof(sql),
                      "UPDATE Branch SET commit_id='%s' WHERE "
                      "name='%s' AND repo_id='%s'",
@@ -226,12 +226,12 @@ seaf_branch_manager_add_branch (SeafBranchManager *mgr, SeafBranch *branch)
                      branch->name, branch->repo_id, branch->commit_id);
         if (err)
             return -1;
-        if (seaf_db_query (db, sql) < 0)
+        if (winguf_db_query (db, sql) < 0)
             return -1;
     } else {
         snprintf (sql, sizeof(sql), "REPLACE INTO Branch VALUES ('%s', '%s', '%s')",
                   branch->name, branch->repo_id, branch->commit_id);
-        if (seaf_db_query (db, sql) < 0)
+        if (winguf_db_query (db, sql) < 0)
             return -1;
     }
     return 0;
@@ -239,7 +239,7 @@ seaf_branch_manager_add_branch (SeafBranchManager *mgr, SeafBranch *branch)
 }
 
 int
-seaf_branch_manager_del_branch (SeafBranchManager *mgr,
+winguf_branch_manager_del_branch (SeafBranchManager *mgr,
                                 const char *repo_id,
                                 const char *name)
 {
@@ -263,14 +263,14 @@ seaf_branch_manager_del_branch (SeafBranchManager *mgr,
     snprintf (sql, sizeof(sql), 
               "DELETE FROM Branch WHERE name = '%s' AND repo_id = '%s'",
               name, repo_id);
-    if (seaf_db_query (mgr->seaf->db, sql) < 0)
+    if (winguf_db_query (mgr->winguf->db, sql) < 0)
         return -1;
     return 0;
 #endif
 }
 
 int
-seaf_branch_manager_update_branch (SeafBranchManager *mgr, SeafBranch *branch)
+winguf_branch_manager_update_branch (SeafBranchManager *mgr, SeafBranch *branch)
 {
 #ifndef WINGUFILE_SERVER
     sqlite3 *db;
@@ -295,7 +295,7 @@ seaf_branch_manager_update_branch (SeafBranchManager *mgr, SeafBranch *branch)
               "UPDATE Branch SET commit_id = '%s' "
               "WHERE name = '%s' AND repo_id = '%s'",
               branch->commit_id, branch->name, branch->repo_id);
-    if (seaf_db_query (mgr->seaf->db, sql) < 0)
+    if (winguf_db_query (mgr->winguf->db, sql) < 0)
         return -1;
     return 0;
 #endif
@@ -309,7 +309,7 @@ get_commit_id (SeafDBRow *row, void *data)
     char *out_commit_id = data;
     const char *commit_id;
 
-    commit_id = seaf_db_row_get_column_text (row, 0);
+    commit_id = winguf_db_row_get_column_text (row, 0);
     memcpy (out_commit_id, commit_id, 41);
     out_commit_id[40] = '\0';
 
@@ -330,7 +330,7 @@ publish_repo_update_event (CEvent *event, void *data)
     snprintf (buf, sizeof(buf), "repo-update\t%s\t%s",
               rdata->repo_id, rdata->commit_id);
 
-    seaf_mq_manager_publish_event (seaf->mq_mgr, buf);
+    winguf_mq_manager_publish_event (winguf->mq_mgr, buf);
 
     g_free (rdata->repo_id);
     g_free (rdata->commit_id);
@@ -345,11 +345,11 @@ on_branch_updated (SeafBranchManager *mgr, SeafBranch *branch)
     rdata->repo_id = g_strdup (branch->repo_id);
     rdata->commit_id = g_strdup (branch->commit_id);
     
-    cevent_manager_add_event (seaf->ev_mgr, mgr->priv->cevent_id, rdata);
+    cevent_manager_add_event (winguf->ev_mgr, mgr->priv->cevent_id, rdata);
 }
 
 int
-seaf_branch_manager_test_and_update_branch (SeafBranchManager *mgr,
+winguf_branch_manager_test_and_update_branch (SeafBranchManager *mgr,
                                             SeafBranch *branch,
                                             const char *old_commit_id)
 {
@@ -357,11 +357,11 @@ seaf_branch_manager_test_and_update_branch (SeafBranchManager *mgr,
     char sql[256];
     char commit_id[41] = { 0 };
 
-    trans = seaf_db_begin_transaction (mgr->seaf->db);
+    trans = winguf_db_begin_transaction (mgr->winguf->db);
     if (!trans)
         return -1;
 
-    switch (seaf_db_type (mgr->seaf->db)) {
+    switch (winguf_db_type (mgr->winguf->db)) {
     case SEAF_DB_TYPE_MYSQL:
     case SEAF_DB_TYPE_PGSQL:
         snprintf (sql, sizeof(sql),
@@ -376,17 +376,17 @@ seaf_branch_manager_test_and_update_branch (SeafBranchManager *mgr,
                   branch->name, branch->repo_id);
         break;
     }
-    if (seaf_db_trans_foreach_selected_row (trans, sql,
+    if (winguf_db_trans_foreach_selected_row (trans, sql,
                                             get_commit_id, commit_id) < 0) {
-        seaf_db_rollback (trans);
-        seaf_db_trans_close (trans);
+        winguf_db_rollback (trans);
+        winguf_db_trans_close (trans);
         return -1;
     }
     if (strcmp (old_commit_id, commit_id) != 0) {
         g_message ("[branch mgr] Branch update conflict for repo %s, rollback.\n",
                    branch->repo_id);
-        seaf_db_rollback (trans);
-        seaf_db_trans_close (trans);
+        winguf_db_rollback (trans);
+        winguf_db_trans_close (trans);
         return -1;
     }
 
@@ -394,19 +394,19 @@ seaf_branch_manager_test_and_update_branch (SeafBranchManager *mgr,
               "UPDATE Branch SET commit_id = '%s' "
               "WHERE name = '%s' AND repo_id = '%s'",
               branch->commit_id, branch->name, branch->repo_id);
-    if (seaf_db_trans_query (trans, sql) < 0) {
-        seaf_db_rollback (trans);
-        seaf_db_trans_close (trans);
+    if (winguf_db_trans_query (trans, sql) < 0) {
+        winguf_db_rollback (trans);
+        winguf_db_trans_close (trans);
         return -1;
     }
 
-    if (seaf_db_commit (trans) < 0) {
-        seaf_db_rollback (trans);
-        seaf_db_trans_close (trans);
+    if (winguf_db_commit (trans) < 0) {
+        winguf_db_rollback (trans);
+        winguf_db_trans_close (trans);
         return -1;
     }
 
-    seaf_db_trans_close (trans);
+    winguf_db_trans_close (trans);
 
     on_branch_updated (mgr, branch);
 
@@ -445,7 +445,7 @@ real_get_branch (SeafBranchManager *mgr,
     if (result == SQLITE_ROW) {
         char *commit_id = (char *)sqlite3_column_text (stmt, 0);
 
-        branch = seaf_branch_new (name, repo_id, commit_id);
+        branch = winguf_branch_new (name, repo_id, commit_id);
         pthread_mutex_unlock (&mgr->priv->db_lock);
         sqlite3_finalize (stmt);
         return branch;
@@ -461,7 +461,7 @@ real_get_branch (SeafBranchManager *mgr,
 }
 
 SeafBranch *
-seaf_branch_manager_get_branch (SeafBranchManager *mgr,
+winguf_branch_manager_get_branch (SeafBranchManager *mgr,
                                 const char *repo_id,
                                 const char *name)
 {
@@ -487,7 +487,7 @@ get_branch (SeafDBRow *row, void *vid)
     char *ret = vid;
     const char *commit_id;
 
-    commit_id = seaf_db_row_get_column_text (row, 0);
+    commit_id = winguf_db_row_get_column_text (row, 0);
     memcpy (ret, commit_id, 41);
 
     return FALSE;
@@ -505,7 +505,7 @@ real_get_branch (SeafBranchManager *mgr,
     snprintf (sql, sizeof(sql),
               "SELECT commit_id FROM Branch WHERE name='%s' AND repo_id='%s'",
               name, repo_id);
-    if (seaf_db_foreach_selected_row (mgr->seaf->db, sql, 
+    if (winguf_db_foreach_selected_row (mgr->winguf->db, sql, 
                                       get_branch, commit_id) < 0) {
         g_warning ("[branch mgr] DB error when get branch %s.\n", name);
         return NULL;
@@ -514,11 +514,11 @@ real_get_branch (SeafBranchManager *mgr,
     if (commit_id[0] == 0)
         return NULL;
 
-    return seaf_branch_new (name, repo_id, commit_id);
+    return winguf_branch_new (name, repo_id, commit_id);
 }
 
 SeafBranch *
-seaf_branch_manager_get_branch (SeafBranchManager *mgr,
+winguf_branch_manager_get_branch (SeafBranchManager *mgr,
                                 const char *repo_id,
                                 const char *name)
 {
@@ -536,7 +536,7 @@ seaf_branch_manager_get_branch (SeafBranchManager *mgr,
 #endif  /* not WINGUFILE_SERVER */
 
 gboolean
-seaf_branch_manager_branch_exists (SeafBranchManager *mgr,
+winguf_branch_manager_branch_exists (SeafBranchManager *mgr,
                                    const char *repo_id,
                                    const char *name)
 {
@@ -559,13 +559,13 @@ seaf_branch_manager_branch_exists (SeafBranchManager *mgr,
 
     snprintf (sql, sizeof(sql), "SELECT name FROM Branch WHERE name='%s' "
               "AND repo_id='%s'", name, repo_id);
-    return seaf_db_check_for_existence (mgr->seaf->db, sql, &db_err);
+    return winguf_db_check_for_existence (mgr->winguf->db, sql, &db_err);
 #endif
 }
 
 #ifndef WINGUFILE_SERVER
 GList *
-seaf_branch_manager_get_branch_list (SeafBranchManager *mgr,
+winguf_branch_manager_get_branch_list (SeafBranchManager *mgr,
                                      const char *repo_id)
 {
     sqlite3 *db = mgr->priv->db;
@@ -593,7 +593,7 @@ seaf_branch_manager_get_branch_list (SeafBranchManager *mgr,
         if (result == SQLITE_ROW) {
             name = (char *)sqlite3_column_text(stmt, 0);
             commit_id = (char *)sqlite3_column_text(stmt, 1);
-            branch = seaf_branch_new (name, repo_id, commit_id);
+            branch = winguf_branch_new (name, repo_id, commit_id);
             ret = g_list_prepend (ret, branch);
         }
         if (result == SQLITE_DONE)
@@ -603,7 +603,7 @@ seaf_branch_manager_get_branch_list (SeafBranchManager *mgr,
             g_warning ("Couldn't prepare query, error: %d->'%s'\n", 
                        result, str ? str : "no error given");
             sqlite3_finalize (stmt);
-            seaf_branch_list_free (ret);
+            winguf_branch_list_free (ret);
             pthread_mutex_unlock (&mgr->priv->db_lock);
             return NULL;
         }
@@ -623,18 +623,18 @@ get_branches (SeafDBRow *row, void *vplist)
     const char *repo_id;
     SeafBranch *branch;
 
-    name = seaf_db_row_get_column_text (row, 0);
-    repo_id = seaf_db_row_get_column_text (row, 1);
-    commit_id = seaf_db_row_get_column_text (row, 2);
+    name = winguf_db_row_get_column_text (row, 0);
+    repo_id = winguf_db_row_get_column_text (row, 1);
+    commit_id = winguf_db_row_get_column_text (row, 2);
 
-    branch = seaf_branch_new (name, repo_id, commit_id);
+    branch = winguf_branch_new (name, repo_id, commit_id);
     *plist = g_list_prepend (*plist, branch);
 
     return TRUE;
 }
 
 GList *
-seaf_branch_manager_get_branch_list (SeafBranchManager *mgr,
+winguf_branch_manager_get_branch_list (SeafBranchManager *mgr,
                                      const char *repo_id)
 {
     GList *ret = NULL;
@@ -643,7 +643,7 @@ seaf_branch_manager_get_branch_list (SeafBranchManager *mgr,
     snprintf (sql, sizeof(sql),
               "SELECT name, repo_id, commit_id FROM Branch WHERE repo_id='%s'",
               repo_id);
-    if (seaf_db_foreach_selected_row (mgr->seaf->db, sql, 
+    if (winguf_db_foreach_selected_row (mgr->winguf->db, sql, 
                                       get_branches, &ret) < 0) {
         g_warning ("[branch mgr] DB error when get branch list.\n");
         return NULL;

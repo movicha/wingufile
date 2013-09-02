@@ -10,7 +10,7 @@
 #include "branch-mgr.h"
 #include "repo-mgr.h"
 #include "db.h"
-#include "seaf-db.h"
+#include "winguf-db.h"
 
 struct _CcnetClient;
 
@@ -19,7 +19,7 @@ typedef struct _SeafileSession SeafileSession;
 struct _SeafileSession {
     struct _CcnetClient *session;
 
-    char                *seaf_dir;
+    char                *winguf_dir;
     char                *tmp_file_dir;
     /* Config that's only loaded on start */
     GKeyFile            *config;
@@ -34,7 +34,7 @@ struct _SeafileSession {
     int                  keep_history_days;
 };
 
-extern SeafileSession *seaf;
+extern SeafileSession *winguf;
 
 SeafileSession *
 wingufile_session_new (const char *wingufile_dir,

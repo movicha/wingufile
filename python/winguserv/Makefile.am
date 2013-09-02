@@ -1,3 +1,3 @@
-seaservdir=${pyexecdir}/seaserv
+winguservdir=${pyexecdir}/winguserv
 
-seaserv_PYTHON = __init__.py service.py api.py
+winguserv_PYTHON = __init__.py service.py api.py

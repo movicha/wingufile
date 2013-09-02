@@ -103,7 +103,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     priv->branch_name = g_strdup(argv[1]);
     session_token = argv[3];
 
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          NULL,
                                          processor->peer_id,
                                          session_token, NULL) < 0) {
@@ -115,7 +115,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     }
 
     ccnet_processor_thread_create (processor,
-                                   seaf->job_mgr,
+                                   winguf->job_mgr,
                                    update_repo,
                                    thread_done,
                                    processor);
@@ -147,14 +147,14 @@ update_repo (void *vprocessor)
     new_head = priv->new_head;
 
     /* Since this is the last step of upload procedure, commit should exist. */
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr, new_head);
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr, new_head);
     if (!commit) {
         priv->rsp_code = g_strdup (SC_BAD_COMMIT);
         priv->rsp_msg = g_strdup (SS_BAD_COMMIT);
         goto out;
     }
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         /* repo is deleted on server */
         priv->rsp_code = g_strdup (SC_BAD_REPO);
@@ -163,13 +163,13 @@ update_repo (void *vprocessor)
 
     }
 
-    if (seaf_quota_manager_check_quota (seaf->quota_mgr, repo_id) < 0) {
+    if (winguf_quota_manager_check_quota (winguf->quota_mgr, repo_id) < 0) {
         priv->rsp_code = g_strdup(SC_QUOTA_FULL);
         priv->rsp_msg = g_strdup(SS_QUOTA_FULL);
         goto out;
     }
 
-    branch = seaf_branch_manager_get_branch (seaf->branch_mgr, repo_id, branch_name);
+    branch = winguf_branch_manager_get_branch (winguf->branch_mgr, repo_id, branch_name);
     if (!branch) {
         priv->rsp_code = g_strdup (SC_BAD_BRANCH);
         priv->rsp_msg = g_strdup (SS_BAD_BRANCH);
@@ -181,9 +181,9 @@ update_repo (void *vprocessor)
         !is_fast_forward (new_head, branch->commit_id)) {
         g_warning ("Upload is not fast forward. Refusing.\n");
 
-        seaf_repo_unref (repo);
-        seaf_commit_unref (commit);
-        seaf_branch_unref (branch);
+        winguf_repo_unref (repo);
+        winguf_commit_unref (commit);
+        winguf_branch_unref (branch);
 
         priv->rsp_code = g_strdup (SC_NOT_FF);
         priv->rsp_msg = g_strdup (SS_NOT_FF);
@@ -193,8 +193,8 @@ update_repo (void *vprocessor)
     /* Update branch. In case of concurrent update, we must ensure atomicity.
      */
     memcpy (old_commit_id, branch->commit_id, 41);
-    seaf_branch_set_commit (branch, commit->commit_id);
-    if (seaf_branch_manager_test_and_update_branch (seaf->branch_mgr,
+    winguf_branch_set_commit (branch, commit->commit_id);
+    if (winguf_branch_manager_test_and_update_branch (winguf->branch_mgr,
                                                     branch, old_commit_id) < 0)
     {
         g_warning ("Upload is not fast forward, concurrent update.\n");
@@ -203,13 +203,13 @@ update_repo (void *vprocessor)
         goto out;
     }
 
-    seaf_repo_manager_cleanup_virtual_repos (seaf->repo_mgr, repo_id);
-    seaf_repo_manager_merge_virtual_repo (seaf->repo_mgr, repo_id, NULL);
+    winguf_repo_manager_cleanup_virtual_repos (winguf->repo_mgr, repo_id);
+    winguf_repo_manager_merge_virtual_repo (winguf->repo_mgr, repo_id, NULL);
 
 out:
-    if (repo)   seaf_repo_unref (repo);
-    if (commit) seaf_commit_unref (commit);
-    if (branch) seaf_branch_unref (branch);
+    if (repo)   winguf_repo_unref (repo);
+    if (commit) winguf_commit_unref (commit);
+    if (branch) winguf_branch_unref (branch);
 
     if (!priv->rsp_code) {
         priv->rsp_code = g_strdup (SC_OK);
@@ -227,7 +227,7 @@ thread_done (void *result)
 
     if (strcmp (priv->rsp_code, SC_OK) == 0) {
         /* Repo is updated, schedule repo size computation. */
-        schedule_repo_size_computation (seaf->size_sched, priv->repo_id);
+        schedule_repo_size_computation (winguf->size_sched, priv->repo_id);
 
         ccnet_processor_send_response (processor, SC_OK, SS_OK, NULL, 0);
         ccnet_processor_done (processor, TRUE);

@@ -22,7 +22,7 @@
 #include "sync-mgr.h"
 #include "wt-monitor.h"
 #include "mq-mgr.h"
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 struct _CcnetClient;
 
@@ -46,7 +46,7 @@ struct _SeafileSession {
     SearpcClient        *ccnetrpc_client;
     SearpcClient        *appletrpc_client;
 
-    char                *seaf_dir;
+    char                *winguf_dir;
     char                *tmp_file_dir;
     char                *worktree_dir; /* the default directory for
                                         * storing worktrees  */
@@ -76,7 +76,7 @@ struct _SeafileSessionClass
 };
 
 
-extern SeafileSession *seaf;
+extern SeafileSession *winguf;
 
 SeafileSession *
 wingufile_session_new(const char *wingufile_dir,

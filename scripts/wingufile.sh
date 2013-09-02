@@ -17,7 +17,7 @@ INSTALLPATH=$(dirname "${SCRIPT}")
 TOPDIR=$(dirname "${INSTALLPATH}")
 default_ccnet_conf_dir=${TOPDIR}/ccnet
 ccnet_pidfile=${INSTALLPATH}/runtime/ccnet.pid
-seaf_controller="${INSTALLPATH}/wingufile/bin/wingufile-controller"
+winguf_controller="${INSTALLPATH}/wingufile/bin/wingufile-controller"
 
 
 export PATH=${INSTALLPATH}/wingufile/bin:$PATH
@@ -61,7 +61,7 @@ function read_wingufile_data_dir () {
 }
 
 function test_config() {
-    if ! LD_LIBRARY_PATH=$WINGUFILE_LD_LIBRARY_PATH ${seaf_controller} --test -c "${default_ccnet_conf_dir}" -d "${wingufile_data_dir}"; then
+    if ! LD_LIBRARY_PATH=$WINGUFILE_LD_LIBRARY_PATH ${winguf_controller} --test -c "${default_ccnet_conf_dir}" -d "${wingufile_data_dir}"; then
         exit 1;
     fi
 }
@@ -88,7 +88,7 @@ function validate_already_running () {
     fi
 
     check_component_running "ccnet-server" "ccnet-server -c"
-    check_component_running "seaf-server" "seaf-server -c"
+    check_component_running "winguf-server" "winguf-server -c"
     check_component_running "httpserver" "httpserver -c"
 }
 
@@ -100,7 +100,7 @@ function start_wingufile_server () {
 
     echo "Starting wingufile server, please wait ..."
 
-    LD_LIBRARY_PATH=$WINGUFILE_LD_LIBRARY_PATH ${seaf_controller} -c "${default_ccnet_conf_dir}" -d "${wingufile_data_dir}"
+    LD_LIBRARY_PATH=$WINGUFILE_LD_LIBRARY_PATH ${winguf_controller} -c "${default_ccnet_conf_dir}" -d "${wingufile_data_dir}"
 
     sleep 3
 
@@ -123,7 +123,7 @@ function stop_wingufile_server () {
     echo "Stopping wingufile server ..."
     pkill -SIGTERM -f "wingufile-controller -c ${default_ccnet_conf_dir}"
     pkill ccnet-server
-    pkill seaf-server
+    pkill winguf-server
     pkill httpserver
     return 0
 }

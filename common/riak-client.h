@@ -10,20 +10,20 @@ struct SeafRiakClient;
 typedef struct SeafRiakClient SeafRiakClient;
 
 SeafRiakClient *
-seaf_riak_client_new (const char *host, const char *port);
+winguf_riak_client_new (const char *host, const char *port);
 
 void
-seaf_riak_client_free (SeafRiakClient *client);
+winguf_riak_client_free (SeafRiakClient *client);
 
 int
-seaf_riak_client_get (SeafRiakClient *client,
+winguf_riak_client_get (SeafRiakClient *client,
                       const char *bucket,
                       const char *key,
                       void **value,
                       int *size);
 
 int
-seaf_riak_client_put (SeafRiakClient *client,
+winguf_riak_client_put (SeafRiakClient *client,
                       const char *bucket,
                       const char *key,
                       void *value,
@@ -31,12 +31,12 @@ seaf_riak_client_put (SeafRiakClient *client,
                       int n_w);
 
 gboolean
-seaf_riak_client_query (SeafRiakClient *client,
+winguf_riak_client_query (SeafRiakClient *client,
                         const char *bucket,
                         const char *key);
 
 int
-seaf_riak_client_delete (SeafRiakClient *client,
+winguf_riak_client_delete (SeafRiakClient *client,
                          const char *bucket,
                          const char *key,
                          int n_w);

@@ -15,14 +15,14 @@ static char *config_dir = NULL;
 static char *wingufile_dir = NULL;
 
 CcnetClient *ccnet_client;
-SeafileSession *seaf;
+SeafileSession *winguf;
 
 static const char *short_opts = "hvc:d:VDi";
 static const struct option long_opts[] = {
     { "help", no_argument, NULL, 'h', },
     { "version", no_argument, NULL, 'v', },
     { "config-file", required_argument, NULL, 'c', },
-    { "seafdir", required_argument, NULL, 'd', },
+    { "wingufdir", required_argument, NULL, 'd', },
     { "verify", no_argument, NULL, 'V' },
     { "dry-run", no_argument, NULL, 'D' },
     { "ignore-errors", no_argument, NULL, 'i' },
@@ -31,7 +31,7 @@ static const struct option long_opts[] = {
 static void usage ()
 {
     fprintf (stderr,
-             "usage: seafserv-gc [-c config_dir] [-d wingufile_dir]\n"
+             "usage: wingufserv-gc [-c config_dir] [-d wingufile_dir]\n"
              "Additional options:\n"
              "-V, --verify: check for missing blocks\n");
 }
@@ -42,13 +42,13 @@ load_history_config ()
     int keep_history_days;
     GError *error = NULL;
 
-    seaf->keep_history_days = -1;
+    winguf->keep_history_days = -1;
 
-    keep_history_days = g_key_file_get_integer (seaf->config,
+    keep_history_days = g_key_file_get_integer (winguf->config,
                                                 "history", "keep_days",
                                                 &error);
     if (error == NULL)
-        seaf->keep_history_days = keep_history_days;
+        winguf->keep_history_days = keep_history_days;
 }
 
 #ifdef WIN32
@@ -124,22 +124,22 @@ main(int argc, char *argv[])
     g_type_init();
 
     if (wingufile_log_init ("-", "info", "debug") < 0) {
-        seaf_warning ("Failed to init log.\n");
+        winguf_warning ("Failed to init log.\n");
         exit (1);
     }
 
     ccnet_client = ccnet_client_new();
     if ((ccnet_client_load_confdir(ccnet_client, config_dir)) < 0) {
-        seaf_warning ("Read config dir error\n");
+        winguf_warning ("Read config dir error\n");
         return -1;
     }
 
     if (wingufile_dir == NULL)
         wingufile_dir = g_build_filename (config_dir, "wingufile-data", NULL);
     
-    seaf = wingufile_session_new(wingufile_dir, ccnet_client);
-    if (!seaf) {
-        seaf_warning ("Failed to create wingufile session.\n");
+    winguf = wingufile_session_new(wingufile_dir, ccnet_client);
+    if (!winguf) {
+        winguf_warning ("Failed to create wingufile session.\n");
         exit (1);
     }
 

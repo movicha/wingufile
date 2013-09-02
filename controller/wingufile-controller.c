@@ -45,7 +45,7 @@ static void
 controller_exit (int code)
 {
     if (code != 0) {
-        seaf_warning ("seaf-controller exited with code %d\n", code);
+        winguf_warning ("winguf-controller exited with code %d\n", code);
     }
     exit(code);
 }
@@ -63,7 +63,7 @@ spawn_process (char *argv[])
     while (*(++ptr)) {
         g_string_append_printf (buf, " %s", *ptr);
     }
-    seaf_message ("spawn_process: %s\n", buf->str);
+    winguf_message ("spawn_process: %s\n", buf->str);
     g_string_free (buf, TRUE);
 
     pid_t pid = fork();
@@ -71,14 +71,14 @@ spawn_process (char *argv[])
     if (pid == 0) {
         /* child process */
         execvp (argv[0], argv);
-        seaf_warning ("failed to execvp %s\n", argv[0]);
+        winguf_warning ("failed to execvp %s\n", argv[0]);
         exit(-1);
     } else {
         /* controller */
         if (pid == -1)
-            seaf_warning ("error when fork %s: %s\n", argv[0], strerror(errno));
+            winguf_warning ("error when fork %s: %s\n", argv[0], strerror(errno));
         else
-            seaf_message ("spawned %s, pid %d\n", argv[0], pid);
+            winguf_message ("spawned %s, pid %d\n", argv[0], pid);
 
         return (int)pid;
     }
@@ -107,7 +107,7 @@ read_pid_from_pidfile (const char *pidfile)
 
     int pid = PID_ERROR_OTHER;
     if (fscanf (pf, "%d", &pid) < 0) {
-        seaf_warning ("bad pidfile format: %s\n", pidfile);
+        winguf_warning ("bad pidfile format: %s\n", pidfile);
         fclose(pf);
         return PID_ERROR_OTHER;
     }
@@ -140,7 +140,7 @@ start_ccnet_server ()
     if (!ctl->config_dir)
         return -1;
 
-    seaf_message ("starting ccnet-server ...\n");
+    winguf_message ("starting ccnet-server ...\n");
 
     static char *logfile = NULL;
     if (logfile == NULL) {
@@ -157,7 +157,7 @@ start_ccnet_server ()
 
     int pid = spawn_process (argv);
     if (pid <= 0) {
-        seaf_warning ("Failed to spawn ccnet-server\n");
+        winguf_warning ("Failed to spawn ccnet-server\n");
         return -1;
     }
 
@@ -165,19 +165,19 @@ start_ccnet_server ()
 }
 
 static int
-start_seaf_server ()
+start_winguf_server ()
 {
     if (!ctl->config_dir || !ctl->wingufile_dir)
         return -1;
 
-    seaf_message ("starting seaf-server ...\n");
+    winguf_message ("starting winguf-server ...\n");
     static char *logfile = NULL;
     if (logfile == NULL) {
         logfile = g_build_filename (ctl->logdir, "wingufile.log", NULL);
     }
 
     char *argv[] = {
-        "seaf-server",
+        "winguf-server",
         "-c", ctl->config_dir,
         "-d", ctl->wingufile_dir,
         "-l", logfile,
@@ -191,7 +191,7 @@ start_seaf_server ()
 
     int pid = spawn_process (argv);
     if (pid <= 0) {
-        seaf_warning ("Failed to spawn seaf-server\n");
+        winguf_warning ("Failed to spawn winguf-server\n");
         return -1;
     }
 
@@ -216,7 +216,7 @@ start_httpserver() {
 
     int pid = spawn_process (argv);
     if (pid <= 0) {
-        seaf_warning ("Failed to spawn httpserver\n");
+        winguf_warning ("Failed to spawn httpserver\n");
         return -1;
     }
 
@@ -239,10 +239,10 @@ need_restart (int which)
 
     int pid = read_pid_from_pidfile (ctl->pidfile[which]);
     if (pid == PID_ERROR_ENOENT) {
-        seaf_warning ("pid file %s does not exist\n", ctl->pidfile[which]);
+        winguf_warning ("pid file %s does not exist\n", ctl->pidfile[which]);
         return TRUE;
     } else if (pid == PID_ERROR_OTHER) {
-        seaf_warning ("failed to read pidfile %s: %s\n", ctl->pidfile[which], strerror(errno));
+        winguf_warning ("failed to read pidfile %s: %s\n", ctl->pidfile[which], strerror(errno));
         return FALSE;
     } else {
         char buf[256];
@@ -259,12 +259,12 @@ static gboolean
 check_process (void *data)
 {
     if (need_restart(PID_SERVER)) {
-        seaf_message ("seaf-server need restart...\n");
-        start_seaf_server ();
+        winguf_message ("winguf-server need restart...\n");
+        start_winguf_server ();
     }
 
     if (need_restart(PID_HTTPSERVER)) {
-        seaf_message ("httpserver need restart...\n");
+        winguf_message ("httpserver need restart...\n");
         start_httpserver ();
     }
 
@@ -304,7 +304,7 @@ disconnect_clients ()
 }
 
 static void rm_client_fd_from_mainloop ();
-static int seaf_controller_start ();
+static int winguf_controller_start ();
 
 static void
 on_ccnet_daemon_down ()
@@ -313,11 +313,11 @@ on_ccnet_daemon_down ()
     disconnect_clients ();
     rm_client_fd_from_mainloop ();
 
-    seaf_message ("restarting ccnet server ...\n");
+    winguf_message ("restarting ccnet server ...\n");
 
     /* restart ccnet */
-    if (seaf_controller_start () < 0) {
-        seaf_warning ("Failed to restart ccnet server.\n");
+    if (winguf_controller_start () < 0) {
+        winguf_warning ("Failed to restart ccnet server.\n");
         controller_exit (1);
     }
 }
@@ -360,7 +360,7 @@ rm_client_fd_from_mainloop ()
 static void
 on_ccnet_connected ()
 {
-    if (start_seaf_server () < 0)
+    if (start_winguf_server () < 0)
         controller_exit(1);
 
     if (need_restart(PID_HTTPSERVER)) {
@@ -394,18 +394,18 @@ do_connect_ccnet ()
         }
     }
 
-    seaf_message ("ccnet daemon connected.\n");
+    winguf_message ("ccnet daemon connected.\n");
 
     on_ccnet_connected ();
 
     return FALSE;
 }
 
-/* This would also stop seaf-server & seaf-mon  */
+/* This would also stop winguf-server & winguf-mon  */
 static void
 stop_ccnet_server ()
 {
-    seaf_message ("shutting down ccnet-server ...\n");
+    winguf_message ("shutting down ccnet-server ...\n");
     GError *error = NULL;
     ccnet_client_send_cmd (ctl->sync_client, "shutdown", &error);
 
@@ -420,30 +420,30 @@ init_pidfile_path (SeafileController *ctl)
     char *pid_dir = g_build_filename(ctl->wingufile_dir, "pids", NULL);
     if (!g_file_test(pid_dir, G_FILE_TEST_EXISTS)) {
         if (g_mkdir(pid_dir, 0777) < 0) {
-            seaf_warning("failed to create pid dir %s: %s", pid_dir, strerror(errno));
+            winguf_warning("failed to create pid dir %s: %s", pid_dir, strerror(errno));
             controller_exit(1);
         }
     }
 
     ctl->pidfile[PID_CCNET] = g_build_filename(pid_dir, "ccnet.pid", NULL);
-    ctl->pidfile[PID_SERVER] = g_build_filename(pid_dir, "seaf-server.pid", NULL);
+    ctl->pidfile[PID_SERVER] = g_build_filename(pid_dir, "winguf-server.pid", NULL);
     ctl->pidfile[PID_HTTPSERVER] = g_build_filename(pid_dir, "httpserver.pid", NULL);
 }
 
 static int
-seaf_controller_init (SeafileController *ctl,
+winguf_controller_init (SeafileController *ctl,
                       char *config_dir,
                       char *wingufile_dir,
                       char *logdir,
                       gboolean cloud_mode)
 {
     if (!g_file_test (config_dir, G_FILE_TEST_IS_DIR)) {
-        seaf_warning ("invalid config_dir: %s\n", config_dir);
+        winguf_warning ("invalid config_dir: %s\n", config_dir);
         return -1;
     }
 
     if (!g_file_test (wingufile_dir, G_FILE_TEST_IS_DIR)) {
-        seaf_warning ("invalid wingufile_dir: %s\n", wingufile_dir);
+        winguf_warning ("invalid wingufile_dir: %s\n", wingufile_dir);
         return -1;
     }
 
@@ -451,12 +451,12 @@ seaf_controller_init (SeafileController *ctl,
     ctl->sync_client = ccnet_client_new ();
 
     if (ccnet_client_load_confdir (ctl->client, config_dir) < 0) {
-        seaf_warning ("Failed to load ccnet confdir\n");
+        winguf_warning ("Failed to load ccnet confdir\n");
         return -1;
     }
 
     if (ccnet_client_load_confdir (ctl->sync_client, config_dir) < 0) {
-        seaf_warning ("Failed to load ccnet confdir\n");
+        winguf_warning ("Failed to load ccnet confdir\n");
         return -1;
     }
 
@@ -482,10 +482,10 @@ seaf_controller_init (SeafileController *ctl,
 }
 
 static int
-seaf_controller_start ()
+winguf_controller_start ()
 {
     if (start_ccnet_server () < 0) {
-        seaf_warning ("Failed to start ccnet server\n");
+        winguf_warning ("Failed to start ccnet server\n");
         return -1;
     }
 
@@ -504,7 +504,7 @@ write_controller_pidfile ()
 
     FILE *pidfile = g_fopen(controller_pidfile, "w");
     if (!pidfile) {
-        seaf_warning ("Failed to fopen() pidfile %s: %s\n",
+        winguf_warning ("Failed to fopen() pidfile %s: %s\n",
                       controller_pidfile, strerror(errno));
         return -1;
     }
@@ -512,7 +512,7 @@ write_controller_pidfile ()
     char buf[32];
     snprintf (buf, sizeof(buf), "%d\n", pid);
     if (fputs(buf, pidfile) < 0) {
-        seaf_warning ("Failed to write pidfile %s: %s\n",
+        winguf_warning ("Failed to write pidfile %s: %s\n",
                       controller_pidfile, strerror(errno));
         fclose (pidfile);
         return -1;
@@ -689,20 +689,20 @@ int main (int argc, char **argv)
     }
 
     ctl = g_new0 (SeafileController, 1);
-    if (seaf_controller_init (ctl, config_dir, wingufile_dir, logdir, cloud_mode) < 0) {
+    if (winguf_controller_init (ctl, config_dir, wingufile_dir, logdir, cloud_mode) < 0) {
         controller_exit(1);
     }
 
     char *logfile = g_build_filename (ctl->logdir, "controller.log", NULL);
     if (wingufile_log_init (logfile, ccnet_debug_level_str,
                           wingufile_debug_level_str) < 0) {
-        seaf_warning ("Failed to init log.\n");
+        winguf_warning ("Failed to init log.\n");
         controller_exit (1);
     }
 
     set_signal_handlers ();
 
-    if (seaf_controller_start (ctl) < 0)
+    if (winguf_controller_start (ctl) < 0)
         controller_exit (1);
 
     if (daemon_mode)
@@ -714,7 +714,7 @@ int main (int argc, char **argv)
 
     if (controller_pidfile != NULL) {
         if (write_controller_pidfile () < 0) {
-            seaf_warning ("Failed to write pidfile %s\n", controller_pidfile);
+            winguf_warning ("Failed to write pidfile %s\n", controller_pidfile);
             return -1;
         }
     }

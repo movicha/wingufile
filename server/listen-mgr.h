@@ -29,10 +29,10 @@ struct _SeafListenManager {
 };
 
 struct _SeafListenManager *
-seaf_listen_manager_new (struct _SeafileSession *session);
+winguf_listen_manager_new (struct _SeafileSession *session);
 
 int
-seaf_listen_manager_start (SeafListenManager *mgr);
+winguf_listen_manager_start (SeafListenManager *mgr);
 
 typedef void (*ConnAcceptedCB) (evutil_socket_t, void *);
 
@@ -45,13 +45,13 @@ typedef void (*ConnAcceptedCB) (evutil_socket_t, void *);
  * that many seconds.
  */
 int
-seaf_listen_manager_register_token (SeafListenManager *mgr,
+winguf_listen_manager_register_token (SeafListenManager *mgr,
                                     const char *token,
                                     ConnAcceptedCB cb,
                                     void *cb_arg,
                                     int timeout_sec);
 
 char *
-seaf_listen_manager_generate_token (SeafListenManager *mgr);
+winguf_listen_manager_generate_token (SeafListenManager *mgr);
 
 #endif

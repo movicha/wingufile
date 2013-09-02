@@ -211,7 +211,7 @@ int read_index_from(struct index_state *istate, const char *path)
         return -1;
     }
 
-    if (seaf_fstat(fd, &st)) {
+    if (winguf_fstat(fd, &st)) {
         g_critical("cannot stat the open index\n");
         return -1;
     }
@@ -935,7 +935,7 @@ static struct cache_entry *refresh_cache_entry(struct cache_entry *ce,
 {
     SeafStat st;
 
-    if (seaf_stat (full_path, &st) < 0) {
+    if (winguf_stat (full_path, &st) < 0) {
         g_warning("Failed to stat %s.\n", full_path);
         return NULL;
     }
@@ -977,7 +977,7 @@ struct cache_entry *make_cache_entry(unsigned int mode,
 int add_file_to_index(struct index_state *istate, const char *path, int flags)
 {
     SeafStat st;
-    if (seaf_stat (path, &st)) {
+    if (winguf_stat (path, &st)) {
         g_warning("unable to stat '%s'\n", path);
         return -1;
     }
@@ -1194,7 +1194,7 @@ static void ce_smudge_racily_clean_entry(struct cache_entry *ce)
      */
     SeafStat st;
 
-    if (seaf_stat (ce->name, &st) < 0)
+    if (winguf_stat (ce->name, &st) < 0)
         return;
     if (ce_match_stat_basic(ce, &st))
         return;
@@ -1328,7 +1328,7 @@ int write_index(struct index_state *istate, int newfd)
     }
 #endif
 
-    if (ce_flush(&info, newfd) || seaf_fstat(newfd, &st))
+    if (ce_flush(&info, newfd) || winguf_fstat(newfd, &st))
         return -1;
     istate->timestamp.sec = (unsigned int)st.st_mtime;
     istate->timestamp.nsec = 0;

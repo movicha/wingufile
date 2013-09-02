@@ -21,8 +21,8 @@ CROSS= --build $(DEB_BUILD_GNU_TYPE)
 endif
 
 
-# SEARPC_SOURCE_DIR and CCNET_SOURCE_DIR is set by build-deb.py
-searpc_dir = $(LIBSEARPC_SOURCE_DIR)
+# WINGURPC_SOURCE_DIR and CCNET_SOURCE_DIR is set by build-deb.py
+wingurpc_dir = $(libwingurpc_SOURCE_DIR)
 ccnet_dir = $(CCNET_SOURCE_DIR)
 destdir = $(CURDIR)/debian/wingufile
 install_prefix = $(destdir)/usr
@@ -30,11 +30,11 @@ install_prefix = $(destdir)/usr
 build:
 	dh_testdir
 	mkdir -p $(install_prefix)
-	# build and install libsearpc so it can be used by ccnet and wingufile
-	cd $(searpc_dir) && ./configure $(CROSS) --prefix=/usr --disable-compile-demo CFLAGS="$(CFLAGS)" && make && make install DESTDIR=$(destdir)
+	# build and install libwingurpc so it can be used by ccnet and wingufile
+	cd $(wingurpc_dir) && ./configure $(CROSS) --prefix=/usr --disable-compile-demo CFLAGS="$(CFLAGS)" && make && make install DESTDIR=$(destdir)
 
 	# Fix the problem of DESTDIR and libtool
-	sed -i -e "s;/usr/lib/libsearpc-json-glib;$(destdir)/usr/lib/libsearpc-json-glib;g" $(install_prefix)/lib/libsearpc.la
+	sed -i -e "s;/usr/lib/libwingurpc-json-glib;$(destdir)/usr/lib/libwingurpc-json-glib;g" $(install_prefix)/lib/libwingurpc.la
 
 	# build and install ccnet so it can be used by wingufile
 	cd $(ccnet_dir) && ./configure $(CROSS) --prefix=/usr --disable-compile-demo CFLAGS="$(CFLAGS)" && make && make install DESTDIR=$(destdir)
@@ -46,7 +46,7 @@ build:
 	rm -rf $(install_prefix)/lib/pkgconfig
 	rm -rf $(install_prefix)/lib/*.a
 	rm -rf $(install_prefix)/lib/*.la
-	rm -f $(install_prefix)/bin/searpc-codegen.py
+	rm -f $(install_prefix)/bin/wingurpc-codegen.py
 	rm -f $(install_prefix)/bin/ccnet-servtool
 
 clean:

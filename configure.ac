@@ -243,7 +243,7 @@ APPINDICATOR_REQUIRED=0.0.7
 GLIB_REQUIRED=2.16.0
 GTK_REQUIRED=2.16.0
 CCNET_REQUIRED=0.9.3
-SEARPC_REQUIRED=1.0
+WINGURPC_REQUIRED=1.0
 ZDB_REQUIRED=2.10
 #LIBNAUTILUS_EXTENSION_REQUIRED=2.30.1
 CURL_REQUIRED=7.17
@@ -260,9 +260,9 @@ PKG_CHECK_MODULES(CCNET, [libccnet >= $CCNET_REQUIRED])
 AC_SUBST(CCNET_CFLAGS)
 AC_SUBST(CCNET_LIBS)
 
-PKG_CHECK_MODULES(SEARPC, [libsearpc >= $SEARPC_REQUIRED])
-AC_SUBST(SEARPC_CFLAGS)
-AC_SUBST(SEARPC_LIBS)
+PKG_CHECK_MODULES(WINGURPC, [libwingurpc >= $WINGURPC_REQUIRED])
+AC_SUBST(WINGURPC_CFLAGS)
+AC_SUBST(WINGURPC_LIBS)
 
 AC_ARG_ENABLE(appindicator,
    AC_HELP_STRING([--enable-appindicator[=@<:@no/auto/yes@:>@]],[Build support for application indicators ]),
@@ -411,7 +411,7 @@ AC_CONFIG_FILES(
     app/Makefile
     python/Makefile
     python/wingufile/Makefile
-    python/seaserv/Makefile
+    python/winguserv/Makefile
     controller/Makefile
     httpserver/Makefile
     tools/Makefile
@@ -428,13 +428,13 @@ echo
 echo "The following modules will be built:"
 echo
 if test x${compile_client} = xyes; then
-    echo "seaf-daemon"
+    echo "winguf-daemon"
     if test x${compile_gui} = xyes; then
         echo "wingufile-applet"
     fi
 fi
 if test x${compile_server} = xyes; then
-   echo    "seaf-server"
+   echo    "winguf-server"
 fi
 
 echo

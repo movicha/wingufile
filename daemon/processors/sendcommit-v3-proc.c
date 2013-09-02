@@ -125,7 +125,7 @@ send_commit (CcnetProcessor *processor, const char *object_id)
     ObjectPack *pack = NULL;
     int pack_size;
 
-    if (seaf_obj_store_read_obj (seaf->commit_mgr->obj_store,
+    if (winguf_obj_store_read_obj (winguf->commit_mgr->obj_store,
                                  object_id, (void**)&data, &len) < 0) {
         g_warning ("Failed to read commit %s.\n", object_id);
         goto fail;
@@ -139,7 +139,7 @@ send_commit (CcnetProcessor *processor, const char *object_id)
     ccnet_processor_send_update (processor, SC_OBJECT, SS_OBJECT,
                                  (char *)pack, pack_size);
 
-    seaf_debug ("Send commit %.8s.\n", object_id);
+    winguf_debug ("Send commit %.8s.\n", object_id);
 
     g_free (data);
     free (pack);
@@ -271,7 +271,7 @@ compute_delta_commits (CcnetProcessor *processor, const char *head)
     priv->commit_hash = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                g_free, NULL);
 
-    ret = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    ret = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                     priv->remote_id,
                                                     traverse_commit_remote,
                                                     processor, FALSE);
@@ -282,7 +282,7 @@ compute_delta_commits (CcnetProcessor *processor, const char *head)
         return -1;
     }
 
-    ret = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    ret = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                     head,
                                                     compute_delta,
                                                     processor, FALSE);
@@ -303,7 +303,7 @@ send_commits (CcnetProcessor *processor, const char *head)
     USE_PRIV;
 
     priv->fast_forward = TRUE;
-    ret = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    ret = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                     head,
                                                     traverse_commit_fast_forward,
                                                     processor, FALSE);
@@ -315,12 +315,12 @@ send_commits (CcnetProcessor *processor, const char *head)
     }
 
     if (priv->fast_forward) {
-        seaf_debug ("[sendcommt] Send commit after a fast forward merge.\n");
+        winguf_debug ("[sendcommt] Send commit after a fast forward merge.\n");
         send_one_commit (processor);
         return;
     }
 
-    seaf_debug ("[sendcommit] Send commit after a real merge.\n");
+    winguf_debug ("[sendcommit] Send commit after a real merge.\n");
     if (compute_delta_commits (processor, head) < 0)
         return;
 

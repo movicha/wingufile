@@ -80,7 +80,7 @@ extern ObjBackend *
 obj_backend_fs_new (const char *obj_dir);
 
 struct SeafObjStore *
-seaf_obj_store_new (SeafileSession *seaf, const char *obj_type)
+winguf_obj_store_new (SeafileSession *winguf, const char *obj_type)
 {
     SeafObjStore *store = g_new0 (SeafObjStore, 1);
 
@@ -88,11 +88,11 @@ seaf_obj_store_new (SeafileSession *seaf, const char *obj_type)
         return NULL;
 
 #ifdef WINGUFILE_SERVER
-    store->bend = load_obj_backend (seaf->config, obj_type);
+    store->bend = load_obj_backend (winguf->config, obj_type);
 #endif
     if (!store->bend) {
         char *obj_dir;
-        obj_dir = g_build_filename (seaf->seaf_dir, obj_type, NULL);
+        obj_dir = g_build_filename (winguf->winguf_dir, obj_type, NULL);
         store->bend = obj_backend_fs_new (obj_dir);
         g_free (obj_dir);
         if (!store->bend) {
@@ -167,7 +167,7 @@ async_init (SeafObjStore *obj_store, CEventManager *ev_mgr)
 }
 
 int
-seaf_obj_store_init (SeafObjStore *obj_store,
+winguf_obj_store_init (SeafObjStore *obj_store,
                      gboolean enable_async,
                      CEventManager *ev_mgr)
 {
@@ -178,7 +178,7 @@ seaf_obj_store_init (SeafObjStore *obj_store,
 }
 
 int
-seaf_obj_store_read_obj (struct SeafObjStore *obj_store,
+winguf_obj_store_read_obj (struct SeafObjStore *obj_store,
                          const char *obj_id,
                          void **data,
                          int *len)
@@ -189,7 +189,7 @@ seaf_obj_store_read_obj (struct SeafObjStore *obj_store,
 }
 
 int
-seaf_obj_store_write_obj (struct SeafObjStore *obj_store,
+winguf_obj_store_write_obj (struct SeafObjStore *obj_store,
                           const char *obj_id,
                           void *data,
                           int len)
@@ -200,7 +200,7 @@ seaf_obj_store_write_obj (struct SeafObjStore *obj_store,
 }
 
 gboolean
-seaf_obj_store_obj_exists (struct SeafObjStore *obj_store,
+winguf_obj_store_obj_exists (struct SeafObjStore *obj_store,
                            const char *obj_id)
 {
     ObjBackend *bend = obj_store->bend;
@@ -209,7 +209,7 @@ seaf_obj_store_obj_exists (struct SeafObjStore *obj_store,
 }
 
 void
-seaf_obj_store_delete_obj (struct SeafObjStore *obj_store,
+winguf_obj_store_delete_obj (struct SeafObjStore *obj_store,
                            const char *obj_id)
 {
     ObjBackend *bend = obj_store->bend;
@@ -435,7 +435,7 @@ on_write_done (CEvent *event, void *user_data)
 }
 
 guint32
-seaf_obj_store_register_async_read (struct SeafObjStore *obj_store,
+winguf_obj_store_register_async_read (struct SeafObjStore *obj_store,
                                     OSAsyncCallback callback,
                                     void *cb_data)
 {
@@ -451,14 +451,14 @@ seaf_obj_store_register_async_read (struct SeafObjStore *obj_store,
 }
 
 void
-seaf_obj_store_unregister_async_read (struct SeafObjStore *obj_store,
+winguf_obj_store_unregister_async_read (struct SeafObjStore *obj_store,
                                       guint32 reader_id)
 {
     g_hash_table_remove (obj_store->readers, (gpointer)(long)reader_id);
 }
 
 int
-seaf_obj_store_async_read (struct SeafObjStore *obj_store,
+winguf_obj_store_async_read (struct SeafObjStore *obj_store,
                            guint32 reader_id,
                            const char *obj_id)
 {
@@ -478,7 +478,7 @@ seaf_obj_store_async_read (struct SeafObjStore *obj_store,
 }
 
 guint32
-seaf_obj_store_register_async_stat (struct SeafObjStore *obj_store,
+winguf_obj_store_register_async_stat (struct SeafObjStore *obj_store,
                                     OSAsyncCallback callback,
                                     void *cb_data)
 {
@@ -494,14 +494,14 @@ seaf_obj_store_register_async_stat (struct SeafObjStore *obj_store,
 }
 
 void
-seaf_obj_store_unregister_async_stat (struct SeafObjStore *obj_store,
+winguf_obj_store_unregister_async_stat (struct SeafObjStore *obj_store,
                                       guint32 stat_id)
 {
     g_hash_table_remove (obj_store->stats, (gpointer)(long)stat_id);
 }
 
 int
-seaf_obj_store_async_stat (struct SeafObjStore *obj_store,
+winguf_obj_store_async_stat (struct SeafObjStore *obj_store,
                            guint32 stat_id,
                            const char *obj_id)
 {
@@ -521,7 +521,7 @@ seaf_obj_store_async_stat (struct SeafObjStore *obj_store,
 }
 
 guint32
-seaf_obj_store_register_async_write (struct SeafObjStore *obj_store,
+winguf_obj_store_register_async_write (struct SeafObjStore *obj_store,
                                      OSAsyncCallback callback,
                                      void *cb_data)
 {
@@ -537,14 +537,14 @@ seaf_obj_store_register_async_write (struct SeafObjStore *obj_store,
 }
 
 void
-seaf_obj_store_unregister_async_write (struct SeafObjStore *obj_store,
+winguf_obj_store_unregister_async_write (struct SeafObjStore *obj_store,
                                        guint32 writer_id)
 {
     g_hash_table_remove (obj_store->writers, (gpointer)(long)writer_id);
 }
 
 int
-seaf_obj_store_async_write (struct SeafObjStore *obj_store,
+winguf_obj_store_async_write (struct SeafObjStore *obj_store,
                             guint32 writer_id,
                             const char *obj_id,
                             const void *obj_data,

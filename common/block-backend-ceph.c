@@ -81,7 +81,7 @@ block_backend_ceph_read_block (BlockBackend *bend, BHandle *handle,
         handle->off += ret;
 
         if (evbuffer_add (handle->buffer, tmp_buf, ret) < 0) {
-            seaf_warning ("[block bend] Failed to add to buffer.\n");
+            winguf_warning ("[block bend] Failed to add to buffer.\n");
             g_free (tmp_buf);
             return -1;
         }
@@ -127,14 +127,14 @@ flush_buffer (rados_ioctx_t io, BlockHandle *handle)
 
     tmp_buf = g_new (char, buf_len);
     if (!tmp_buf) {
-        seaf_warning ("[block bend] Not enough memory.\n");
+        winguf_warning ("[block bend] Not enough memory.\n");
         return -1;
     }
     evbuffer_remove (handle->buffer, tmp_buf, buf_len);
 
     ret = write_all (io, handle->block_id, tmp_buf, buf_len, handle->off);
     if (ret < 0) {
-        seaf_warning ("[block bend] Failed to read block %s.\n",
+        winguf_warning ("[block bend] Failed to read block %s.\n",
                        handle->block_id);
         g_free (tmp_buf);
         return ret;
@@ -153,7 +153,7 @@ block_backend_ceph_write_block (BlockBackend *bend,
     CephPriv *priv = bend->be_priv;
 
     if (evbuffer_add (handle->buffer, buf, len) < 0) {
-        seaf_warning ("[block bend] Failed to add to buffer.\n");
+        winguf_warning ("[block bend] Failed to add to buffer.\n");
         return -1;
     }
 
@@ -367,7 +367,7 @@ error:
 BlockBackend *
 block_backend_ceph_new (const char *ceph_conf, const char *poolname)
 {
-    seaf_warning ("Rados backend is not enabled.\n");
+    winguf_warning ("Rados backend is not enabled.\n");
     return NULL;
 }
 

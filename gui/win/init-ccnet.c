@@ -249,29 +249,29 @@ get_largest_disk()
    2. set wingufile folder icon (via Desktop.ini)
 */
 static void
-set_seafdir_attributes ()
+set_wingufdir_attributes ()
 {
-    char *seafdir = g_path_get_dirname (applet->wingufile_dir);
+    char *wingufdir = g_path_get_dirname (applet->wingufile_dir);
     char *icon_path = NULL;
     char *ini_file_path = NULL;
 
     wchar_t *wingufile_dir_w = NULL; /* C:\\Seafile\\wingufile-data */
-    wchar_t *seafdir_w =  NULL;    /* C:\\Seafile */
-    wchar_t *icon_path_w = NULL; /* C:\\Program Files\\Seafile\\bin\\seafdir.ico */
+    wchar_t *wingufdir_w =  NULL;    /* C:\\Seafile */
+    wchar_t *icon_path_w = NULL; /* C:\\Program Files\\Seafile\\bin\\wingufdir.ico */
     wchar_t * ini_file_path_w = NULL; /* C:\\Seafile\\Desktop.ini */
 
     FILE *ini_file = NULL;
 
     wingufile_dir_w = wchar_from_utf8 (applet->wingufile_dir);
-    seafdir_w = wchar_from_utf8 (seafdir);
+    wingufdir_w = wchar_from_utf8 (wingufdir);
 
     /* Make wingufile-data directory hidden. */
     SetFileAttributesW (wingufile_dir_w,
                         FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_SYSTEM);
 
-    /* Set seafdir folder icon. */
-    SetFileAttributesW (seafdir_w, FILE_ATTRIBUTE_SYSTEM);
-    ini_file_path = g_build_filename (seafdir, "Desktop.ini", NULL);
+    /* Set wingufdir folder icon. */
+    SetFileAttributesW (wingufdir_w, FILE_ATTRIBUTE_SYSTEM);
+    ini_file_path = g_build_filename (wingufdir, "Desktop.ini", NULL);
     ini_file_path_w = wchar_from_utf8 (ini_file_path);
 
     if (!(ini_file = g_fopen(ini_file_path, "w"))) {
@@ -279,7 +279,7 @@ set_seafdir_attributes ()
         goto out;
     }
 
-    icon_path = g_build_filename (wingufile_bin_dir, "seafdir.ico", NULL);
+    icon_path = g_build_filename (wingufile_bin_dir, "wingufdir.ico", NULL);
 
     char *ptr = icon_path;
     while (*ptr != '\0') {
@@ -301,8 +301,8 @@ set_seafdir_attributes ()
 
 out:
     g_free (wingufile_dir_w);
-    g_free (seafdir);
-    g_free (seafdir_w);
+    g_free (wingufdir);
+    g_free (wingufdir_w);
     g_free (ini_file_path);
     g_free (ini_file_path_w);
     g_free (icon_path);
@@ -318,17 +318,17 @@ void
 copy_user_manual ()
 {
     char *installdir;            /* C:\Program Files\Seafile */
-    char *seafdir;              /* C:\Seafile */
+    char *wingufdir;              /* C:\Seafile */
     char *src_path;             /* C:\Program Files\Seafile\help.txt */
     char *dst_path;             /* C:\Seafile\help.txt */
 
     wchar_t *src_path_w, *dst_path_w;
 
     installdir = g_path_get_dirname (wingufile_bin_dir);
-    seafdir = g_path_get_dirname (applet->wingufile_dir);
+    wingufdir = g_path_get_dirname (applet->wingufile_dir);
 
     src_path = g_build_filename (installdir, _("Seafile help.txt"), NULL);
-    dst_path = g_build_filename (seafdir, _("Seafile help.txt"), NULL);
+    dst_path = g_build_filename (wingufdir, _("Seafile help.txt"), NULL);
 
     src_path_w = wchar_from_utf8 (src_path);
     dst_path_w = wchar_from_utf8 (dst_path);
@@ -337,7 +337,7 @@ copy_user_manual ()
     CopyFileW (src_path_w, dst_path_w, failIfExist);
 
     g_free (installdir);
-    g_free (seafdir);
+    g_free (wingufdir);
     g_free (src_path);
     g_free (dst_path);
     g_free (src_path_w);
@@ -439,7 +439,7 @@ InitSeafileProc (HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
                 return TRUE;
             }
 
-            set_seafdir_attributes ();
+            set_wingufdir_attributes ();
             EndDialog (hDlg, INIT_CCNET_SUCCESS);
             return TRUE;
         }

@@ -47,7 +47,7 @@ release_resource (CcnetProcessor *processor)
     if (priv->commit_hash)
         g_hash_table_destroy (priv->commit_hash);
     if (priv->registered)
-        seaf_obj_store_unregister_async_read (seaf->commit_mgr->obj_store,
+        winguf_obj_store_unregister_async_read (winguf->commit_mgr->obj_store,
                                               priv->reader_id);
 
     CCNET_PROCESSOR_CLASS (wingufile_putcommit_v2_proc_parent_class)->release_resource (processor);
@@ -97,7 +97,7 @@ read_and_send_commit (CcnetProcessor *processor)
     id = priv->id_list->data;
     priv->id_list = g_list_delete_link (priv->id_list, priv->id_list);
 
-    if (seaf_obj_store_async_read (seaf->commit_mgr->obj_store,
+    if (winguf_obj_store_async_read (winguf->commit_mgr->obj_store,
                                    priv->reader_id,
                                    id) < 0) {
         g_warning ("[putcommit] Failed to start read of %s.\n", id);
@@ -125,7 +125,7 @@ read_done_cb (OSAsyncResult *res, void *cb_data)
 
     send_commit (processor, res->obj_id, res->data, res->len);
 
-    seaf_debug ("Send commit %.8s.\n", res->obj_id);
+    winguf_debug ("Send commit %.8s.\n", res->obj_id);
 
     /* Send next commit. */
     if (priv->id_list != NULL)
@@ -213,25 +213,25 @@ compute_delta_commits (CcnetProcessor *processor, const char *head)
                                                g_free, NULL);
 
     /* When putting commits, the remote head commit must exists. */
-    ret = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    ret = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                     priv->remote_commit_id,
                                                     collect_id_remote,
                                                     processor,
                                                     FALSE);
     if (!ret) {
-        seaf_warning ("[putcommit] Failed to traverse remote branch.\n");
+        winguf_warning ("[putcommit] Failed to traverse remote branch.\n");
         string_list_free (priv->id_list);
         priv->id_list = NULL;
         return -1;
     }
 
-    ret = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    ret = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                     head,
                                                     compute_delta,
                                                     processor,
                                                     FALSE);
     if (!ret) {
-        seaf_warning ("[putcommit] Failed to compute delta commits.\n");
+        winguf_warning ("[putcommit] Failed to compute delta commits.\n");
         string_list_free (priv->id_list);
         priv->id_list = NULL;
         return -1;
@@ -247,7 +247,7 @@ collect_commit_id_thread (void *vprocessor)
     USE_PRIV;
 
     priv->fast_forward = TRUE;
-    if (seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    if (winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                   priv->head_commit_id,
                                                   collect_id_fast_forward,
                                                   processor,
@@ -259,11 +259,11 @@ collect_commit_id_thread (void *vprocessor)
     }
 
     if (priv->fast_forward) {
-        seaf_debug ("Send commits after a fast-forward merge.\n");
+        winguf_debug ("Send commits after a fast-forward merge.\n");
         return vprocessor;
     }
 
-    seaf_debug ("Send commits after a real merge.\n");
+    winguf_debug ("Send commits after a real merge.\n");
 
     compute_delta_commits (processor, priv->head_commit_id);
 
@@ -314,7 +314,7 @@ put_commit_start (CcnetProcessor *processor, int argc, char **argv)
         return -1;
     }
 
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          NULL,
                                          processor->peer_id,
                                          session_token, NULL) < 0) {
@@ -331,13 +331,13 @@ put_commit_start (CcnetProcessor *processor, int argc, char **argv)
     ccnet_processor_send_response (processor, SC_OK, SS_OK, NULL, 0);
 
     priv->reader_id =
-        seaf_obj_store_register_async_read (seaf->commit_mgr->obj_store,
+        winguf_obj_store_register_async_read (winguf->commit_mgr->obj_store,
                                             read_done_cb,
                                             processor);
     priv->registered = TRUE;
 
     ccnet_processor_thread_create (processor,
-                                   seaf->job_mgr,
+                                   winguf->job_mgr,
                                    collect_commit_id_thread,
                                    collect_commit_id_done,
                                    processor);

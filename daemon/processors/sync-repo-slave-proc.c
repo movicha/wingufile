@@ -57,26 +57,26 @@ send_repo_branch_info (CcnetProcessor *processor, const char *repo_id,
                        
 {
     SeafRepo *repo;
-    SeafBranch *seaf_branch;
+    SeafBranch *winguf_branch;
     
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
          ccnet_processor_send_response (processor, SC_NO_REPO, SS_NO_REPO,
                                         NULL, 0);
          return 0;
     }
 
-    seaf_branch = seaf_branch_manager_get_branch (seaf->branch_mgr,
+    winguf_branch = winguf_branch_manager_get_branch (winguf->branch_mgr,
                                                   repo_id, branch);
-    if (seaf_branch == NULL) {
+    if (winguf_branch == NULL) {
         ccnet_processor_send_response (processor, SC_NO_BRANCH, SS_NO_BRANCH,
                                        NULL, 0);
         return -1;
     }
 
     ccnet_processor_send_response (processor, SC_COMMIT_ID, SS_COMMIT_ID,
-                                   seaf_branch->commit_id, 41);
-    seaf_branch_unref (seaf_branch);
+                                   winguf_branch->commit_id, 41);
+    winguf_branch_unref (winguf_branch);
 
     return 0;
 

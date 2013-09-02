@@ -1,5 +1,5 @@
 import ccnet
-from pysearpc import searpc_func, SearpcError
+from pywingurpc import wingurpc_func, SearpcError
 
 
 class AppletRpcClient(ccnet.RpcClientBase):
@@ -8,19 +8,19 @@ class AppletRpcClient(ccnet.RpcClientBase):
         ccnet.RpcClientBase.__init__(self, ccnet_client_pool, "applet-rpcserver",
                                *args, **kwargs)
 
-    @searpc_func("int", [])
+    @wingurpc_func("int", [])
     def applet_get_auto_start(self):
         pass
 
     get_auto_start = applet_get_auto_start
         
-    @searpc_func("int", ["string"])
+    @wingurpc_func("int", ["string"])
     def applet_set_auto_start(self):
         pass
 
     set_auto_start = applet_set_auto_start
 
-    @searpc_func("int", ["string"])
+    @wingurpc_func("int", ["string"])
     def applet_open_dir(self):
         pass
 

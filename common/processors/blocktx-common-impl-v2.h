@@ -158,7 +158,7 @@ prepare_thread_data (CcnetProcessor *processor,
     priv->tdata->transfer_func = tranfer_func;
     priv->tdata->processor = processor;
 
-    priv->tdata->cevent_id = cevent_manager_register (seaf->ev_mgr,
+    priv->tdata->cevent_id = cevent_manager_register (winguf->ev_mgr,
                                                       handler,
                                                       processor);
 }
@@ -174,7 +174,7 @@ release_thread (CcnetProcessor *processor)
             pipeclose (priv->tdata->task_pipe[1]);
 
         priv->tdata->processor_done = TRUE;
-        cevent_manager_unregister (seaf->ev_mgr, priv->tdata->cevent_id);
+        cevent_manager_unregister (winguf->ev_mgr, priv->tdata->cevent_id);
 
         thread_data_unref (priv->tdata);
     }
@@ -197,7 +197,7 @@ thread_done (void *vtdata)
      *    is set.
      */
     if (!tdata->processor_done) {
-        seaf_debug ("Processor is not released. Release it now.\n");
+        winguf_debug ("Processor is not released. Release it now.\n");
         if (tdata->thread_ret == 0) {
             ccnet_processor_done (tdata->processor, TRUE);
         } else {
@@ -224,7 +224,7 @@ send_block_rsp (int cevent_id, int block_idx, const char *block_id,
     blk_rsp->block_id[40] = '\0';
     blk_rsp->tx_bytes = tx_bytes;
     blk_rsp->tx_time = tx_time;
-    cevent_manager_add_event (seaf->ev_mgr, 
+    cevent_manager_add_event (winguf->ev_mgr, 
                               cevent_id,
                               (void *)blk_rsp);
 }
@@ -279,23 +279,23 @@ send_encrypted_data (EVP_CIPHER_CTX *ctx, int sockfd,
     if (EVP_EncryptUpdate (ctx,
                            (unsigned char *)out_buf, &out_len,
                            (unsigned char *)buf, len) == 0) {
-        seaf_warning ("Failed to encrypt data.\n");
+        winguf_warning ("Failed to encrypt data.\n");
         return -1;
     }
 
     if (sendn (sockfd, out_buf, out_len) < 0) {
-        seaf_warning ("Failed to write data: %s.\n",
+        winguf_warning ("Failed to write data: %s.\n",
                       evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
         return -1;
     }
 
     if (remain == 0) {
         if (EVP_EncryptFinal_ex (ctx, (unsigned char *)out_buf, &out_len) == 0) {
-            seaf_warning ("Failed to encrypt data.\n");
+            winguf_warning ("Failed to encrypt data.\n");
             return -1;
         }
         if (sendn (sockfd, out_buf, out_len) < 0) {
-            seaf_warning ("Failed to write data: %s.\n",
+            winguf_warning ("Failed to write data: %s.\n",
                           evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
             return -1;
         }
@@ -311,7 +311,7 @@ send_block_packet (ThreadData *tdata,
                    BlockHandle *handle, 
                    evutil_socket_t sockfd)
 {
-    SeafBlockManager *block_mgr = seaf->block_mgr;
+    SeafBlockManager *block_mgr = winguf->block_mgr;
     BlockMetadata *md;
     uint32_t size, remain;
     BlockPacket pkt;
@@ -320,9 +320,9 @@ send_block_packet (ThreadData *tdata,
     int ret = 0;
     EVP_CIPHER_CTX ctx;
 
-    md = seaf_block_manager_stat_block_by_handle (block_mgr, handle);
+    md = winguf_block_manager_stat_block_by_handle (block_mgr, handle);
     if (!md) {
-        seaf_warning ("Failed to stat block %s.\n", block_id);
+        winguf_warning ("Failed to stat block %s.\n", block_id);
         return -1;
     }
     size = md->size;
@@ -341,14 +341,14 @@ send_block_packet (ThreadData *tdata,
     pkt.block_idx = htonl ((uint32_t) block_idx);
     memcpy (pkt.block_id, block_id, 41);
     if (sendn (sockfd, &pkt, sizeof(pkt)) < 0) {
-        seaf_warning ("Failed to write socket: %s.\n", 
+        winguf_warning ("Failed to write socket: %s.\n", 
                    evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
         ret = -1;
         goto out;
     }
 
     while (1) {
-        n = seaf_block_manager_read_block (block_mgr, handle, buf, IO_BUF_LEN);
+        n = winguf_block_manager_read_block (block_mgr, handle, buf, IO_BUF_LEN);
         if (n <= 0)
             break;
         remain -= n;
@@ -359,13 +359,13 @@ send_block_packet (ThreadData *tdata,
             ret = sendn (sockfd, buf, n);
 
         if (ret < 0) {
-            seaf_warning ("Failed to write block %s\n", block_id);
+            winguf_warning ("Failed to write block %s\n", block_id);
             goto out;
         }
 #ifdef SENDBLOCK_PROC
         /* Update global transferred bytes. */
         g_atomic_int_add (&(tdata->task->tx_bytes), n);
-        g_atomic_int_add (&(seaf->transfer_mgr->sent_bytes), n);
+        g_atomic_int_add (&(winguf->transfer_mgr->sent_bytes), n);
 
         /* If uploaded bytes exceeds the limit, wait until the counter
          * is reset. We check the counter every 100 milliseconds, so we
@@ -373,9 +373,9 @@ send_block_packet (ThreadData *tdata,
          * the counter is reset.
          */
         while (1) {
-            gint sent = g_atomic_int_get(&(seaf->transfer_mgr->sent_bytes));
-            if (seaf->transfer_mgr->upload_limit > 0 &&
-                sent > seaf->transfer_mgr->upload_limit)
+            gint sent = g_atomic_int_get(&(winguf->transfer_mgr->sent_bytes));
+            if (winguf->transfer_mgr->upload_limit > 0 &&
+                sent > winguf->transfer_mgr->upload_limit)
                 /* 100 milliseconds */
                 g_usleep (100000);
             else
@@ -384,7 +384,7 @@ send_block_packet (ThreadData *tdata,
 #endif
     }
     if (n < 0) {
-        seaf_warning ("Failed to write block %s\n", block_id);
+        winguf_warning ("Failed to write block %s\n", block_id);
         ret = -1;
         goto out;
     }
@@ -402,7 +402,7 @@ out:
 static int
 send_blocks (ThreadData *tdata)
 {
-    SeafBlockManager *block_mgr = seaf->block_mgr;
+    SeafBlockManager *block_mgr = winguf->block_mgr;
     BlockRequest blk_req;
     BlockHandle *handle;
     int         n;
@@ -421,13 +421,13 @@ send_blocks (ThreadData *tdata)
         if (n < 0 && errno == EINTR) {
             continue;
         } else if (n < 0) {
-            seaf_warning ("select error: %s.\n", strerror(errno));
+            winguf_warning ("select error: %s.\n", strerror(errno));
             return -1;
         }
 
 #ifdef PUTBLOCK_PROC
         if (n == 0) {
-            seaf_warning ("timeout before GET_BLOCK command arrives.\n");
+            winguf_warning ("timeout before GET_BLOCK command arrives.\n");
             return -1;
         }
 #endif
@@ -439,18 +439,18 @@ send_blocks (ThreadData *tdata)
 
         n = pipereadn (tdata->task_pipe[0], &blk_req, sizeof(blk_req));
         if (n == 0) {
-            seaf_debug ("Processor exited. Worker thread exits now.\n");
+            winguf_debug ("Processor exited. Worker thread exits now.\n");
             return -1;
         }
         if (n != sizeof(blk_req)) {
-            seaf_warning ("read task pipe incorrect.\n");
+            winguf_warning ("read task pipe incorrect.\n");
             return -1;
         }
 
-        handle = seaf_block_manager_open_block (block_mgr, 
+        handle = winguf_block_manager_open_block (block_mgr, 
                                                 blk_req.block_id, BLOCK_READ);
         if (!handle) {
-            seaf_warning ("[send block] failed to open block %s.\n", 
+            winguf_warning ("[send block] failed to open block %s.\n", 
                        blk_req.block_id);
             return -1;
         }
@@ -458,8 +458,8 @@ send_blocks (ThreadData *tdata)
         ret = send_block_packet (tdata, blk_req.block_idx, blk_req.block_id, 
                                  handle, tdata->data_fd);
 
-        seaf_block_manager_close_block (block_mgr, handle);
-        seaf_block_manager_block_handle_free (block_mgr, handle);
+        winguf_block_manager_close_block (block_mgr, handle);
+        winguf_block_manager_block_handle_free (block_mgr, handle);
 
         if (ret < 0)
             return -1;
@@ -519,26 +519,26 @@ write_decrypted_data (const char *buf, int len,
     if (EVP_DecryptUpdate (&fsm->ctx,
                            (unsigned char *)out_buf, &out_len,
                            (unsigned char *)buf, len) == 0) {
-        seaf_warning ("Failed to decrypt data.\n");
+        winguf_warning ("Failed to decrypt data.\n");
         return -1;
     }
 
-    if (seaf_block_manager_write_block (seaf->block_mgr, fsm->handle,
+    if (winguf_block_manager_write_block (winguf->block_mgr, fsm->handle,
                                         out_buf, out_len) < 0) {
-        seaf_warning ("Failed to write block %s.\n", fsm->hdr.block_id);
+        winguf_warning ("Failed to write block %s.\n", fsm->hdr.block_id);
         return -1;
     }
 
     if (fsm->remain == 0) {
         if (EVP_DecryptFinal_ex (&fsm->ctx, (unsigned char *)out_buf, &out_len) == 0)
         {
-            seaf_warning ("Failed to encrypt data.\n");
+            winguf_warning ("Failed to encrypt data.\n");
             return -1;
         }
 
-        if (seaf_block_manager_write_block (seaf->block_mgr, fsm->handle,
+        if (winguf_block_manager_write_block (winguf->block_mgr, fsm->handle,
                                             out_buf, out_len) < 0) {
-            seaf_warning ("Failed to write block %s.\n", fsm->hdr.block_id);
+            winguf_warning ("Failed to write block %s.\n", fsm->hdr.block_id);
             return -1;
         }
     }
@@ -549,7 +549,7 @@ write_decrypted_data (const char *buf, int len,
 static int
 recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
 {
-    SeafBlockManager *block_mgr = seaf->block_mgr;
+    SeafBlockManager *block_mgr = winguf->block_mgr;
     char *block_id;
     BlockHandle *handle;
     int n, round;
@@ -564,11 +564,11 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
                   (char *)&fsm->hdr + sizeof(BlockPacket) - fsm->remain, 
                   fsm->remain, 0);
         if (n < 0) {
-            seaf_warning ("Failed to read block pkt: %s.\n",
+            winguf_warning ("Failed to read block pkt: %s.\n",
                        evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
             return -1;
         } else if (n == 0) {
-            seaf_debug ("data connection closed.\n");
+            winguf_debug ("data connection closed.\n");
             return -1;
         }
 
@@ -578,10 +578,10 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
             block_id = fsm->hdr.block_id;
             block_id[40] = 0;
 
-            handle = seaf_block_manager_open_block (block_mgr, 
+            handle = winguf_block_manager_open_block (block_mgr, 
                                                     block_id, BLOCK_WRITE);
             if (!handle) {
-                seaf_warning ("failed to open block %s.\n", block_id);
+                winguf_warning ("failed to open block %s.\n", block_id);
                 return -1;
             }
             fsm->handle = handle; 
@@ -595,9 +595,9 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
         break;
     case RECV_STATE_BLOCK:
 #ifdef GETBLOCK_PROC
-        recv_bytes = g_atomic_int_get (&(seaf->transfer_mgr->recv_bytes));
-        if (seaf->transfer_mgr->download_limit > 0 &&
-            recv_bytes > seaf->transfer_mgr->download_limit) {
+        recv_bytes = g_atomic_int_get (&(winguf->transfer_mgr->recv_bytes));
+        if (winguf->transfer_mgr->download_limit > 0 &&
+            recv_bytes > winguf->transfer_mgr->download_limit) {
             g_usleep (100000);
             return 0;
         }
@@ -609,11 +609,11 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
         round = MIN (fsm->remain, IO_BUF_LEN);
         n = recv (sockfd, buf, round, 0);
         if (n < 0) {
-            seaf_warning ("failed to read data: %s.\n",
+            winguf_warning ("failed to read data: %s.\n",
                        evutil_socket_error_to_string(EVUTIL_SOCKET_ERROR()));
             return -1;
         } else if (n == 0) {
-            seaf_debug ("data connection closed.\n");
+            winguf_debug ("data connection closed.\n");
             return -1;
         }
         fsm->remain -= n;
@@ -622,17 +622,17 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
         if (fsm->tdata->encrypt_channel)
             ret = write_decrypted_data (buf, n, fsm);
         else
-            ret = seaf_block_manager_write_block (block_mgr, handle, buf, n);
+            ret = winguf_block_manager_write_block (block_mgr, handle, buf, n);
 
         if (ret < 0) {
-            seaf_warning ("Failed to write block %s.\n", fsm->hdr.block_id);
+            winguf_warning ("Failed to write block %s.\n", fsm->hdr.block_id);
             return -1;
         }
 
 #ifdef GETBLOCK_PROC
         /* Update global transferred bytes. */
         g_atomic_int_add (&(fsm->tdata->task->tx_bytes), n);
-        g_atomic_int_add (&(seaf->transfer_mgr->recv_bytes), n);
+        g_atomic_int_add (&(winguf->transfer_mgr->recv_bytes), n);
 #endif
 
         if (fsm->remain == 0) {
@@ -641,17 +641,17 @@ recv_tick (RecvFSM *fsm, evutil_socket_t sockfd)
                 fsm->enc_init = FALSE;
             }
 
-            if (seaf_block_manager_close_block (block_mgr, handle) < 0) {
-                seaf_warning ("Failed to close block %s.\n", fsm->hdr.block_id);
+            if (winguf_block_manager_close_block (block_mgr, handle) < 0) {
+                winguf_warning ("Failed to close block %s.\n", fsm->hdr.block_id);
                 return -1;
             }
 
-            if (seaf_block_manager_commit_block (block_mgr, handle) < 0) {
-                seaf_warning ("Failed to commit block %s.\n", fsm->hdr.block_id);
+            if (winguf_block_manager_commit_block (block_mgr, handle) < 0) {
+                winguf_warning ("Failed to commit block %s.\n", fsm->hdr.block_id);
                 return -1;
             }
 
-            seaf_block_manager_block_handle_free (block_mgr, handle);
+            winguf_block_manager_block_handle_free (block_mgr, handle);
             /* Set this handle to invalid. */
             fsm->handle = NULL;
 
@@ -695,13 +695,13 @@ recv_blocks (ThreadData *tdata)
         if (rc < 0 && errno == EINTR) {
             continue;
         } else if (rc < 0) {
-            seaf_warning ("select error: %s.\n", strerror(errno));
+            winguf_warning ("select error: %s.\n", strerror(errno));
             goto error;
         }
 
 #ifdef RECVBLOCK_PROC
         if (rc == 0) {
-            seaf_warning ("Recv block timeout.\n");
+            winguf_warning ("Recv block timeout.\n");
             goto error;
         }
 #endif
@@ -725,7 +725,7 @@ recv_blocks (ThreadData *tdata)
             char buf[1];
             int n = piperead (tdata->task_pipe[0], buf, sizeof(buf));
             g_assert (n == 0);
-            seaf_debug ("Task pipe closed. Worker thread exits now.\n");
+            winguf_debug ("Task pipe closed. Worker thread exits now.\n");
             goto error;
         }
     }
@@ -737,8 +737,8 @@ error:
     if (fsm->tdata->encrypt_channel && fsm->enc_init)
         EVP_CIPHER_CTX_cleanup (&fsm->ctx);
     if (fsm->handle) {
-        seaf_block_manager_close_block (seaf->block_mgr, fsm->handle);
-        seaf_block_manager_block_handle_free (seaf->block_mgr, fsm->handle);
+        winguf_block_manager_close_block (winguf->block_mgr, fsm->handle);
+        winguf_block_manager_block_handle_free (winguf->block_mgr, fsm->handle);
     }
     g_free (fsm);
     return -1;
@@ -757,7 +757,7 @@ master_block_proc_start (CcnetProcessor *processor,
 {
     GString *buf;
     if (!tx_task || !tx_task->session_token) {
-        seaf_warning ("transfer task not set.\n");
+        winguf_warning ("transfer task not set.\n");
         return -1;
     }
 
@@ -804,19 +804,19 @@ static void* do_transfer(void *vtdata)
     CcnetPeer *peer = tdata->peer;
 
     if (peer->addr_str == NULL) {
-        seaf_warning ("peer address is NULL\n");
+        winguf_warning ("peer address is NULL\n");
         tdata->thread_ret = -1;
         goto out;
     }
 
     if (sock_pton(peer->addr_str, tdata->port, &addr) < 0) {
-        seaf_warning ("wrong address format %s\n", peer->addr_str);
+        winguf_warning ("wrong address format %s\n", peer->addr_str);
         tdata->thread_ret = -1;
         goto out;
     }
 
     if ((data_fd = socket(sa->sa_family, SOCK_STREAM, 0)) < 0) {
-        seaf_warning ("socket error: %s\n", strerror(errno));
+        winguf_warning ("socket error: %s\n", strerror(errno));
         tdata->thread_ret = -1;
         goto out;
     }
@@ -849,7 +849,7 @@ static void* do_transfer(void *vtdata)
 #endif
 
     if (connect(data_fd, sa, sa_len) < 0) {
-        seaf_warning ("connect error: %s\n", strerror(errno));
+        winguf_warning ("connect error: %s\n", strerror(errno));
         evutil_closesocket (data_fd);
         tdata->thread_ret = -1;
         goto out;
@@ -857,7 +857,7 @@ static void* do_transfer(void *vtdata)
 
     int token_len = strlen(tdata->token) + 1;
     if (sendn (data_fd, tdata->token, token_len) != token_len) {
-        seaf_warning ("send connection token error: %s\n", strerror(errno));
+        winguf_warning ("send connection token error: %s\n", strerror(errno));
         evutil_closesocket (data_fd);
         tdata->thread_ret = -1;
         goto out;
@@ -888,29 +888,29 @@ get_port (CcnetProcessor *processor, char *content, int clen)
     CcnetPeer *peer = NULL;
 
     if (content[clen-1] != '\0') {
-        seaf_warning ("Bad port and token\n");
+        winguf_warning ("Bad port and token\n");
         goto fail;
     }
 
     p = strchr (content, '\t');
     if (!p) {
-        seaf_warning ("Bad port and token\n");
+        winguf_warning ("Bad port and token\n");
         goto fail;
     }
 
     *p = '\0';
     port_str = content; token = p + 1;
 
-    peer = ccnet_get_peer (seaf->ccnetrpc_client, processor->peer_id);
+    peer = ccnet_get_peer (winguf->ccnetrpc_client, processor->peer_id);
     if (!peer) {
-        seaf_warning ("Invalid peer %s.\n", processor->peer_id);
+        winguf_warning ("Invalid peer %s.\n", processor->peer_id);
         goto fail;
     }
     /* Store peer address so that we don't need to call ccnet_get_peer()
      * in the worker thread later.
      */
     if (ccnet_pipe (tdata->task_pipe) < 0) {
-        seaf_warning ("failed to create task pipe.\n");
+        winguf_warning ("failed to create task pipe.\n");
         goto fail;
     }
     
@@ -922,7 +922,7 @@ get_port (CcnetProcessor *processor, char *content, int clen)
         generate_encrypt_key (tdata, peer);
 
     thread_data_ref (tdata);
-    ccnet_job_manager_schedule_job (seaf->job_mgr,
+    ccnet_job_manager_schedule_job (winguf->job_mgr,
                                     do_transfer,
                                     thread_done,
                                     tdata);
@@ -978,7 +978,7 @@ process_block_bitmap (CcnetProcessor *processor, char *content, int clen)
     USE_PRIV;
 
     if (proc->block_bitmap.byteCount < priv->bm_offset + clen) {
-        seaf_warning ("Received block bitmap is too large.\n");
+        winguf_warning ("Received block bitmap is too large.\n");
         ccnet_processor_send_update (processor, SC_SHUTDOWN, SS_SHUTDOWN,
                                      NULL, 0);
         ccnet_processor_done (processor, FALSE);
@@ -1014,7 +1014,7 @@ verify_session_token (CcnetProcessor *processor, char *ret_repo_id,
     }
 
     char *session_token = argv[0];
-    if (seaf_token_manager_verify_token (seaf->token_mgr,
+    if (winguf_token_manager_verify_token (winguf->token_mgr,
                                          NULL,
                                          processor->peer_id,
                                          session_token, ret_repo_id) < 0) {
@@ -1060,9 +1060,9 @@ accept_connection (evutil_socket_t connfd, void *vdata)
     if (connfd < 0)
         goto fail;
 
-    peer = ccnet_get_peer (seaf->ccnetrpc_client, processor->peer_id);
+    peer = ccnet_get_peer (winguf->ccnetrpc_client, processor->peer_id);
     if (!peer) {
-        seaf_warning ("Invalid peer %s.\n", processor->peer_id);
+        winguf_warning ("Invalid peer %s.\n", processor->peer_id);
         evutil_closesocket (tdata->data_fd);
         goto fail;
     }
@@ -1073,7 +1073,7 @@ accept_connection (evutil_socket_t connfd, void *vdata)
     tdata->state = READY;
 
     if (ccnet_pipe (tdata->task_pipe) < 0) {
-        seaf_warning ("failed to create task pipe.\n");
+        winguf_warning ("failed to create task pipe.\n");
         evutil_closesocket (tdata->data_fd);
         goto fail;
     }
@@ -1084,7 +1084,7 @@ accept_connection (evutil_socket_t connfd, void *vdata)
 
     /* Don't need to ref thread data again. We're already holding one.
      */
-    ccnet_job_manager_schedule_job (seaf->job_mgr,
+    ccnet_job_manager_schedule_job (winguf->job_mgr,
                                     do_passive_transfer,
                                     thread_done,
                                     tdata);
@@ -1107,11 +1107,11 @@ send_port (CcnetProcessor *processor)
     char *token = NULL;
     int len;
 
-    token = seaf_listen_manager_generate_token (seaf->listen_mgr);
-    if (seaf_listen_manager_register_token (seaf->listen_mgr, token,
+    token = winguf_listen_manager_generate_token (winguf->listen_mgr);
+    if (winguf_listen_manager_register_token (winguf->listen_mgr, token,
                         (ConnAcceptedCB)accept_connection,
                         priv->tdata, TOKEN_TIMEOUT) < 0) {
-        seaf_warning ("failed to register token\n");
+        winguf_warning ("failed to register token\n");
         g_free (token);
         ccnet_processor_send_response (processor, SC_SHUTDOWN, SS_SHUTDOWN,
                                        NULL, 0);
@@ -1123,7 +1123,7 @@ send_port (CcnetProcessor *processor)
      */
     thread_data_ref (priv->tdata);
 
-    len = snprintf (buf, sizeof(buf), "%d\t%s", seaf->listen_mgr->port, token);
+    len = snprintf (buf, sizeof(buf), "%d\t%s", winguf->listen_mgr->port, token);
     ccnet_processor_send_response (processor,
                                    SC_SEND_PORT, SS_SEND_PORT,
                                    buf, len+1);
@@ -1146,7 +1146,7 @@ check_block_list (void *vtdata)
     block_id = block_list;
     for (i = 0; i < n_blocks; ++i) {
         block_id[40] = '\0';
-        if (seaf_block_manager_block_exists(seaf->block_mgr, block_id))
+        if (winguf_block_manager_block_exists(winguf->block_mgr, block_id))
             BitfieldAdd (&tdata->bitmap, i);
         block_id += 41;
     }
@@ -1182,7 +1182,7 @@ check_block_list_done (void *vtdata)
             tdata->checking_bl = TRUE;
             tdata->blinfo = blinfo;
             thread_data_ref (tdata);
-            ccnet_job_manager_schedule_job (seaf->job_mgr,
+            ccnet_job_manager_schedule_job (winguf->job_mgr,
                                             check_block_list,
                                             check_block_list_done,
                                             tdata);
@@ -1199,7 +1199,7 @@ process_block_list (CcnetProcessor *processor, char *content, int clen)
     int n_blocks;
 
     if (clen % 41 != 0) {
-        seaf_warning ("Bad block list.\n");
+        winguf_warning ("Bad block list.\n");
         ccnet_processor_send_response (processor, SC_BAD_BL, SS_BAD_BL, NULL, 0);
         ccnet_processor_done (processor, FALSE);
         return;
@@ -1237,7 +1237,7 @@ process_block_list (CcnetProcessor *processor, char *content, int clen)
         tdata->checking_bl = TRUE;
         tdata->blinfo = blinfo;
         thread_data_ref (tdata);
-        ccnet_job_manager_schedule_job (seaf->job_mgr,
+        ccnet_job_manager_schedule_job (winguf->job_mgr,
                                         check_block_list,
                                         check_block_list_done,
                                         tdata);

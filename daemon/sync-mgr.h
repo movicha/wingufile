@@ -84,7 +84,7 @@ struct _SyncTask {
 struct _SeafileSession;
 
 struct _SeafSyncManager {
-    struct _SeafileSession   *seaf;
+    struct _SeafileSession   *winguf;
 
     GHashTable *sync_infos;
     GQueue     *sync_tasks;
@@ -96,13 +96,13 @@ struct _SeafSyncManager {
     SeafSyncManagerPriv *priv;
 };
 
-SeafSyncManager* seaf_sync_manager_new (struct _SeafileSession *seaf);
+SeafSyncManager* winguf_sync_manager_new (struct _SeafileSession *winguf);
 
-int seaf_sync_manager_init (SeafSyncManager *mgr);
-int seaf_sync_manager_start (SeafSyncManager *mgr);
+int winguf_sync_manager_init (SeafSyncManager *mgr);
+int winguf_sync_manager_start (SeafSyncManager *mgr);
 
 int
-seaf_sync_manager_add_sync_task (SeafSyncManager *mgr,
+winguf_sync_manager_add_sync_task (SeafSyncManager *mgr,
                                  const char *repo_id,
                                  const char *dest_id,
                                  const char *token,
@@ -110,22 +110,22 @@ seaf_sync_manager_add_sync_task (SeafSyncManager *mgr,
                                  GError **error);
 
 void
-seaf_sync_manager_cancel_sync_task (SeafSyncManager *mgr,
+winguf_sync_manager_cancel_sync_task (SeafSyncManager *mgr,
                                     const char *repo_id);
 
 
 SyncInfo *
-seaf_sync_manager_get_sync_info (SeafSyncManager *mgr,
+winguf_sync_manager_get_sync_info (SeafSyncManager *mgr,
                                  const char *repo_id);
 
 int
-seaf_sync_manager_disable_auto_sync (SeafSyncManager *mgr);
+winguf_sync_manager_disable_auto_sync (SeafSyncManager *mgr);
 
 int
-seaf_sync_manager_enable_auto_sync (SeafSyncManager *mgr);
+winguf_sync_manager_enable_auto_sync (SeafSyncManager *mgr);
 
 int
-seaf_sync_manager_is_auto_sync_enabled (SeafSyncManager *mgr);
+winguf_sync_manager_is_auto_sync_enabled (SeafSyncManager *mgr);
 
 const char *
 sync_error_to_str (int error);

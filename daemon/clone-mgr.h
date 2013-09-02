@@ -61,28 +61,28 @@ const char *
 clone_task_error_to_str (int error);
 
 struct _SeafCloneManager {
-    struct _SeafileSession  *seaf;
+    struct _SeafileSession  *winguf;
     sqlite3                 *db;
     GHashTable              *tasks;
     struct CcnetTimer       *check_timer;
 };
 
 SeafCloneManager *
-seaf_clone_manager_new (struct _SeafileSession *session);
+winguf_clone_manager_new (struct _SeafileSession *session);
 
 int
-seaf_clone_manager_init (SeafCloneManager *mgr);
+winguf_clone_manager_init (SeafCloneManager *mgr);
 
 int
-seaf_clone_manager_start (SeafCloneManager *mgr);
+winguf_clone_manager_start (SeafCloneManager *mgr);
 
 char *
-seaf_clone_manager_gen_default_worktree (SeafCloneManager *mgr,
+winguf_clone_manager_gen_default_worktree (SeafCloneManager *mgr,
                                          const char *worktree_parent,
                                          const char *repo_name);
 
 char *
-seaf_clone_manager_add_task (SeafCloneManager *mgr, 
+winguf_clone_manager_add_task (SeafCloneManager *mgr, 
                              const char *repo_id,
                              const char *peer_id,
                              const char *repo_name,
@@ -96,12 +96,12 @@ seaf_clone_manager_add_task (SeafCloneManager *mgr,
                              GError **error);
 
 /*
- * Similar to seaf_clone_manager_add_task. 
+ * Similar to winguf_clone_manager_add_task. 
  * But create a new dir for worktree under @wt_parent.
  * The semantics is to "download" the repo into @wt_parent.
  */
 char *
-seaf_clone_manager_add_download_task (SeafCloneManager *mgr, 
+winguf_clone_manager_add_download_task (SeafCloneManager *mgr, 
                                       const char *repo_id,
                                       const char *peer_id,
                                       const char *repo_name,
@@ -115,18 +115,18 @@ seaf_clone_manager_add_download_task (SeafCloneManager *mgr,
                                       GError **error);
 
 int
-seaf_clone_manager_cancel_task (SeafCloneManager *mgr,
+winguf_clone_manager_cancel_task (SeafCloneManager *mgr,
                                 const char *repo_id);
 
 int
-seaf_clone_manager_remove_task (SeafCloneManager *mgr,
+winguf_clone_manager_remove_task (SeafCloneManager *mgr,
                                 const char *repo_id);
 
 CloneTask *
-seaf_clone_manager_get_task (SeafCloneManager *mgr,
+winguf_clone_manager_get_task (SeafCloneManager *mgr,
                              const char *repo_id);
 
 GList *
-seaf_clone_manager_get_tasks (SeafCloneManager *mgr);
+winguf_clone_manager_get_tasks (SeafCloneManager *mgr);
 
 #endif

@@ -188,7 +188,7 @@ transition_state_to_error (TransferTask *task, int task_errno);
 struct _SeafileSession;
 
 struct _SeafTransferManager {
-    struct _SeafileSession   *seaf;
+    struct _SeafileSession   *winguf;
     sqlite3         *db;
 
     GHashTable      *download_tasks;
@@ -206,12 +206,12 @@ struct _SeafTransferManager {
 
 typedef struct _SeafTransferManager SeafTransferManager;
 
-SeafTransferManager *seaf_transfer_manager_new (struct _SeafileSession *seaf);
+SeafTransferManager *winguf_transfer_manager_new (struct _SeafileSession *winguf);
 
-int seaf_transfer_manager_start (SeafTransferManager *manager);
+int winguf_transfer_manager_start (SeafTransferManager *manager);
 
 char *
-seaf_transfer_manager_add_download (SeafTransferManager *manager,
+winguf_transfer_manager_add_download (SeafTransferManager *manager,
                                     const char *repo_id,
                                     const char *peer_id,
                                     const char *from_branch,
@@ -220,7 +220,7 @@ seaf_transfer_manager_add_download (SeafTransferManager *manager,
                                     GError **error);
 
 char *
-seaf_transfer_manager_add_upload (SeafTransferManager *manager,
+winguf_transfer_manager_add_upload (SeafTransferManager *manager,
                                   const char *repo_id,
                                   const char *peer_id,
                                   const char *from_branch,
@@ -229,27 +229,27 @@ seaf_transfer_manager_add_upload (SeafTransferManager *manager,
                                   GError **error);
 
 GList*
-seaf_transfer_manager_get_upload_tasks (SeafTransferManager *manager);
+winguf_transfer_manager_get_upload_tasks (SeafTransferManager *manager);
 
 GList*
-seaf_transfer_manager_get_download_tasks (SeafTransferManager *manager);
+winguf_transfer_manager_get_download_tasks (SeafTransferManager *manager);
 
 /* find running tranfer of a repo */
 TransferTask*
-seaf_transfer_manager_find_transfer_by_repo (SeafTransferManager *manager,
+winguf_transfer_manager_find_transfer_by_repo (SeafTransferManager *manager,
                                              const char *repo_id);
 
 void
-seaf_transfer_manager_remove_task (SeafTransferManager *manager,
+winguf_transfer_manager_remove_task (SeafTransferManager *manager,
                                    const char *tx_id,
                                    int task_type);
 
 void
-seaf_transfer_manager_cancel_task (SeafTransferManager *manager,
+winguf_transfer_manager_cancel_task (SeafTransferManager *manager,
                                    const char *tx_id,
                                    int task_type);
 
 GList *
-seaf_transfer_manager_get_clone_heads (SeafTransferManager *mgr);
+winguf_transfer_manager_get_clone_heads (SeafTransferManager *mgr);
 
 #endif

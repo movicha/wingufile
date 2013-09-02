@@ -7,6 +7,6 @@ ccnet_servtool=ccnet-servtool
 ccnet_tool=ccnet-tool
 
 wingufile_dir=${top_srcdir}
-seaf_daemon=${wingufile_dir}/daemon/seaf-daemon
-seaf_server=${wingufile_dir}/server/seaf-server
-seaf_monitor=${wingufile_dir}/monitor/seaf-mon
+winguf_daemon=${wingufile_dir}/daemon/winguf-daemon
+winguf_server=${wingufile_dir}/server/winguf-server
+winguf_monitor=${wingufile_dir}/monitor/winguf-mon

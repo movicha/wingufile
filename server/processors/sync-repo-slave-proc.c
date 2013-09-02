@@ -82,7 +82,7 @@ sync_repo_slave_start (CcnetProcessor *processor, int argc, char **argv)
 
     /* send the head commit of the branch */
     if (ccnet_processor_thread_create (processor, 
-                                       seaf->job_mgr,
+                                       winguf->job_mgr,
                                        send_repo_branch_info,
                                        thread_done,
                                        processor) < 0) {
@@ -102,10 +102,10 @@ send_repo_branch_info (void *vprocessor)
 {
     CcnetProcessor *processor = vprocessor;
     SeafRepo *repo;
-    SeafBranch *seaf_branch;
+    SeafBranch *winguf_branch;
     USE_PRIV;
     
-    repo = seaf_repo_manager_get_repo_ex (seaf->repo_mgr, priv->repo_id);
+    repo = winguf_repo_manager_get_repo_ex (winguf->repo_mgr, priv->repo_id);
     if (!repo) {
         priv->rsp_code = g_strdup (SC_NO_REPO);
         priv->rsp_msg = g_strdup (SS_NO_REPO);
@@ -116,11 +116,11 @@ send_repo_branch_info (void *vprocessor)
         return vprocessor;
     }
 
-    seaf_branch = seaf_branch_manager_get_branch (seaf->branch_mgr,
+    winguf_branch = winguf_branch_manager_get_branch (winguf->branch_mgr,
                                                   priv->repo_id,
                                                   priv->branch_name);
-    if (!seaf_branch) {
-        seaf_repo_unref (repo);
+    if (!winguf_branch) {
+        winguf_repo_unref (repo);
         priv->rsp_code = g_strdup (SC_NO_BRANCH);
         priv->rsp_msg = g_strdup (SS_NO_BRANCH);
         return vprocessor;
@@ -128,10 +128,10 @@ send_repo_branch_info (void *vprocessor)
 
     priv->rsp_code = g_strdup (SC_COMMIT_ID);
     priv->rsp_msg = g_strdup (SS_COMMIT_ID);
-    memcpy (priv->commit_id, seaf_branch->commit_id, 41);
+    memcpy (priv->commit_id, winguf_branch->commit_id, 41);
 
-    seaf_repo_unref (repo);
-    seaf_branch_unref (seaf_branch);
+    winguf_repo_unref (repo);
+    winguf_branch_unref (winguf_branch);
 
     return vprocessor;
 }

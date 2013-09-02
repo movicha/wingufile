@@ -58,8 +58,8 @@ start (CcnetProcessor *processor, int argc, char **argv)
     char *hostname;
     GString *buf = g_string_new("");
 
-    hostname = hostname_from_service_url (seaf->session->base.service_url);
-    g_string_printf (buf, "%s:%d\n", hostname, seaf->listen_mgr->port);
+    hostname = hostname_from_service_url (winguf->session->base.service_url);
+    g_string_printf (buf, "%s:%d\n", hostname, winguf->listen_mgr->port);
     g_free (hostname);
 
     ccnet_processor_send_response (processor, SC_OK, SS_OK, buf->str, buf->len+1);

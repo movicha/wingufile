@@ -3,12 +3,12 @@
 
 #define WINGUFILE_DOMAIN g_quark_from_string("wingufile")
 
-#ifndef seaf_warning
-#define seaf_warning(fmt, ...) g_warning("%s(%d): " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+#ifndef winguf_warning
+#define winguf_warning(fmt, ...) g_warning("%s(%d): " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 #endif
 
-#ifndef seaf_message
-#define seaf_message(fmt, ...) g_message("%s(%d): " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
+#ifndef winguf_message
+#define winguf_message(fmt, ...) g_message("%s(%d): " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 #endif
 
 
@@ -32,8 +32,8 @@ void wingufile_debug_impl (SeafileDebugFlags flag, const gchar *format, ...);
 
 #ifdef DEBUG_FLAG
 
-#undef seaf_debug
-#define seaf_debug(fmt, ...)  \
+#undef winguf_debug
+#define winguf_debug(fmt, ...)  \
     wingufile_debug_impl (DEBUG_FLAG, "%.10s(%d): " fmt, __FILE__, __LINE__, ##__VA_ARGS__)
 
 #endif  /* DEBUG_FLAG */

@@ -196,7 +196,7 @@ diff_commits (SeafCommit *commit1, SeafCommit *commit2, GList **results)
     opts.dst_index = NULL;
 
     if (unpack_trees(2, t, &opts) < 0) {
-        seaf_warning ("failed to unpack trees.\n");
+        winguf_warning ("failed to unpack trees.\n");
         return -1;
     }
 
@@ -276,18 +276,18 @@ diff_merge (SeafCommit *merge, GList **results)
     g_assert (*results == NULL);
     g_assert (merge->parent_id != NULL && merge->second_parent_id != NULL);
 
-    parent1 = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    parent1 = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                               merge->parent_id);
     if (!parent1) {
-        seaf_warning ("failed to find commit %s.\n", merge->parent_id);
+        winguf_warning ("failed to find commit %s.\n", merge->parent_id);
         return -1;
     }
 
-    parent2 = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    parent2 = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                               merge->second_parent_id);
     if (!parent2) {
-        seaf_warning ("failed to find commit %s.\n", merge->second_parent_id);
-        seaf_commit_unref (parent1);
+        winguf_warning ("failed to find commit %s.\n", merge->second_parent_id);
+        winguf_commit_unref (parent1);
         return -1;
     }
 
@@ -295,8 +295,8 @@ diff_merge (SeafCommit *merge, GList **results)
     fill_tree_descriptor(&t[1], parent1->root_id);
     fill_tree_descriptor(&t[2], parent2->root_id);
 
-    seaf_commit_unref (parent1);
-    seaf_commit_unref (parent2);
+    winguf_commit_unref (parent1);
+    winguf_commit_unref (parent2);
 
     /* Empty index */
     memset(&istate, 0, sizeof(istate));
@@ -311,7 +311,7 @@ diff_merge (SeafCommit *merge, GList **results)
     opts.dst_index = NULL;
 
     if (unpack_trees(3, t, &opts) < 0) {
-        seaf_warning ("failed to unpack trees.\n");
+        winguf_warning ("failed to unpack trees.\n");
         return -1;
     }
 

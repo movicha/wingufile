@@ -111,7 +111,7 @@ send_fs_object (CcnetProcessor *processor, char *object_id)
     ObjectPack *pack = NULL;
     int pack_size;
 
-    if (seaf_obj_store_read_obj (seaf->fs_mgr->obj_store,
+    if (winguf_obj_store_read_obj (winguf->fs_mgr->obj_store,
                                  object_id, (void**)&data, &len) < 0) {
         g_warning ("Failed to read fs object %s.\n", object_id);
         goto fail;
@@ -142,14 +142,14 @@ send_fs_object (CcnetProcessor *processor, char *object_id)
                                              (char *)pack + offset, n);
             }
 
-            seaf_debug ("Sent object %s segment<total = %d, offset = %d, n = %d>\n",
+            winguf_debug ("Sent object %s segment<total = %d, offset = %d, n = %d>\n",
                         object_id, pack_size, offset, n);
 
             offset += n;
         }
     }
 
-    seaf_debug ("Send fs object %.8s.\n", object_id);
+    winguf_debug ("Send fs object %.8s.\n", object_id);
 
     g_free (data);
     free (pack);
@@ -238,7 +238,7 @@ handle_response (CcnetProcessor *processor,
             send_fs_objects (processor, content, clen);
             return;
         } else if (strncmp(code, SC_END, 3) == 0) {
-            seaf_debug ("Send fs objects end.\n");
+            winguf_debug ("Send fs objects end.\n");
             ccnet_processor_done (processor, TRUE);
             return;
         }

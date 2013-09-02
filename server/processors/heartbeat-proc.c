@@ -82,7 +82,7 @@ release_resource(CcnetProcessor *processor)
     if (priv->block_metadata_new)
         free_md_list (priv->block_metadata_new);
 
-    g_signal_handlers_disconnect_by_func (seaf->block_mgr, on_block_added, processor);
+    g_signal_handlers_disconnect_by_func (winguf->block_mgr, on_block_added, processor);
     ccnet_timer_free (&priv->flush_timer);
 
     CCNET_PROCESSOR_CLASS (wingufile_heartbeat_proc_parent_class)->release_resource (processor);
@@ -139,7 +139,7 @@ handle_response (CcnetProcessor *processor,
             ccnet_processor_done (processor, FALSE);
         }
 
-        g_signal_connect (seaf->block_mgr, "block-added",
+        g_signal_connect (winguf->block_mgr, "block-added",
                           (GCallback)on_block_added,
                           processor);
 
@@ -192,7 +192,7 @@ collect_block_sizes (void *vprocessor)
     GList *metadata_list;
     USE_PRIV;
 
-    metadata_list = seaf_block_manager_get_all_block_metadata (seaf->block_mgr);
+    metadata_list = winguf_block_manager_get_all_block_metadata (winguf->block_mgr);
     /* if (!metadata_list) { */
     /*     ccnet_processor_thread_done (processor, -1, NULL); */
     /*     return NULL; */
@@ -229,7 +229,7 @@ on_block_added (SeafBlockManager *block_mgr,
     BlockMetadata *md;
     USE_PRIV;
 
-    md = seaf_block_manager_stat_block (block_mgr, block_id);
+    md = winguf_block_manager_stat_block (block_mgr, block_id);
     if (!md) {
         g_warning ("[heartbeat] Failed to stat block %s\n", block_id);
         return;

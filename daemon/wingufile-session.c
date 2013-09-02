@@ -24,7 +24,7 @@
 #include "wingufile-session.h"
 #include "wingufile-config.h"
 #include "vc-utils.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 #include "gc-core.h"
 #include "log.h"
 
@@ -121,39 +121,39 @@ wingufile_session_new(const char *wingufile_dir,
     }
 
     session = g_object_new (WINGUFILE_TYPE_SESSION, NULL);
-    session->seaf_dir = abs_wingufile_dir;
+    session->winguf_dir = abs_wingufile_dir;
     session->tmp_file_dir = tmp_file_dir;
     session->worktree_dir = abs_worktree_dir;
     session->session = ccnet_session;
     session->config_db = config_db;
 
-    session->fs_mgr = seaf_fs_manager_new (session, abs_wingufile_dir);
+    session->fs_mgr = winguf_fs_manager_new (session, abs_wingufile_dir);
     if (!session->fs_mgr)
         goto onerror;
-    session->block_mgr = seaf_block_manager_new (session, abs_wingufile_dir);
+    session->block_mgr = winguf_block_manager_new (session, abs_wingufile_dir);
     if (!session->block_mgr)
         goto onerror;
-    session->commit_mgr = seaf_commit_manager_new (session);
+    session->commit_mgr = winguf_commit_manager_new (session);
     if (!session->commit_mgr)
         goto onerror;
-    session->repo_mgr = seaf_repo_manager_new (session);
+    session->repo_mgr = winguf_repo_manager_new (session);
     if (!session->repo_mgr)
         goto onerror;
-    session->branch_mgr = seaf_branch_manager_new (session);
+    session->branch_mgr = winguf_branch_manager_new (session);
     if (!session->branch_mgr)
         goto onerror;
 
-    session->transfer_mgr = seaf_transfer_manager_new (session);
+    session->transfer_mgr = winguf_transfer_manager_new (session);
     if (!session->transfer_mgr)
         goto onerror;
-    session->clone_mgr = seaf_clone_manager_new (session);
+    session->clone_mgr = winguf_clone_manager_new (session);
     if (!session->clone_mgr)
         goto onerror;
 #ifndef SEAF_TOOL    
-    session->sync_mgr = seaf_sync_manager_new (session);
+    session->sync_mgr = winguf_sync_manager_new (session);
     if (!session->sync_mgr)
         goto onerror;
-    session->wt_monitor = seaf_wt_monitor_new (session);
+    session->wt_monitor = winguf_wt_monitor_new (session);
     if (!session->wt_monitor)
         goto onerror;
 
@@ -162,7 +162,7 @@ wingufile_session_new(const char *wingufile_dir,
     if (!session->ev_mgr)
         goto onerror;
     
-    session->mq_mgr = seaf_mq_manager_new (session);
+    session->mq_mgr = winguf_mq_manager_new (session);
     if (!session->mq_mgr)
         goto onerror;
 #endif    
@@ -189,16 +189,16 @@ wingufile_session_prepare (SeafileSession *session)
 {
     /* Start mq manager earlier, so that we can send notifications
      * when start repo manager. */
-    seaf_mq_manager_init (session->mq_mgr);
-    seaf_commit_manager_init (session->commit_mgr);
-    seaf_fs_manager_init (session->fs_mgr);
-    seaf_branch_manager_init (session->branch_mgr);
-    seaf_repo_manager_init (session->repo_mgr);
-    seaf_clone_manager_init (session->clone_mgr);
+    winguf_mq_manager_init (session->mq_mgr);
+    winguf_commit_manager_init (session->commit_mgr);
+    winguf_fs_manager_init (session->fs_mgr);
+    winguf_branch_manager_init (session->branch_mgr);
+    winguf_repo_manager_init (session->repo_mgr);
+    winguf_clone_manager_init (session->clone_mgr);
 #ifndef SEAF_TOOL    
-    seaf_sync_manager_init (session->sync_mgr);
+    winguf_sync_manager_init (session->sync_mgr);
 #endif
-    seaf_mq_manager_set_heartbeat_name (session->mq_mgr,
+    winguf_mq_manager_set_heartbeat_name (session->mq_mgr,
                                         "wingufile.heartbeat");
 }
 
@@ -211,21 +211,21 @@ recover_interrupted_merges ()
     char *err_msg = NULL;
     gboolean unused;
 
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1);
     for (ptr = repos; ptr; ptr = ptr->next) {
         repo = ptr->data;
 
-        if (seaf_repo_manager_get_merge_info (seaf->repo_mgr, repo->id, &info) < 0) {
+        if (winguf_repo_manager_get_merge_info (winguf->repo_mgr, repo->id, &info) < 0) {
             g_warning ("Failed to get merge info for repo %s.\n", repo->id);
             continue;
         }
 
         if (info.in_merge) {
-            seaf_message ("Recovering merge for repo %.8s.\n", repo->id);
+            winguf_message ("Recovering merge for repo %.8s.\n", repo->id);
 
             /* No one else is holding the lock. */
             pthread_mutex_lock (&repo->lock);
-            if (seaf_repo_merge (repo, "master", &err_msg, &unused) < 0) {
+            if (winguf_repo_merge (repo, "master", &err_msg, &unused) < 0) {
                 g_free (err_msg);
             }
             pthread_mutex_unlock (&repo->lock);
@@ -254,28 +254,28 @@ cleanup_job_done (void *vdata)
         return;
     }
 
-    if (seaf_transfer_manager_start (session->transfer_mgr) < 0) {
+    if (winguf_transfer_manager_start (session->transfer_mgr) < 0) {
         g_error ("Failed to start transfer manager.\n");
         return;
     }
 
-    if (seaf_sync_manager_start (session->sync_mgr) < 0) {
+    if (winguf_sync_manager_start (session->sync_mgr) < 0) {
         g_error ("Failed to start sync manager.\n");
         return;
     }
 
-    if (seaf_wt_monitor_start (session->wt_monitor) < 0) {
+    if (winguf_wt_monitor_start (session->wt_monitor) < 0) {
         g_error ("Failed to start worktree monitor.\n");
         return;
     }
 
     /* Must be after wt monitor, since we may add watch to repo worktree. */
-    if (seaf_repo_manager_start (session->repo_mgr) < 0) {
+    if (winguf_repo_manager_start (session->repo_mgr) < 0) {
         g_error ("Failed to start repo manager.\n");
         return;
     }
 
-    if (seaf_clone_manager_start (session->clone_mgr) < 0) {
+    if (winguf_clone_manager_start (session->clone_mgr) < 0) {
         g_error ("Failed to start clone manager.\n");
         return;
     }
@@ -287,7 +287,7 @@ cleanup_job_done (void *vdata)
 static void
 on_start_cleanup (SeafileSession *session)
 {
-    ccnet_job_manager_schedule_job (seaf->job_mgr, 
+    ccnet_job_manager_schedule_job (winguf->job_mgr, 
                                     on_start_cleanup_job, 
                                     cleanup_job_done,
                                     session);
@@ -297,7 +297,7 @@ void
 wingufile_session_start (SeafileSession *session)
 {
     /* MQ must be started to send heartbeat message to applet. */
-    if (seaf_mq_manager_start (session->mq_mgr) < 0) {
+    if (winguf_mq_manager_start (session->mq_mgr) < 0) {
         g_error ("Failed to start mq manager.\n");
         return;
     }

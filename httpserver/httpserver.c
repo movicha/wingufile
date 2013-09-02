@@ -33,7 +33,7 @@ static char *privkey = NULL;
 static char *pidfile = NULL;
 
 CcnetClient *ccnet_client;
-SeafileSession *seaf;
+SeafileSession *winguf;
 
 static const char *short_opts = "hvfc:d:t:l:g:G:D:k:P:";
 static const struct option long_opts[] = {
@@ -41,7 +41,7 @@ static const struct option long_opts[] = {
     { "version", no_argument, NULL, 'v', },
     { "foreground", no_argument, NULL, 'f', },
     { "ccnet-config-dir", required_argument, NULL, 'c', },
-    { "seafdir", required_argument, NULL, 'd', },
+    { "wingufdir", required_argument, NULL, 'd', },
     { "threads", required_argument, NULL, 't', },
     { "log", required_argument, NULL, 'l' },
     { "ccnet-debug-level", required_argument, NULL, 'g' },
@@ -82,7 +82,7 @@ write_pidfile (const char *pidfile_path)
 
     FILE *pidfile = g_fopen(pidfile_path, "w");
     if (!pidfile) {
-        seaf_warning ("Failed to fopen() pidfile %s: %s\n",
+        winguf_warning ("Failed to fopen() pidfile %s: %s\n",
                       pidfile_path, strerror(errno));
         return -1;
     }
@@ -90,7 +90,7 @@ write_pidfile (const char *pidfile_path)
     char buf[32];
     snprintf (buf, sizeof(buf), "%d\n", pid);
     if (fputs(buf, pidfile) < 0) {
-        seaf_warning ("Failed to write pidfile %s: %s\n",
+        winguf_warning ("Failed to write pidfile %s: %s\n",
                       pidfile_path, strerror(errno));
         fclose (pidfile);
         return -1;
@@ -122,7 +122,7 @@ load_httpserver_config (SeafileSession *session)
     } else {
         if (error->code != G_KEY_FILE_ERROR_KEY_NOT_FOUND &&
             error->code != G_KEY_FILE_ERROR_GROUP_NOT_FOUND) {
-            seaf_warning ("[conf] Error: failed to read the value of 'port'\n");
+            winguf_warning ("[conf] Error: failed to read the value of 'port'\n");
             exit (1);
         }
 
@@ -136,7 +136,7 @@ load_httpserver_config (SeafileSession *session)
     if (error) {
         if (error->code != G_KEY_FILE_ERROR_KEY_NOT_FOUND &&
             error->code != G_KEY_FILE_ERROR_GROUP_NOT_FOUND) {
-            seaf_warning ("[conf] Error: failed to read the value of 'https'\n");
+            winguf_warning ("[conf] Error: failed to read the value of 'https'\n");
             exit (1);
         }
 
@@ -149,7 +149,7 @@ load_httpserver_config (SeafileSession *session)
                                          "httpserver", "pemfile",
                                          &error);
         if (error) {
-            seaf_warning ("[conf] Error: https is true, "
+            winguf_warning ("[conf] Error: https is true, "
                           "but the value of pemfile is unknown\n");
             exit (1);
         }
@@ -158,7 +158,7 @@ load_httpserver_config (SeafileSession *session)
                                          "httpserver", "privkey",
                                          &error);
         if (error) {
-            seaf_warning ("[conf] Error: https is true, "
+            winguf_warning ("[conf] Error: https is true, "
                           "but the value of privkey is unknown\n");
             exit (1);
         }
@@ -314,27 +314,27 @@ main(int argc, char *argv[])
         return -1;
     }
 
-    seaf = wingufile_session_new (wingufile_dir, ccnet_client);
-    if (!seaf) {
+    winguf = wingufile_session_new (wingufile_dir, ccnet_client);
+    if (!winguf) {
         g_warning ("Failed to create wingufile session.\n");
         exit (1);
     }
-    if (wingufile_session_init(seaf) < 0)
+    if (wingufile_session_init(winguf) < 0)
         exit (1);
 
     if (temp_file_dir == NULL)
-        seaf->http_temp_dir = g_build_filename (seaf->seaf_dir, "httptemp", NULL);
+        winguf->http_temp_dir = g_build_filename (winguf->winguf_dir, "httptemp", NULL);
     else
-        seaf->http_temp_dir = g_strdup(temp_file_dir);
+        winguf->http_temp_dir = g_strdup(temp_file_dir);
 
-    seaf->client_pool = ccnet_client_pool_new (config_dir);
+    winguf->client_pool = ccnet_client_pool_new (config_dir);
 
-    load_httpserver_config (seaf);
+    load_httpserver_config (winguf);
     if (use_https) {
-        seaf_message ("port = %d, https = true, pemfile = %s, privkey = %s\n",
+        winguf_message ("port = %d, https = true, pemfile = %s, privkey = %s\n",
                       bind_port, pemfile, privkey);
     } else {
-        seaf_message ("port = %d, https = false\n", bind_port);
+        winguf_message ("port = %d, https = false\n", bind_port);
     }
 
     evbase = event_base_new();
@@ -370,7 +370,7 @@ main(int argc, char *argv[])
 
     if (pidfile) {
         if (write_pidfile (pidfile) < 0) {
-            seaf_message ("Failed to write pidfile\n");
+            winguf_message ("Failed to write pidfile\n");
             return -1;
         }
     }

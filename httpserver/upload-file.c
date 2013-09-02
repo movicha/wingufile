@@ -127,7 +127,7 @@ redirect_to_upload_error (evhtp_request_t *req,
     char *winguhub_url, *escaped_path, *escaped_fn = NULL;
     char url[1024];
 
-    winguhub_url = seaf->session->base.service_url;
+    winguhub_url = winguf->session->base.service_url;
     escaped_path = g_uri_escape_string (parent_dir, NULL, FALSE);
     if (filename) {
         escaped_fn = g_uri_escape_string (filename, NULL, FALSE);
@@ -158,7 +158,7 @@ redirect_to_update_error (evhtp_request_t *req,
     char *winguhub_url, *escaped_path;
     char url[1024];
 
-    winguhub_url = seaf->session->base.service_url;
+    winguhub_url = winguf->session->base.service_url;
     escaped_path = g_uri_escape_string (target_file, NULL, FALSE);
     snprintf(url, 1024, "%s/repo/update_error/%s?p=%s&err=%d",
              winguhub_url, repo_id, escaped_path, error_code);
@@ -181,7 +181,7 @@ redirect_to_success_page (evhtp_request_t *req,
     char *winguhub_url, *escaped_path;
     char url[1024];
 
-    winguhub_url = seaf->session->base.service_url;
+    winguhub_url = winguf->session->base.service_url;
     escaped_path = g_uri_escape_string (parent_dir, NULL, FALSE);
     snprintf(url, 1024, "%s/repo/%s?p=%s", winguhub_url, repo_id, escaped_path);
     g_free (escaped_path);
@@ -207,8 +207,8 @@ check_tmp_file_list (GList *tmp_files, int *error_code)
     for (ptr = tmp_files; ptr; ptr = ptr->next) {
         tmp_file = ptr->data;
 
-        if (seaf_stat (tmp_file, &st) < 0) {
-            seaf_warning ("[upload] Failed to stat temp file %s.\n", tmp_file);
+        if (winguf_stat (tmp_file, &st) < 0) {
+            winguf_warning ("[upload] Failed to stat temp file %s.\n", tmp_file);
             *error_code = ERROR_RECV;
             return FALSE;
         }
@@ -216,8 +216,8 @@ check_tmp_file_list (GList *tmp_files, int *error_code)
         total_size += (gint64)st.st_size;
     }
 
-    if (total_size > seaf->max_upload_size) {
-        seaf_warning ("[upload] File size is too large.\n");
+    if (total_size > winguf->max_upload_size) {
+        winguf_warning ("[upload] File size is too large.\n");
         *error_code = ERROR_SIZE;
         return FALSE;
     }
@@ -273,7 +273,7 @@ upload_cb(evhtp_request_t *req, void *arg)
         return;
 
     if (!fsm->files) {
-        seaf_warning ("[upload] No file uploaded.\n");
+        winguf_warning ("[upload] No file uploaded.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
@@ -281,7 +281,7 @@ upload_cb(evhtp_request_t *req, void *arg)
 
     parent_dir = g_hash_table_lookup (fsm->form_kvs, "parent_dir");
     if (!parent_dir) {
-        seaf_warning ("[upload] No parent dir given.\n");
+        winguf_warning ("[upload] No parent dir given.\n");
         evbuffer_add_printf(req->buffer_out, "Invalid URL.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
@@ -291,12 +291,12 @@ upload_cb(evhtp_request_t *req, void *arg)
     if (!check_tmp_file_list (fsm->files, &error_code))
         goto error;
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-threaded-rpcserver");
+                                                 "wingufserv-threaded-rpcserver");
 
     if (wingufile_check_quota (rpc_client, fsm->repo_id, NULL) < 0) {
-        seaf_warning ("[upload] Out of quota.\n");
+        winguf_warning ("[upload] Out of quota.\n");
         error_code = ERROR_QUOTA;
         goto error;
     }
@@ -355,7 +355,7 @@ upload_api_cb(evhtp_request_t *req, void *arg)
         return;
 
     if (!fsm->files) {
-        seaf_warning ("[upload] No file uploaded.\n");
+        winguf_warning ("[upload] No file uploaded.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
@@ -363,7 +363,7 @@ upload_api_cb(evhtp_request_t *req, void *arg)
 
     parent_dir = g_hash_table_lookup (fsm->form_kvs, "parent_dir");
     if (!parent_dir) {
-        seaf_warning ("[upload] No parent dir given.\n");
+        winguf_warning ("[upload] No parent dir given.\n");
         evbuffer_add_printf(req->buffer_out, "Invalid URL.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
@@ -373,12 +373,12 @@ upload_api_cb(evhtp_request_t *req, void *arg)
     if (!check_tmp_file_list (fsm->files, &error_code))
         goto error;
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-threaded-rpcserver");
+                                                 "wingufserv-threaded-rpcserver");
 
     if (wingufile_check_quota (rpc_client, fsm->repo_id, NULL) < 0) {
-        seaf_warning ("[upload] Out of quota.\n");
+        winguf_warning ("[upload] Out of quota.\n");
         error_code = ERROR_QUOTA;
         goto error;
     }
@@ -398,7 +398,7 @@ upload_api_cb(evhtp_request_t *req, void *arg)
     if (error) {
         if (error->code == POST_FILE_ERR_FILENAME) {
             error_code = ERROR_FILENAME;
-            seaf_warning ("[upload] Bad filename.\n");
+            winguf_warning ("[upload] Bad filename.\n");
         }
         g_clear_error (&error);
         goto error;
@@ -494,7 +494,7 @@ upload_ajax_cb(evhtp_request_t *req, void *arg)
         return;
 
     if (!fsm->files) {
-        seaf_warning ("[upload] No file uploaded.\n");
+        winguf_warning ("[upload] No file uploaded.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
@@ -502,7 +502,7 @@ upload_ajax_cb(evhtp_request_t *req, void *arg)
 
     parent_dir = g_hash_table_lookup (fsm->form_kvs, "parent_dir");
     if (!parent_dir) {
-        seaf_warning ("[upload] No parent dir given.\n");
+        winguf_warning ("[upload] No parent dir given.\n");
         evbuffer_add_printf(req->buffer_out, "Invalid URL.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
@@ -512,12 +512,12 @@ upload_ajax_cb(evhtp_request_t *req, void *arg)
     if (!check_tmp_file_list (fsm->files, &error_code))
         goto error;
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-threaded-rpcserver");
+                                                 "wingufserv-threaded-rpcserver");
 
     if (wingufile_check_quota (rpc_client, fsm->repo_id, NULL) < 0) {
-        seaf_warning ("[upload] Out of quota.\n");
+        winguf_warning ("[upload] Out of quota.\n");
         error_code = ERROR_QUOTA;
         goto error;
     }
@@ -537,7 +537,7 @@ upload_ajax_cb(evhtp_request_t *req, void *arg)
     if (error) {
         if (error->code == POST_FILE_ERR_FILENAME) {
             error_code = ERROR_FILENAME;
-            seaf_warning ("[upload] Bad filename.\n");
+            winguf_warning ("[upload] Bad filename.\n");
         }
         g_clear_error (&error);
         goto error;
@@ -612,7 +612,7 @@ update_cb(evhtp_request_t *req, void *arg)
         return;
 
     if (!fsm->files) {
-        seaf_warning ("[update] No file uploaded.\n");
+        winguf_warning ("[update] No file uploaded.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
@@ -620,7 +620,7 @@ update_cb(evhtp_request_t *req, void *arg)
 
     target_file = g_hash_table_lookup (fsm->form_kvs, "target_file");
     if (!target_file) {
-        seaf_warning ("[Update] No target file given.\n");
+        winguf_warning ("[Update] No target file given.\n");
         evbuffer_add_printf(req->buffer_out, "Invalid URL.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
@@ -635,12 +635,12 @@ update_cb(evhtp_request_t *req, void *arg)
 
     head_id = evhtp_kv_find (req->uri->query, "head");
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-threaded-rpcserver");
+                                                 "wingufserv-threaded-rpcserver");
 
     if (wingufile_check_quota (rpc_client, fsm->repo_id, NULL) < 0) {
-        seaf_warning ("[update] Out of quota.\n");
+        winguf_warning ("[update] Out of quota.\n");
         error_code = ERROR_QUOTA;
         goto error;
     }
@@ -658,7 +658,7 @@ update_cb(evhtp_request_t *req, void *arg)
             error_code = ERROR_NOT_EXIST;
         }
         if (error->message)
-            seaf_warning ("%s\n", error->message);
+            winguf_warning ("%s\n", error->message);
         g_clear_error (&error);
         goto error;
     }
@@ -695,7 +695,7 @@ update_api_cb(evhtp_request_t *req, void *arg)
         return;
 
     if (!fsm->files) {
-        seaf_warning ("[update] No file uploaded.\n");
+        winguf_warning ("[update] No file uploaded.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
@@ -703,7 +703,7 @@ update_api_cb(evhtp_request_t *req, void *arg)
 
     target_file = g_hash_table_lookup (fsm->form_kvs, "target_file");
     if (!target_file) {
-        seaf_warning ("[Update] No target file given.\n");
+        winguf_warning ("[Update] No target file given.\n");
         evbuffer_add_printf(req->buffer_out, "Invalid URL.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
@@ -718,12 +718,12 @@ update_api_cb(evhtp_request_t *req, void *arg)
 
     head_id = evhtp_kv_find (req->uri->query, "head");
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-threaded-rpcserver");
+                                                 "wingufserv-threaded-rpcserver");
 
     if (wingufile_check_quota (rpc_client, fsm->repo_id, NULL) < 0) {
-        seaf_warning ("[update] Out of quota.\n");
+        winguf_warning ("[update] Out of quota.\n");
         error_code = ERROR_QUOTA;
         goto error;
     }
@@ -744,7 +744,7 @@ update_api_cb(evhtp_request_t *req, void *arg)
             error_code = ERROR_NOT_EXIST;
         }
         if (error->message)
-            seaf_warning ("%s\n", error->message);
+            winguf_warning ("%s\n", error->message);
         g_clear_error (&error);
         goto error;
     }
@@ -838,7 +838,7 @@ update_ajax_cb(evhtp_request_t *req, void *arg)
         return;
 
     if (!fsm->files) {
-        seaf_warning ("[update] No file uploaded.\n");
+        winguf_warning ("[update] No file uploaded.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
@@ -846,7 +846,7 @@ update_ajax_cb(evhtp_request_t *req, void *arg)
 
     target_file = g_hash_table_lookup (fsm->form_kvs, "target_file");
     if (!target_file) {
-        seaf_warning ("[Update] No target file given.\n");
+        winguf_warning ("[Update] No target file given.\n");
         evbuffer_add_printf(req->buffer_out, "Invalid URL.\n");
         set_content_length_header (req);
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
@@ -861,12 +861,12 @@ update_ajax_cb(evhtp_request_t *req, void *arg)
 
     head_id = evhtp_kv_find (req->uri->query, "head");
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-threaded-rpcserver");
+                                                 "wingufserv-threaded-rpcserver");
 
     if (wingufile_check_quota (rpc_client, fsm->repo_id, NULL) < 0) {
-        seaf_warning ("[update] Out of quota.\n");
+        winguf_warning ("[update] Out of quota.\n");
         error_code = ERROR_QUOTA;
         goto error;
     }
@@ -887,7 +887,7 @@ update_ajax_cb(evhtp_request_t *req, void *arg)
             error_code = ERROR_NOT_EXIST;
         }
         if (error->message)
-            seaf_warning ("%s\n", error->message);
+            winguf_warning ("%s\n", error->message);
         g_clear_error (&error);
         goto error;
     }
@@ -1010,7 +1010,7 @@ get_mime_header_param_value (const char *param)
     first_quote = strchr (param, '\"');
     last_quote = strrchr (param, '\"');
     if (!first_quote || !last_quote || first_quote == last_quote) {
-        seaf_warning ("[upload] Invalid mime param %s.\n", param);
+        winguf_warning ("[upload] Invalid mime param %s.\n", param);
         return NULL;
     }
 
@@ -1026,7 +1026,7 @@ parse_mime_header (char *header, RecvFSM *fsm)
 
     colon = strchr (header, ':');
     if (!colon) {
-        seaf_warning ("[upload] bad mime header format.\n");
+        winguf_warning ("[upload] bad mime header format.\n");
         return -1;
     }
 
@@ -1037,12 +1037,12 @@ parse_mime_header (char *header, RecvFSM *fsm)
             *p = g_strstrip (*p);
 
         if (!params || g_strv_length (params) < 2) {
-            seaf_warning ("[upload] Too little params for mime header.\n");
+            winguf_warning ("[upload] Too little params for mime header.\n");
             g_strfreev (params);
             return -1;
         }
         if (strcasecmp (params[0], "form-data") != 0) {
-            seaf_warning ("[upload] Invalid Content-Disposition\n");
+            winguf_warning ("[upload] Invalid Content-Disposition\n");
             g_strfreev (params);
             return -1;
         }
@@ -1054,7 +1054,7 @@ parse_mime_header (char *header, RecvFSM *fsm)
             }
         }
         if (!fsm->input_name) {
-            seaf_warning ("[upload] No input-name given.\n");
+            winguf_warning ("[upload] No input-name given.\n");
             g_strfreev (params);
             return -1;
         }
@@ -1067,7 +1067,7 @@ parse_mime_header (char *header, RecvFSM *fsm)
                 }
             }
             if (!fsm->file_name) {
-                seaf_warning ("[upload] No filename given.\n");
+                winguf_warning ("[upload] No filename given.\n");
                 g_strfreev (params);
                 return -1;
             }
@@ -1084,7 +1084,7 @@ open_temp_file (RecvFSM *fsm)
     GString *temp_file = g_string_new (NULL);
 
     g_string_printf (temp_file, "%s/%sXXXXXX",
-                     seaf->http_temp_dir, get_basename(fsm->file_name));
+                     winguf->http_temp_dir, get_basename(fsm->file_name));
 
     fsm->fd = g_mkstemp (temp_file->str);
     if (fsm->fd < 0) {
@@ -1110,13 +1110,13 @@ recv_form_field (RecvFSM *fsm, gboolean *no_line)
     line = evbuffer_readln (fsm->line, &len, EVBUFFER_EOL_CRLF_STRICT);
     if (line != NULL) {
         if (strstr (line, fsm->boundary) != NULL) {
-            seaf_debug ("[upload] form field ends.\n");
+            winguf_debug ("[upload] form field ends.\n");
 
             g_free (fsm->input_name);
             fsm->input_name = NULL;
             fsm->state = RECV_HEADERS;
         } else {
-            seaf_debug ("[upload] form field is %s.\n", line);
+            winguf_debug ("[upload] form field is %s.\n", line);
 
             g_hash_table_insert (fsm->form_kvs,
                                  g_strdup(fsm->input_name),
@@ -1161,11 +1161,11 @@ recv_file_data (RecvFSM *fsm, gboolean *no_line)
          * no longer than 10240 bytes.
          */
         if (evbuffer_get_length (fsm->line) >= MAX_CONTENT_LINE) {
-            seaf_debug ("[upload] recv file data %d bytes.\n",
+            winguf_debug ("[upload] recv file data %d bytes.\n",
                      evbuffer_get_length(fsm->line));
             if (fsm->recved_crlf) {
                 if (writen (fsm->fd, "\r\n", 2) < 0) {
-                    seaf_warning ("[upload] Failed to write temp file: %s.\n",
+                    winguf_warning ("[upload] Failed to write temp file: %s.\n",
                                strerror(errno));
                     return EVHTP_RES_SERVERR;
                 }
@@ -1175,7 +1175,7 @@ recv_file_data (RecvFSM *fsm, gboolean *no_line)
             char *buf = g_new (char, size);
             evbuffer_remove (fsm->line, buf, size);
             if (writen (fsm->fd, buf, size) < 0) {
-                seaf_warning ("[upload] Failed to write temp file: %s.\n",
+                winguf_warning ("[upload] Failed to write temp file: %s.\n",
                            strerror(errno));
                 g_free (buf);
                 return EVHTP_RES_SERVERR;
@@ -1185,7 +1185,7 @@ recv_file_data (RecvFSM *fsm, gboolean *no_line)
         }
         *no_line = TRUE;
     } else if (strstr (line, fsm->boundary) != NULL) {
-        seaf_debug ("[upload] file data ends.\n");
+        winguf_debug ("[upload] file data ends.\n");
 
         add_uploaded_file (fsm);
 
@@ -1194,16 +1194,16 @@ recv_file_data (RecvFSM *fsm, gboolean *no_line)
         fsm->state = RECV_HEADERS;
         free (line);
     } else {
-        seaf_debug ("[upload] recv file data %d bytes.\n", len + 2);
+        winguf_debug ("[upload] recv file data %d bytes.\n", len + 2);
         if (fsm->recved_crlf) {
             if (writen (fsm->fd, "\r\n", 2) < 0) {
-                seaf_warning ("[upload] Failed to write temp file: %s.\n",
+                winguf_warning ("[upload] Failed to write temp file: %s.\n",
                            strerror(errno));
                 return EVHTP_RES_SERVERR;
             }
         }
         if (writen (fsm->fd, line, len) < 0) {
-            seaf_warning ("[upload] Failed to write temp file: %s.\n",
+            winguf_warning ("[upload] Failed to write temp file: %s.\n",
                        strerror(errno));
             free (line);
             return EVHTP_RES_SERVERR;
@@ -1245,7 +1245,7 @@ upload_read_cb (evhtp_request_t *req, evbuf_t *buf, void *arg)
     if (fsm->progress) {
         fsm->progress->uploaded += (gint64)evbuffer_get_length(buf);
 
-        seaf_debug ("progress: %lld/%lld\n",
+        winguf_debug ("progress: %lld/%lld\n",
                     fsm->progress->uploaded, fsm->progress->size);
     }
 
@@ -1260,9 +1260,9 @@ upload_read_cb (evhtp_request_t *req, evbuf_t *buf, void *arg)
         case RECV_INIT:
             line = evbuffer_readln (fsm->line, &len, EVBUFFER_EOL_CRLF_STRICT);
             if (line != NULL) {
-                seaf_debug ("[upload] boundary line: %s.\n", line);
+                winguf_debug ("[upload] boundary line: %s.\n", line);
                 if (!strstr (line, fsm->boundary)) {
-                    seaf_warning ("[upload] no boundary found in the first line.\n");
+                    winguf_warning ("[upload] no boundary found in the first line.\n");
                     free (line);
                     res = EVHTP_RES_BADREQ;
                     goto out;
@@ -1277,18 +1277,18 @@ upload_read_cb (evhtp_request_t *req, evbuf_t *buf, void *arg)
         case RECV_HEADERS:
             line = evbuffer_readln (fsm->line, &len, EVBUFFER_EOL_CRLF_STRICT);
             if (line != NULL) {
-                seaf_debug ("[upload] mime header line: %s.\n", line);
+                winguf_debug ("[upload] mime header line: %s.\n", line);
                 if (len == 0) {
                     /* Read an blank line, headers end. */
                     free (line);
                     if (g_strcmp0 (fsm->input_name, "file") == 0) {
                         if (open_temp_file (fsm) < 0) {
-                            seaf_warning ("[upload] Failed open temp file.\n");
+                            winguf_warning ("[upload] Failed open temp file.\n");
                             res = EVHTP_RES_SERVERR;
                             goto out;
                         }
                     }
-                    seaf_debug ("[upload] Start to recv %s.\n", fsm->input_name);
+                    winguf_debug ("[upload] Start to recv %s.\n", fsm->input_name);
                     fsm->state = RECV_CONTENT;
                 } else if (parse_mime_header (line, fsm) < 0) {
                     free (line);
@@ -1346,7 +1346,7 @@ get_http_header_param_value (const char *param)
 
     equal = strchr (param, '=');
     if (!equal) {
-        seaf_warning ("[upload] Invalid http header param %s.\n", param);
+        winguf_warning ("[upload] Invalid http header param %s.\n", param);
         return NULL;
     }
 
@@ -1363,7 +1363,7 @@ get_boundary (evhtp_headers_t *hdr)
 
     content_type = evhtp_kv_find (hdr, "Content-Type");
     if (!content_type) {
-        seaf_warning ("[upload] Missing Content-Type header\n");
+        winguf_warning ("[upload] Missing Content-Type header\n");
         return boundary;
     }
 
@@ -1372,12 +1372,12 @@ get_boundary (evhtp_headers_t *hdr)
         *p = g_strstrip (*p);
 
     if (!params || g_strv_length (params) < 2) {
-        seaf_warning ("[upload] Too little params Content-Type header\n");
+        winguf_warning ("[upload] Too little params Content-Type header\n");
         g_strfreev (params);
         return boundary;
     }
     if (strcasecmp (params[0], "multipart/form-data") != 0) {
-        seaf_warning ("[upload] Invalid Content-Type\n");
+        winguf_warning ("[upload] Invalid Content-Type\n");
         g_strfreev (params);
         return boundary;
     }
@@ -1390,7 +1390,7 @@ get_boundary (evhtp_headers_t *hdr)
     }
     g_strfreev (params);
     if (!boundary) {
-        seaf_warning ("[upload] boundary not given\n");
+        winguf_warning ("[upload] boundary not given\n");
     }
 
     return boundary;
@@ -1434,7 +1434,7 @@ get_progress_info (evhtp_request_t *req,
 
     content_len_str = evhtp_kv_find (hdr, "Content-Length");
     if (!content_len_str) {
-        seaf_warning ("[upload] Content-Length not found.\n");
+        winguf_warning ("[upload] Content-Length not found.\n");
         return -1;
     }
     *content_len = strtoll (content_len_str, NULL, 10);
@@ -1461,17 +1461,17 @@ upload_headers_cb (evhtp_request_t *req, evhtp_headers_t *hdr, void *arg)
     /* URL format: http://host:port/[upload|update]/<token>?X-Progress-ID=<uuid> */
     token = req->uri->path->file;
     if (!token) {
-        seaf_warning ("[upload] No token in url.\n");
+        winguf_warning ("[upload] No token in url.\n");
         err_msg = "Invalid URL";
         goto err;
     }
 
-    rpc_client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    rpc_client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                                  NULL,
-                                                 "seafserv-rpcserver");
+                                                 "wingufserv-rpcserver");
 
     if (check_access_token (rpc_client, token, &repo_id, &user) < 0) {
-        seaf_warning ("[upload] Invalid token.\n");
+        winguf_warning ("[upload] Invalid token.\n");
         err_msg = "Access denied";
         goto err;
     }
@@ -1556,14 +1556,14 @@ upload_progress_cb(evhtp_request_t *req, void *arg)
 
     progress_id = evhtp_kv_find (req->uri->query, "X-Progress-ID");
     if (!progress_id) {
-        seaf_warning ("[get pg] Progress id not found in url.\n");
+        winguf_warning ("[get pg] Progress id not found in url.\n");
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
     }
 
     callback = evhtp_kv_find (req->uri->query, "callback");
     if (!callback) {
-        seaf_warning ("[get pg] callback not found in url.\n");
+        winguf_warning ("[get pg] callback not found in url.\n");
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
     }
@@ -1573,7 +1573,7 @@ upload_progress_cb(evhtp_request_t *req, void *arg)
     pthread_mutex_unlock (&pg_lock);
 
     if (!progress) {
-        /* seaf_warning ("[get pg] No progress found for %s.\n", progress_id); */
+        /* winguf_warning ("[get pg] No progress found for %s.\n", progress_id); */
         evhtp_send_reply (req, EVHTP_RES_BADREQ);
         return;
     }
@@ -1585,7 +1585,7 @@ upload_progress_cb(evhtp_request_t *req, void *arg)
                             callback, progress->uploaded, progress->size);
     evbuffer_add (req->buffer_out, buf->str, buf->len);
 
-    seaf_debug ("JSONP: %s\n", buf->str);
+    winguf_debug ("JSONP: %s\n", buf->str);
 
     evhtp_send_reply (req, EVHTP_RES_OK);
     g_string_free (buf, TRUE);
@@ -1596,9 +1596,9 @@ upload_file_init (evhtp_t *htp)
 {
     evhtp_callback_t *cb;
 
-    if (g_mkdir_with_parents (seaf->http_temp_dir, 0777) < 0) {
-        seaf_warning ("Failed to create temp file dir %s.\n",
-                      seaf->http_temp_dir);
+    if (g_mkdir_with_parents (winguf->http_temp_dir, 0777) < 0) {
+        winguf_warning ("Failed to create temp file dir %s.\n",
+                      winguf->http_temp_dir);
         return -1;
     }
 

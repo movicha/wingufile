@@ -27,7 +27,7 @@ get_connection (RiakPriv *priv)
 
     connection = g_queue_pop_head (priv->conn_pool);
     if (!connection)
-        connection = seaf_riak_client_new (priv->host, priv->port);
+        connection = winguf_riak_client_new (priv->host, priv->port);
     pthread_mutex_unlock (&priv->lock);
     return connection;
 }
@@ -50,7 +50,7 @@ obj_backend_riak_read (ObjBackend *bend,
     RiakPriv *priv = bend->priv;
     int ret;
 
-    ret = seaf_riak_client_get (conn, priv->bucket, obj_id, data, len);
+    ret = winguf_riak_client_get (conn, priv->bucket, obj_id, data, len);
 
     return_connection (priv, conn);
     return ret;
@@ -66,7 +66,7 @@ obj_backend_riak_write (ObjBackend *bend,
     RiakPriv *priv = bend->priv;
     int ret;
 
-    ret = seaf_riak_client_put (conn, priv->bucket, obj_id, data, len,
+    ret = winguf_riak_client_put (conn, priv->bucket, obj_id, data, len,
                                 priv->n_write);
 
     return_connection (priv, conn);
@@ -81,7 +81,7 @@ obj_backend_riak_exists (ObjBackend *bend,
     RiakPriv *priv = bend->priv;
     gboolean ret;
 
-    ret = seaf_riak_client_query (conn, priv->bucket, obj_id);
+    ret = winguf_riak_client_query (conn, priv->bucket, obj_id);
 
     return_connection (priv, conn);
     return ret;
@@ -94,7 +94,7 @@ obj_backend_riak_delete (ObjBackend *bend,
     SeafRiakClient *conn = get_connection (bend->priv);
     RiakPriv *priv = bend->priv;
 
-    seaf_riak_client_delete (conn, priv->bucket, obj_id, priv->n_write);
+    winguf_riak_client_delete (conn, priv->bucket, obj_id, priv->n_write);
 
     return_connection (priv, conn);
 }
@@ -141,7 +141,7 @@ obj_backend_riak_new (const char *host,
                       const char *bucket,
                       const char *write_policy)
 {
-    seaf_warning ("Riak backend is not enabled.\n");
+    winguf_warning ("Riak backend is not enabled.\n");
     return NULL;
 }
 

@@ -10,7 +10,7 @@
 #include <ccnet.h>
 #include "net.h"
 #include "utils.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 #include "wingufile-session.h"
 #include "getcommit-v2-proc.h"
@@ -71,7 +71,7 @@ get_commit_start (CcnetProcessor *processor, int argc, char **argv)
     g_assert (task->session_token);
 
     if (!task->is_clone) {
-        master = seaf_branch_manager_get_branch (seaf->branch_mgr,
+        master = winguf_branch_manager_get_branch (winguf->branch_mgr,
                                                  task->repo_id,
                                                  "master");
         if (master != NULL)
@@ -94,7 +94,7 @@ get_commit_start (CcnetProcessor *processor, int argc, char **argv)
     ccnet_processor_send_request (processor, buf->str);
     g_string_free (buf, TRUE);
 
-    seaf_branch_unref (master);
+    winguf_branch_unref (master);
 
     return 0;
 }
@@ -102,7 +102,7 @@ get_commit_start (CcnetProcessor *processor, int argc, char **argv)
 static int
 save_commit (ObjectPack *pack, int len)
 {
-    return seaf_obj_store_write_obj (seaf->commit_mgr->obj_store,
+    return winguf_obj_store_write_obj (winguf->commit_mgr->obj_store,
                                      pack->id,
                                      pack->object,
                                      len - 41);
@@ -120,19 +120,19 @@ receive_commit (CcnetProcessor *processor, char *content, int clen)
         goto bad;
     }
 
-    seaf_debug ("[getcommit] recv commit object %.8s\n", pack->id);
+    winguf_debug ("[getcommit] recv commit object %.8s\n", pack->id);
 
     if (save_commit (pack, clen) < 0) {
         goto bad;
     }
 
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr, pack->id);
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr, pack->id);
     if (!commit)
         goto bad;
 
     if (strcmp (commit->root_id, EMPTY_SHA1) != 0)
         object_list_insert (task->fs_roots, commit->root_id);
-    seaf_commit_unref (commit);
+    winguf_commit_unref (commit);
 
     return;
 
@@ -167,7 +167,7 @@ static void handle_response (CcnetProcessor *processor,
             receive_commit (processor, content, clen);
             return;
         } else if (strncmp (code, SC_END, 3) == 0) {
-            seaf_debug ("[getcommit] Get commit end.\n");
+            winguf_debug ("[getcommit] Get commit end.\n");
             ccnet_processor_done (processor, TRUE);
             return;
         }

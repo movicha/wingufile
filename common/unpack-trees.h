@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "utils.h"
-#include "seaf-tree-walk.h"
+#include "winguf-tree-walk.h"
 #include "index/index.h"
 #include "wingufile-crypt.h"
 

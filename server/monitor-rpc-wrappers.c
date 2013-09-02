@@ -6,9 +6,9 @@
 static SearpcClient rpc_client;
 
 #if 0
-SEARPC_CLIENT_DEFUN_INT64__STRING(monitor_get_repos_size);
+WINGURPC_CLIENT_DEFUN_INT64__STRING(monitor_get_repos_size);
 
-SEARPC_CLIENT_ASYNC_DEFUN_INT64__STRING(monitor_get_repos_size, 0);
+WINGURPC_CLIENT_ASYNC_DEFUN_INT64__STRING(monitor_get_repos_size, 0);
 
 gint64
 monitor_get_repos_size_wrapper (const char *peer_id,
@@ -17,7 +17,7 @@ monitor_get_repos_size_wrapper (const char *peer_id,
 {
     CcnetrpcTransportParam priv;
 
-    priv.session = seaf->session;
+    priv.session = winguf->session;
     priv.peer_id = (char *)peer_id;
     priv.service = "monitor";
 
@@ -35,7 +35,7 @@ monitor_get_repos_size_async_wrapper (const char *peer_id,
 {
     CcnetrpcAsyncTransportParam priv;
 
-    priv.session = seaf->session;
+    priv.session = winguf->session;
     priv.peer_id = (char *)peer_id;
     priv.service = "monitor-rpcserver";
 
@@ -55,13 +55,13 @@ monitor_compute_repo_size_async_wrapper (const char *peer_id,
 {
     CcnetrpcAsyncTransportParam priv;
 
-    priv.session = seaf->session;
+    priv.session = winguf->session;
     priv.peer_id = (char *)peer_id;
     priv.service = "monitor-rpcserver";
 
     rpc_client.async_send = ccnetrpc_async_transport_send;
     rpc_client.async_arg = &priv;
 
-    searpc_client_async_call__int (&rpc_client, "compute_repo_size", callback,
+    wingurpc_client_async_call__int (&rpc_client, "compute_repo_size", callback,
                                    user_data, 1, "string", repo_id);
 }

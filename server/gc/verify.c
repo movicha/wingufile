@@ -12,14 +12,14 @@ check_blocks (SeafFSManager *mgr, const char *file_id)
     Seafile *wingufile;
     int i;
 
-    wingufile = seaf_fs_manager_get_wingufile (mgr, file_id);
+    wingufile = winguf_fs_manager_get_wingufile (mgr, file_id);
     if (!wingufile) {
-        seaf_warning ("Failed to find file %s.\n", file_id);
+        winguf_warning ("Failed to find file %s.\n", file_id);
         return -1;
     }
 
     for (i = 0; i < wingufile->n_blocks; ++i) {
-        if (!seaf_block_manager_block_exists (seaf->block_mgr,
+        if (!winguf_block_manager_block_exists (winguf->block_mgr,
                                               wingufile->blk_sha1s[i]))
             g_message ("Block %s is missing.\n", wingufile->blk_sha1s[i]);
     }
@@ -64,7 +64,7 @@ traverse_commit (SeafCommit *commit, void *vdata, gboolean *stop)
     if (!data->traversed_head)
         data->traversed_head = TRUE;
 
-    ret = seaf_fs_manager_traverse_tree (seaf->fs_mgr,
+    ret = winguf_fs_manager_traverse_tree (winguf->fs_mgr,
                                          commit->root_id,
                                          fs_callback,
                                          vdata, FALSE);
@@ -82,22 +82,22 @@ verify_repo (SeafRepo *repo)
     int ret = 0;
     VerifyData data = {0};
 
-    data.truncate_time = seaf_repo_manager_get_repo_truncate_time (repo->manager,
+    data.truncate_time = winguf_repo_manager_get_repo_truncate_time (repo->manager,
                                                                    repo->id);
 
-    branches = seaf_branch_manager_get_branch_list (seaf->branch_mgr, repo->id);
+    branches = winguf_branch_manager_get_branch_list (winguf->branch_mgr, repo->id);
     if (branches == NULL) {
-        seaf_warning ("[GC] Failed to get branch list of repo %s.\n", repo->id);
+        winguf_warning ("[GC] Failed to get branch list of repo %s.\n", repo->id);
         return -1;
     }
 
     for (ptr = branches; ptr != NULL; ptr = ptr->next) {
         branch = ptr->data;
-        gboolean res = seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+        gboolean res = winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                                  branch->commit_id,
                                                                  traverse_commit,
                                                                  &data, FALSE);
-        seaf_branch_unref (branch);
+        winguf_branch_unref (branch);
         if (!res) {
             ret = -1;
             break;
@@ -115,10 +115,10 @@ verify_repos ()
     GList *repos = NULL, *ptr;
     int ret = 0;
 
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1, FALSE);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1, FALSE);
     for (ptr = repos; ptr != NULL; ptr = ptr->next) {
         ret = verify_repo ((SeafRepo *)ptr->data);
-        seaf_repo_unref ((SeafRepo *)ptr->data);
+        winguf_repo_unref ((SeafRepo *)ptr->data);
         if (ret < 0)
             break;
     }

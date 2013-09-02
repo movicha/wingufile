@@ -30,7 +30,7 @@
 #include "merge-new.h"
 #include "monitor-rpc-wrappers.h"
 
-#include "seaf-db.h"
+#include "winguf-db.h"
 
 #define INDEX_DIR "index"
 
@@ -50,13 +50,13 @@ compare_dirents (gconstpointer a, gconstpointer b)
 }
 
 static inline SeafDirent *
-dup_seaf_dirent (const SeafDirent *dent)
+dup_winguf_dirent (const SeafDirent *dent)
 {
-    return seaf_dirent_new (dent->id, dent->mode, dent->name);
+    return winguf_dirent_new (dent->id, dent->mode, dent->name);
 }
 
 static inline GList *
-dup_seafdir_entries (const GList *entries)
+dup_wingufdir_entries (const GList *entries)
 {
     const GList *p;
     GList *newentries = NULL;
@@ -64,7 +64,7 @@ dup_seafdir_entries (const GList *entries)
     
     for (p = entries; p; p = p->next) {
         dent = p->data;
-        newentries = g_list_prepend (newentries, dup_seaf_dirent(dent));
+        newentries = g_list_prepend (newentries, dup_winguf_dirent(dent));
     }
 
     return g_list_reverse(newentries);
@@ -86,7 +86,7 @@ post_file_recursive (const char *dir_id,
     char *remain = NULL;
     char *id = NULL;
 
-    olddir = seaf_fs_manager_get_seafdir_sorted(seaf->fs_mgr, dir_id);
+    olddir = winguf_fs_manager_get_wingufdir_sorted(winguf->fs_mgr, dir_id);
     if (!olddir)
         return NULL;
 
@@ -94,17 +94,17 @@ post_file_recursive (const char *dir_id,
     if (*to_path == '\0') {
         GList *newentries;
 
-        newentries = dup_seafdir_entries (olddir->entries);
+        newentries = dup_wingufdir_entries (olddir->entries);
 
         newentries = g_list_insert_sorted (newentries,
-                                           dup_seaf_dirent(newdent),
+                                           dup_winguf_dirent(newdent),
                                            compare_dirents);
 
-        newdir = seaf_dir_new (NULL, newentries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        newdir = winguf_dir_new (NULL, newentries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         id = g_strndup (newdir->dir_id, 41);
         id[40] = '\0';
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
 
         goto out;
     }
@@ -137,20 +137,20 @@ post_file_recursive (const char *dir_id,
         /* Create a new SeafDir. */
         GList *new_entries;
         
-        new_entries = dup_seafdir_entries (olddir->entries);
-        newdir = seaf_dir_new (NULL, new_entries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        new_entries = dup_wingufdir_entries (olddir->entries);
+        newdir = winguf_dir_new (NULL, new_entries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         
         g_free(id);
         id = g_strndup(newdir->dir_id, 41);
         id[40] = '\0';
         
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
     }
 
 out:
     g_free (to_path_dup);
-    seaf_dir_free(olddir);
+    winguf_dir_free(olddir);
     return id;
 }
 
@@ -200,10 +200,10 @@ check_file_exists (const char *root_id,
     SeafDirent *dent;
     int ret = FALSE;
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr, root_id,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr, root_id,
                                                parent_dir, NULL);
     if (!dir) {
-        seaf_warning ("parent_dir %s doesn't exist.\n", parent_dir);
+        winguf_warning ("parent_dir %s doesn't exist.\n", parent_dir);
         return FALSE;
     }
 
@@ -219,7 +219,7 @@ check_file_exists (const char *root_id,
         }
     }
 
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
 
     return ret;
 }
@@ -228,9 +228,9 @@ check_file_exists (const char *root_id,
   Various online file/directory operations:
 
   Put a file:
-  1. find parent seafdir
-  2. add a new dirent to parent seafdir
-  2. recursively update all seafdir in the path, in a bottom-up manner
+  1. find parent wingufdir
+  2. add a new dirent to parent wingufdir
+  2. recursively update all wingufdir in the path, in a bottom-up manner
   3. commit it
 
   Del a file/dir:
@@ -246,9 +246,9 @@ check_file_exists (const char *root_id,
   4. remove src dirent from src repo and commit it
 
   Rename a file/dir:
-  1. find parent seafdir
-  2. update this seafdir with the old dirent replaced by a new dirent.
-  3. recursively update all seafdir in the path
+  1. find parent wingufdir
+  2. update this wingufdir with the old dirent replaced by a new dirent.
+  3. recursively update all wingufdir in the path
   
   NOTE:
   
@@ -262,9 +262,9 @@ check_file_exists (const char *root_id,
 
 #define GET_REPO_OR_FAIL(repo_var,repo_id)                              \
     do {                                                                \
-        repo_var = seaf_repo_manager_get_repo (seaf->repo_mgr, (repo_id)); \
+        repo_var = winguf_repo_manager_get_repo (winguf->repo_mgr, (repo_id)); \
         if (!(repo_var)) {                                              \
-            seaf_warning ("Repo %s doesn't exist.\n", (repo_id));       \
+            winguf_warning ("Repo %s doesn't exist.\n", (repo_id));       \
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid repo"); \
             ret = -1;                                                   \
             goto out;                                                   \
@@ -273,9 +273,9 @@ check_file_exists (const char *root_id,
 
 #define GET_COMMIT_OR_FAIL(commit_var,commit_id)                        \
     do {                                                                \
-        commit_var = seaf_commit_manager_get_commit(seaf->commit_mgr, (commit_id)); \
+        commit_var = winguf_commit_manager_get_commit(winguf->commit_mgr, (commit_id)); \
         if (!(commit_var)) {                                            \
-            seaf_warning ("commit %s doesn't exist.\n", (commit_id));   \
+            winguf_warning ("commit %s doesn't exist.\n", (commit_id));   \
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid commit"); \
             ret = -1;                                                   \
             goto out;                                                   \
@@ -318,23 +318,23 @@ gen_new_commit (const char *repo_id,
     int retry_cnt = 0;
     int ret = 0;
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
-        seaf_warning ("Repo %s doesn't exist.\n", repo_id);
+        winguf_warning ("Repo %s doesn't exist.\n", repo_id);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Invalid repo");
         ret = -1;
         goto out;
     }
 
     /* Create a new commit pointing to new_root. */
-    new_commit = seaf_commit_new(NULL, repo->id, new_root,
+    new_commit = winguf_commit_new(NULL, repo->id, new_root,
                                  user, EMPTY_SHA1,
                                  desc, 0);
     new_commit->parent_id = g_strdup (base->commit_id);
-    seaf_repo_to_commit (repo, new_commit);
+    winguf_repo_to_commit (repo, new_commit);
 
-    if (seaf_commit_manager_add_commit (seaf->commit_mgr, new_commit) < 0) {
-        seaf_warning ("Failed to add commit.\n");
+    if (winguf_commit_manager_add_commit (winguf->commit_mgr, new_commit) < 0) {
+        winguf_warning ("Failed to add commit.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to add commit");
         ret = -1;
@@ -342,10 +342,10 @@ gen_new_commit (const char *repo_id,
     }
 
 retry:
-    current_head = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    current_head = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                                    repo->head->commit_id);
     if (!current_head) {
-        seaf_warning ("Failed to find head commit of %s.\n", repo_id);
+        winguf_warning ("Failed to find head commit of %s.\n", repo_id);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Invalid repo");
         ret = -1;
         goto out;
@@ -365,66 +365,66 @@ retry:
         roots[1] = current_head->root_id; /* head */
         roots[2] = new_root;      /* remote */
 
-        if (seaf_merge_trees (3, roots, &opt) < 0) {
-            seaf_warning ("Failed to merge.\n");
+        if (winguf_merge_trees (3, roots, &opt) < 0) {
+            winguf_warning ("Failed to merge.\n");
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Internal error");
             ret = -1;
             goto out;
         }
 
-        seaf_debug ("Number of dirs visted in merge %.8s: %d.\n",
+        winguf_debug ("Number of dirs visted in merge %.8s: %d.\n",
                     repo_id, opt.visit_dirs);
 
-        merged_commit = seaf_commit_new(NULL, repo->id, opt.merged_tree_root,
+        merged_commit = winguf_commit_new(NULL, repo->id, opt.merged_tree_root,
                                         user, EMPTY_SHA1,
                                         "Auto merge by wingufile system",
                                         0);
 
         merged_commit->parent_id = g_strdup (current_head->commit_id);
         merged_commit->second_parent_id = g_strdup (new_commit->commit_id);
-        seaf_repo_to_commit (repo, merged_commit);
+        winguf_repo_to_commit (repo, merged_commit);
 
-        if (seaf_commit_manager_add_commit (seaf->commit_mgr, merged_commit) < 0) {
-            seaf_warning ("Failed to add commit.\n");
+        if (winguf_commit_manager_add_commit (winguf->commit_mgr, merged_commit) < 0) {
+            winguf_warning ("Failed to add commit.\n");
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Failed to add commit");
             ret = -1;
             goto out;
         }
     } else {
-        seaf_commit_ref (new_commit);
+        winguf_commit_ref (new_commit);
         merged_commit = new_commit;
     }
 
-    seaf_branch_set_commit(repo->head, merged_commit->commit_id);
+    winguf_branch_set_commit(repo->head, merged_commit->commit_id);
 
-    if (seaf_branch_manager_test_and_update_branch(seaf->branch_mgr,
+    if (winguf_branch_manager_test_and_update_branch(winguf->branch_mgr,
                                                    repo->head,
                                                    current_head->commit_id) < 0)
     {
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
         repo = NULL;
-        seaf_commit_unref (current_head);
+        winguf_commit_unref (current_head);
         current_head = NULL;
-        seaf_commit_unref (merged_commit);
+        winguf_commit_unref (merged_commit);
         merged_commit = NULL;
 
-        repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+        repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
         if (!repo) {
-            seaf_warning ("Repo %s doesn't exist.\n", repo_id);
+            winguf_warning ("Repo %s doesn't exist.\n", repo_id);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, "Invalid repo");
             ret = -1;
             goto out;
         }
 
         if (++retry_cnt <= MAX_RETRY_COUNT) {
-            seaf_message ("Concurrent branch update, retry.\n");
+            winguf_message ("Concurrent branch update, retry.\n");
             /* Sleep random time between 100 and 1000 millisecs. */
             usleep (g_random_int_range(1, 11) * 100 * 1000);
             goto retry;
         } else {
-            seaf_warning ("Stop retrying.\n");
+            winguf_warning ("Stop retrying.\n");
             ret = -1;
             goto out;
         }
@@ -434,21 +434,21 @@ retry:
         memcpy (new_commit_id, merged_commit->commit_id, 41);
 
 out:
-    seaf_commit_unref (new_commit);
-    seaf_commit_unref (current_head);
-    seaf_commit_unref (merged_commit);
-    seaf_repo_unref (repo);
+    winguf_commit_unref (new_commit);
+    winguf_commit_unref (current_head);
+    winguf_commit_unref (merged_commit);
+    winguf_repo_unref (repo);
     return ret;
 }
 
 static void
 update_repo_size(const char *repo_id)
 {
-    schedule_repo_size_computation (seaf->size_sched, repo_id);
+    schedule_repo_size_computation (winguf->size_sched, repo_id);
 }
 
 int
-seaf_repo_manager_post_file (SeafRepoManager *mgr,
+winguf_repo_manager_post_file (SeafRepoManager *mgr,
                              const char *repo_id,
                              const char *temp_file_path,
                              const char *parent_dir,
@@ -468,7 +468,7 @@ seaf_repo_manager_post_file (SeafRepoManager *mgr,
     int ret = 0;
 
     if (g_access (temp_file_path, R_OK) != 0) {
-        seaf_warning ("[post file] File %s doesn't exist or not readable.\n",
+        winguf_warning ("[post file] File %s doesn't exist or not readable.\n",
                       temp_file_path);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid input file");
@@ -482,7 +482,7 @@ seaf_repo_manager_post_file (SeafRepoManager *mgr,
         canon_path = get_canonical_path (parent_dir);
 
     if (should_ignore_file (file_name, NULL)) {
-        seaf_warning ("[post file] Invalid filename %s.\n", file_name);
+        winguf_warning ("[post file] Invalid filename %s.\n", file_name);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid filename");
         ret = -1;
@@ -490,7 +490,7 @@ seaf_repo_manager_post_file (SeafRepoManager *mgr,
     }
 
     if (strstr (parent_dir, "//") != NULL) {
-        seaf_warning ("[post file] parent_dir cantains // sequence.\n");
+        winguf_warning ("[post file] parent_dir cantains // sequence.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid parent dir");
         ret = -1;
@@ -502,10 +502,10 @@ seaf_repo_manager_post_file (SeafRepoManager *mgr,
     /* Write blocks. */
     if (repo->encrypted) {
         unsigned char key[16], iv[16];
-        if (seaf_passwd_manager_get_decrypt_key_raw (seaf->passwd_mgr,
+        if (winguf_passwd_manager_get_decrypt_key_raw (winguf->passwd_mgr,
                                                      repo_id, user,
                                                      key, iv) < 0) {
-            seaf_warning ("Passwd for repo %s is not set.\n", repo_id);
+            winguf_warning ("Passwd for repo %s is not set.\n", repo_id);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Passwd is not set");
             ret = -1;
@@ -514,9 +514,9 @@ seaf_repo_manager_post_file (SeafRepoManager *mgr,
         crypt = wingufile_crypt_new (repo->enc_version, key, iv);
     }
 
-    if (seaf_fs_manager_index_blocks (seaf->fs_mgr, temp_file_path,
+    if (winguf_fs_manager_index_blocks (winguf->fs_mgr, temp_file_path,
                                       sha1, crypt) < 0) {
-        seaf_warning ("failed to index blocks");
+        winguf_warning ("failed to index blocks");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to index blocks");
         ret = -1;
@@ -524,11 +524,11 @@ seaf_repo_manager_post_file (SeafRepoManager *mgr,
     }
         
     rawdata_to_hex(sha1, hex, 20);
-    new_dent = seaf_dirent_new (hex, S_IFREG, file_name);
+    new_dent = winguf_dirent_new (hex, S_IFREG, file_name);
 
     root_id = do_post_file (head_commit->root_id, canon_path, new_dent);
     if (!root_id) {
-        seaf_warning ("[post file] Failed to put file.\n");
+        winguf_warning ("[post file] Failed to put file.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to put file");
         ret = -1;
@@ -542,13 +542,13 @@ seaf_repo_manager_post_file (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref(head_commit);
+        winguf_commit_unref(head_commit);
     if (new_dent)
         g_free (new_dent);
     g_free (root_id);
@@ -620,7 +620,7 @@ add_new_entries (GList **entries, GList *filenames, GList *id_list)
         }
 
         if (i <= 16) {
-            newdent = seaf_dirent_new (id, S_IFREG, unique_name);
+            newdent = winguf_dirent_new (id, S_IFREG, unique_name);
             *entries = g_list_insert_sorted (*entries, newdent, compare_dirents);
         }
 
@@ -649,7 +649,7 @@ post_multi_files_recursive (const char *dir_id,
     char *remain = NULL;
     char *id = NULL;
 
-    olddir = seaf_fs_manager_get_seafdir_sorted(seaf->fs_mgr, dir_id);
+    olddir = winguf_fs_manager_get_wingufdir_sorted(winguf->fs_mgr, dir_id);
     if (!olddir)
         return NULL;
 
@@ -657,16 +657,16 @@ post_multi_files_recursive (const char *dir_id,
     if (*to_path == '\0') {
         GList *newentries;
 
-        newentries = dup_seafdir_entries (olddir->entries);
+        newentries = dup_wingufdir_entries (olddir->entries);
 
         if (add_new_entries (&newentries, filenames, id_list) < 0)
             goto out;
 
-        newdir = seaf_dir_new (NULL, newentries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        newdir = winguf_dir_new (NULL, newentries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         id = g_strndup (newdir->dir_id, 41);
         id[40] = '\0';
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
 
         goto out;
     }
@@ -699,20 +699,20 @@ post_multi_files_recursive (const char *dir_id,
         /* Create a new SeafDir. */
         GList *new_entries;
         
-        new_entries = dup_seafdir_entries (olddir->entries);
-        newdir = seaf_dir_new (NULL, new_entries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        new_entries = dup_wingufdir_entries (olddir->entries);
+        newdir = winguf_dir_new (NULL, new_entries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         
         g_free(id);
         id = g_strndup(newdir->dir_id, 41);
         id[40] = '\0';
         
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
     }
 
 out:
     g_free (to_path_dup);
-    seaf_dir_free(olddir);
+    winguf_dir_free(olddir);
     return id;
 }
 
@@ -748,7 +748,7 @@ json_to_file_list (const char *files_json)
 
     json_parser_load_from_data (parser, files_json, strlen(files_json), &error);
     if (error) {
-        seaf_warning ("Failed to load file list from json.\n");
+        winguf_warning ("Failed to load file list from json.\n");
         g_error_free (error);
         return NULL;
     }
@@ -763,7 +763,7 @@ json_to_file_list (const char *files_json)
 }
 
 int
-seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
+winguf_repo_manager_post_multi_files (SeafRepoManager *mgr,
                                     const char *repo_id,
                                     const char *parent_dir,
                                     const char *filenames_json,
@@ -793,7 +793,7 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
     filenames = json_to_file_list (filenames_json);
     paths = json_to_file_list (paths_json);
     if (!filenames || !paths) {
-        seaf_warning ("[post files] Invalid filenames or paths.\n");
+        winguf_warning ("[post files] Invalid filenames or paths.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid files");
         ret = -1;
         goto out;
@@ -803,7 +803,7 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
     for (ptr = filenames; ptr; ptr = ptr->next) {
         filename = ptr->data;
         if (should_ignore_file (filename, NULL)) {
-            seaf_warning ("[post files] Invalid filename %s.\n", filename);
+            winguf_warning ("[post files] Invalid filename %s.\n", filename);
             g_set_error (error, WINGUFILE_DOMAIN, POST_FILE_ERR_FILENAME,
                          "%s", filename);
             ret = -1;
@@ -812,7 +812,7 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
     }
 
     if (strstr (parent_dir, "//") != NULL) {
-        seaf_warning ("[post file] parent_dir cantains // sequence.\n");
+        winguf_warning ("[post file] parent_dir cantains // sequence.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid parent dir");
         ret = -1;
@@ -822,10 +822,10 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
     /* Index tmp files and get file id list. */
     if (repo->encrypted) {
         unsigned char key[16], iv[16];
-        if (seaf_passwd_manager_get_decrypt_key_raw (seaf->passwd_mgr,
+        if (winguf_passwd_manager_get_decrypt_key_raw (winguf->passwd_mgr,
                                                      repo_id, user,
                                                      key, iv) < 0) {
-            seaf_warning ("Passwd for repo %s is not set.\n", repo_id);
+            winguf_warning ("Passwd for repo %s is not set.\n", repo_id);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Passwd is not set");
             ret = -1;
@@ -836,8 +836,8 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
 
     for (ptr = paths; ptr; ptr = ptr->next) {
         path = ptr->data;
-        if (seaf_fs_manager_index_blocks (seaf->fs_mgr, path, sha1, crypt) < 0) {
-            seaf_warning ("failed to index blocks");
+        if (winguf_fs_manager_index_blocks (winguf->fs_mgr, path, sha1, crypt) < 0) {
+            winguf_warning ("failed to index blocks");
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Failed to index blocks");
             ret = -1;
@@ -853,7 +853,7 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
     root_id = do_post_multi_files (head_commit->root_id, canon_path,
                                    filenames, id_list);
     if (!root_id) {
-        seaf_warning ("[post file] Failed to put file.\n");
+        winguf_warning ("[post file] Failed to put file.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
                      "Failed to put file");
         ret = -1;
@@ -873,7 +873,7 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
     GString *new_ids_buf = g_string_new(NULL);
     const char *id_sep = "\t";
@@ -883,9 +883,9 @@ seaf_repo_manager_post_multi_files (SeafRepoManager *mgr,
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref(head_commit);
+        winguf_commit_unref(head_commit);
     string_list_free (filenames);
     string_list_free (paths);
     string_list_free (id_list);
@@ -913,7 +913,7 @@ del_file_recursive(const char *dir_id,
     char *slash;
     char *id = NULL;
 
-    olddir = seaf_fs_manager_get_seafdir_sorted(seaf->fs_mgr, dir_id);
+    olddir = winguf_fs_manager_get_wingufdir_sorted(winguf->fs_mgr, dir_id);
     if (!olddir)
         return NULL;
 
@@ -925,18 +925,18 @@ del_file_recursive(const char *dir_id,
         for (p = olddir->entries; p != NULL; p = p->next) {
             old = p->data;
             if (strcmp(old->name, filename) != 0) {
-                new = seaf_dirent_new (old->id, old->mode, old->name);
+                new = winguf_dirent_new (old->id, old->mode, old->name);
                 newentries = g_list_prepend (newentries, new);
             }
         }
 
         newentries = g_list_reverse (newentries);
 
-        newdir = seaf_dir_new(NULL, newentries, 0);
-        seaf_dir_save(seaf->fs_mgr, newdir);
+        newdir = winguf_dir_new(NULL, newentries, 0);
+        winguf_dir_save(winguf->fs_mgr, newdir);
         id = g_strndup(newdir->dir_id, 41);
         id[40] = '\0';
-        seaf_dir_free(newdir);
+        winguf_dir_free(newdir);
 
         goto out;
     }
@@ -968,20 +968,20 @@ del_file_recursive(const char *dir_id,
         /* Create a new SeafDir. */
         GList *new_entries;
         
-        new_entries = dup_seafdir_entries (olddir->entries);
-        newdir = seaf_dir_new (NULL, new_entries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        new_entries = dup_wingufdir_entries (olddir->entries);
+        newdir = winguf_dir_new (NULL, new_entries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         
         g_free(id);
         id = g_strndup(newdir->dir_id, 41);
         id[40] = '\0';
         
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
     }
 
 out:
     g_free (to_path_dup);
-    seaf_dir_free(olddir);
+    winguf_dir_free(olddir);
     return id;
 }
 
@@ -998,7 +998,7 @@ do_del_file(const char *root_id,
 }
 
 int
-seaf_repo_manager_del_file (SeafRepoManager *mgr,
+winguf_repo_manager_del_file (SeafRepoManager *mgr,
                             const char *repo_id,
                             const char *parent_dir,
                             const char *file_name,
@@ -1020,14 +1020,14 @@ seaf_repo_manager_del_file (SeafRepoManager *mgr,
         canon_path = get_canonical_path (parent_dir);
     
     if (!check_file_exists(head_commit->root_id, canon_path, file_name, &mode)) {
-        seaf_warning ("[del file] target file %s/%s does not exist, skip\n",
+        winguf_warning ("[del file] target file %s/%s does not exist, skip\n",
                       canon_path, file_name);
         goto out;
     }
 
     root_id = do_del_file (head_commit->root_id, canon_path, file_name);
     if (!root_id) {
-        seaf_warning ("[del file] Failed to del file.\n");
+        winguf_warning ("[del file] Failed to del file.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to del file");
         ret = -1;
@@ -1047,15 +1047,15 @@ seaf_repo_manager_del_file (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_cleanup_virtual_repos (mgr, repo_id);
+    winguf_repo_manager_cleanup_virtual_repos (mgr, repo_id);
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref(head_commit);
+        winguf_commit_unref(head_commit);
     g_free (root_id);
     g_free (canon_path);
 
@@ -1076,18 +1076,18 @@ get_dirent_by_path (SeafRepo *repo,
     SeafDirent *dent = NULL;
     SeafDir *dir = NULL;
     
-    head_commit = seaf_commit_manager_get_commit(seaf->commit_mgr,
+    head_commit = winguf_commit_manager_get_commit(winguf->commit_mgr,
                                                  repo->head->commit_id);
     if (!head_commit) {
-        seaf_warning ("commit %s doesn't exist.\n", repo->head->commit_id);
+        winguf_warning ("commit %s doesn't exist.\n", repo->head->commit_id);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid commit");
         goto out;
     }
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr, head_commit->root_id,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr, head_commit->root_id,
                                               path, NULL);
     if (!dir) {
-        seaf_warning ("dir %s doesn't exist in repo %s.\n", path, repo->id);
+        winguf_warning ("dir %s doesn't exist in repo %s.\n", path, repo->id);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS, "Invalid dir");
         goto out;
     }
@@ -1097,7 +1097,7 @@ get_dirent_by_path (SeafRepo *repo,
         SeafDirent *d = p->data;
         int r = strcmp (d->name, file_name);
         if (r == 0) {
-            dent = seaf_dirent_new (d->id, d->mode, d->name);
+            dent = winguf_dirent_new (d->id, d->mode, d->name);
             break;
         }
     }
@@ -1109,9 +1109,9 @@ get_dirent_by_path (SeafRepo *repo,
 
 out:
     if (head_commit)
-        seaf_commit_unref (head_commit);
+        winguf_commit_unref (head_commit);
     if (dir)
-        seaf_dir_free (dir);
+        winguf_dir_free (dir);
 
     return dent;
 }
@@ -1134,7 +1134,7 @@ put_dirent_and_commit (const char *repo_id,
 
     root_id = do_post_file (head_commit->root_id, path, dent);
     if (!root_id) {
-        seaf_warning ("[cp file] Failed to cp file.\n");
+        winguf_warning ("[cp file] Failed to cp file.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to cp file");
         ret = -1;
@@ -1154,9 +1154,9 @@ put_dirent_and_commit (const char *repo_id,
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref (head_commit);
+        winguf_commit_unref (head_commit);
     if (root_id)
         g_free (root_id);
     
@@ -1172,7 +1172,7 @@ out:
  * 2. the file being copied must not exist in the dst path of the dst repo.
  */
 int
-seaf_repo_manager_copy_file (SeafRepoManager *mgr,
+winguf_repo_manager_copy_file (SeafRepoManager *mgr,
                              const char *src_repo_id,
                              const char *src_path,
                              const char *src_filename,
@@ -1201,7 +1201,7 @@ seaf_repo_manager_copy_file (SeafRepoManager *mgr,
         }
         
     } else {
-        seaf_repo_ref (src_repo);
+        winguf_repo_ref (src_repo);
         dst_repo = src_repo;
     }
     
@@ -1221,7 +1221,7 @@ seaf_repo_manager_copy_file (SeafRepoManager *mgr,
     }
 
     /* duplicate src dirent with new name */
-    dst_dent = seaf_dirent_new (src_dent->id, src_dent->mode, dst_filename);
+    dst_dent = winguf_dirent_new (src_dent->id, src_dent->mode, dst_filename);
 
     if (put_dirent_and_commit (dst_repo_id,
                                dst_canon_path,
@@ -1235,15 +1235,15 @@ seaf_repo_manager_copy_file (SeafRepoManager *mgr,
             goto out;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, dst_repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, dst_repo_id, NULL);
 
 out:
     if (src_repo)
-        seaf_repo_unref (src_repo);
+        winguf_repo_unref (src_repo);
     if (dst_repo)
-        seaf_repo_unref (dst_repo);
+        winguf_repo_unref (dst_repo);
     if (dst_head_commit)
-        seaf_commit_unref(dst_head_commit);
+        winguf_commit_unref(dst_head_commit);
     if (src_canon_path)
         g_free (src_canon_path);
     if (dst_canon_path)
@@ -1303,9 +1303,9 @@ move_file_same_repo (const char *repo_id,
     
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref (head_commit);
+        winguf_commit_unref (head_commit);
     g_free (root_id_after_put);
     g_free (root_id);
     
@@ -1313,7 +1313,7 @@ out:
 }
                      
 int
-seaf_repo_manager_move_file (SeafRepoManager *mgr,
+winguf_repo_manager_move_file (SeafRepoManager *mgr,
                              const char *src_repo_id,
                              const char *src_path,
                              const char *src_filename,
@@ -1342,7 +1342,7 @@ seaf_repo_manager_move_file (SeafRepoManager *mgr,
         }
         
     } else {
-        seaf_repo_ref (src_repo);
+        winguf_repo_ref (src_repo);
         dst_repo = src_repo;
     }
     
@@ -1360,7 +1360,7 @@ seaf_repo_manager_move_file (SeafRepoManager *mgr,
     }
 
     /* duplicate src dirent with new name */
-    dst_dent = seaf_dirent_new (src_dent->id, src_dent->mode, dst_filename);
+    dst_dent = winguf_dirent_new (src_dent->id, src_dent->mode, dst_filename);
 
     if (src_repo == dst_repo) {
         /* move file within the same repo */
@@ -1372,8 +1372,8 @@ seaf_repo_manager_move_file (SeafRepoManager *mgr,
             goto out;
         }
 
-        seaf_repo_manager_cleanup_virtual_repos (mgr, src_repo_id);
-        seaf_repo_manager_merge_virtual_repo (mgr, src_repo_id, NULL);
+        winguf_repo_manager_cleanup_virtual_repos (mgr, src_repo_id);
+        winguf_repo_manager_merge_virtual_repo (mgr, src_repo_id, NULL);
     } else {
         /* move between different repos */
 
@@ -1390,9 +1390,9 @@ seaf_repo_manager_move_file (SeafRepoManager *mgr,
             goto out;
         }
 
-        seaf_repo_manager_merge_virtual_repo (mgr, dst_repo_id, NULL);
+        winguf_repo_manager_merge_virtual_repo (mgr, dst_repo_id, NULL);
 
-        if (seaf_repo_manager_del_file (mgr, src_repo_id, src_path,
+        if (winguf_repo_manager_del_file (mgr, src_repo_id, src_path,
                                         src_filename, user, error) < 0) {
             ret = -1;
             goto out;
@@ -1400,10 +1400,10 @@ seaf_repo_manager_move_file (SeafRepoManager *mgr,
     }
 
 out:
-    if (src_repo) seaf_repo_unref (src_repo);
-    if (dst_repo) seaf_repo_unref (dst_repo);
+    if (src_repo) winguf_repo_unref (src_repo);
+    if (dst_repo) winguf_repo_unref (dst_repo);
 
-    if (dst_head_commit) seaf_commit_unref(dst_head_commit);
+    if (dst_head_commit) winguf_commit_unref(dst_head_commit);
     
     if (src_canon_path) g_free (src_canon_path);
     if (dst_canon_path) g_free (dst_canon_path);
@@ -1419,7 +1419,7 @@ out:
 }
 
 int
-seaf_repo_manager_post_dir (SeafRepoManager *mgr,
+winguf_repo_manager_post_dir (SeafRepoManager *mgr,
                             const char *repo_id,
                             const char *parent_dir,
                             const char *new_dir_name,
@@ -1440,7 +1440,7 @@ seaf_repo_manager_post_dir (SeafRepoManager *mgr,
     canon_path = get_canonical_path (parent_dir);
 
     if (should_ignore_file (new_dir_name, NULL)) {
-        seaf_warning ("[post dir] Invalid dir name %s.\n", new_dir_name);
+        winguf_warning ("[post dir] Invalid dir name %s.\n", new_dir_name);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid dir name");
         ret = -1;
@@ -1450,12 +1450,12 @@ seaf_repo_manager_post_dir (SeafRepoManager *mgr,
     FAIL_IF_FILE_EXISTS(head_commit->root_id, canon_path, new_dir_name, NULL);
 
     if (!new_dent) {
-        new_dent = seaf_dirent_new (EMPTY_SHA1, S_IFDIR, new_dir_name);
+        new_dent = winguf_dirent_new (EMPTY_SHA1, S_IFDIR, new_dir_name);
     }
 
     root_id = do_post_file (head_commit->root_id, canon_path, new_dent);
     if (!root_id) {
-        seaf_warning ("[put dir] Failed to put dir.\n");
+        winguf_warning ("[put dir] Failed to put dir.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to put dir");
         ret = -1;
@@ -1470,13 +1470,13 @@ seaf_repo_manager_post_dir (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref(head_commit);
+        winguf_commit_unref(head_commit);
     if (new_dent)
         g_free (new_dent);
     g_free (root_id);
@@ -1486,7 +1486,7 @@ out:
 }
 
 int
-seaf_repo_manager_post_empty_file (SeafRepoManager *mgr,
+winguf_repo_manager_post_empty_file (SeafRepoManager *mgr,
                                    const char *repo_id,
                                    const char *parent_dir,
                                    const char *new_file_name,
@@ -1509,7 +1509,7 @@ seaf_repo_manager_post_empty_file (SeafRepoManager *mgr,
         canon_path = get_canonical_path (parent_dir);
 
     if (should_ignore_file (new_file_name, NULL)) {
-        seaf_warning ("[post file] Invalid file name %s.\n", new_file_name);
+        winguf_warning ("[post file] Invalid file name %s.\n", new_file_name);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid file name");
         ret = -1;
@@ -1519,12 +1519,12 @@ seaf_repo_manager_post_empty_file (SeafRepoManager *mgr,
     FAIL_IF_FILE_EXISTS(head_commit->root_id, canon_path, new_file_name, NULL);
 
     if (!new_dent) {
-        new_dent = seaf_dirent_new (EMPTY_SHA1, S_IFREG, new_file_name);
+        new_dent = winguf_dirent_new (EMPTY_SHA1, S_IFREG, new_file_name);
     }
 
     root_id = do_post_file (head_commit->root_id, canon_path, new_dent);
     if (!root_id) {
-        seaf_warning ("[put dir] Failed to create empty file dir.\n");
+        winguf_warning ("[put dir] Failed to create empty file dir.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to put dir");
         ret = -1;
@@ -1539,13 +1539,13 @@ seaf_repo_manager_post_empty_file (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref(head_commit);
+        winguf_commit_unref(head_commit);
     if (new_dent)
         g_free (new_dent);
     g_free (root_id);
@@ -1568,7 +1568,7 @@ rename_file_recursive(const char *dir_id,
     char *slash;
     char *id = NULL;
 
-    olddir = seaf_fs_manager_get_seafdir_sorted(seaf->fs_mgr, dir_id);
+    olddir = winguf_fs_manager_get_wingufdir_sorted(winguf->fs_mgr, dir_id);
     if (!olddir)
         return NULL;
 
@@ -1585,9 +1585,9 @@ rename_file_recursive(const char *dir_id,
         for (p = olddir->entries; p != NULL; p = p->next) {
             old = p->data;
             if (strcmp(old->name, oldname) != 0) {
-                newentries = g_list_prepend (newentries, dup_seaf_dirent(old));
+                newentries = g_list_prepend (newentries, dup_winguf_dirent(old));
             } else {
-                newdent = seaf_dirent_new (old->id, old->mode, newname);
+                newdent = winguf_dirent_new (old->id, old->mode, newname);
             }
         }
 
@@ -1597,11 +1597,11 @@ rename_file_recursive(const char *dir_id,
             newentries = g_list_insert_sorted(newentries, newdent, compare_dirents);
         }
 
-        newdir = seaf_dir_new (NULL, newentries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        newdir = winguf_dir_new (NULL, newentries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         id = g_strndup (newdir->dir_id, 41);
         id[40] = '\0';
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
 
         goto out;
     }
@@ -1634,20 +1634,20 @@ rename_file_recursive(const char *dir_id,
         /* Create a new SeafDir. */
         GList *new_entries;
         
-        new_entries = dup_seafdir_entries (olddir->entries);
-        newdir = seaf_dir_new (NULL, new_entries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        new_entries = dup_wingufdir_entries (olddir->entries);
+        newdir = winguf_dir_new (NULL, new_entries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         
         g_free(id);
         id = g_strndup(newdir->dir_id, 41);
         id[40] = '\0';
         
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
     }
 
 out:
     g_free (to_path_dup);
-    seaf_dir_free(olddir);
+    winguf_dir_free(olddir);
     return id;
 }
 
@@ -1666,7 +1666,7 @@ do_rename_file(const char *root_id,
 
 
 int
-seaf_repo_manager_rename_file (SeafRepoManager *mgr,
+winguf_repo_manager_rename_file (SeafRepoManager *mgr,
                                const char *repo_id,
                                const char *parent_dir,
                                const char *oldname,
@@ -1692,7 +1692,7 @@ seaf_repo_manager_rename_file (SeafRepoManager *mgr,
         canon_path = get_canonical_path (parent_dir);
 
     if (should_ignore_file (newname, NULL)) {
-        seaf_warning ("[rename file] Invalid filename %s.\n", newname);
+        winguf_warning ("[rename file] Invalid filename %s.\n", newname);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid filename");
         ret = -1;
@@ -1724,14 +1724,14 @@ seaf_repo_manager_rename_file (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_cleanup_virtual_repos (mgr, repo_id);
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_cleanup_virtual_repos (mgr, repo_id);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref (head_commit);
+        winguf_commit_unref (head_commit);
     g_free (canon_path);
     g_free (root_id);
 
@@ -1751,7 +1751,7 @@ put_file_recursive(const char *dir_id,
     char *slash;
     char *id = NULL;
 
-    olddir = seaf_fs_manager_get_seafdir_sorted(seaf->fs_mgr, dir_id);
+    olddir = winguf_fs_manager_get_wingufdir_sorted(winguf->fs_mgr, dir_id);
     if (!olddir)
         return NULL;
 
@@ -1763,18 +1763,18 @@ put_file_recursive(const char *dir_id,
         for (p = olddir->entries; p; p = p->next) {
             dent = p->data;
             if (strcmp(dent->name, newdent->name) == 0) {
-                newentries = g_list_prepend (newentries, dup_seaf_dirent(newdent));
+                newentries = g_list_prepend (newentries, dup_winguf_dirent(newdent));
             } else {
-                newentries = g_list_prepend (newentries, dup_seaf_dirent(dent));
+                newentries = g_list_prepend (newentries, dup_winguf_dirent(dent));
             }
         }
 
         newentries = g_list_reverse (newentries);
-        newdir = seaf_dir_new (NULL, newentries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        newdir = winguf_dir_new (NULL, newentries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         id = g_strndup (newdir->dir_id, 41);
         id[40] = '\0';
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
 
         goto out;
     }
@@ -1807,20 +1807,20 @@ put_file_recursive(const char *dir_id,
         /* Create a new SeafDir. */
         GList *new_entries;
         
-        new_entries = dup_seafdir_entries (olddir->entries);
-        newdir = seaf_dir_new (NULL, new_entries, 0);
-        seaf_dir_save (seaf->fs_mgr, newdir);
+        new_entries = dup_wingufdir_entries (olddir->entries);
+        newdir = winguf_dir_new (NULL, new_entries, 0);
+        winguf_dir_save (winguf->fs_mgr, newdir);
         
         g_free(id);
         id = g_strndup(newdir->dir_id, 41);
         id[40] = '\0';
         
-        seaf_dir_free (newdir);
+        winguf_dir_free (newdir);
     }
 
 out:
     g_free (to_path_dup);
-    seaf_dir_free(olddir);
+    winguf_dir_free(olddir);
     return id;
 }
 
@@ -1837,7 +1837,7 @@ do_put_file (const char *root_id,
 }
 
 int
-seaf_repo_manager_put_file (SeafRepoManager *mgr,
+winguf_repo_manager_put_file (SeafRepoManager *mgr,
                             const char *repo_id,
                             const char *temp_file_path,
                             const char *parent_dir,
@@ -1860,7 +1860,7 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
     int ret = 0;
 
     if (g_access (temp_file_path, R_OK) != 0) {
-        seaf_warning ("[put file] File %s doesn't exist or not readable.\n",
+        winguf_warning ("[put file] File %s doesn't exist or not readable.\n",
                       temp_file_path);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid input file");
@@ -1875,7 +1875,7 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
         canon_path = get_canonical_path (parent_dir);
 
     if (should_ignore_file (file_name, NULL)) {
-        seaf_warning ("[put file] Invalid filename %s.\n", file_name);
+        winguf_warning ("[put file] Invalid filename %s.\n", file_name);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid filename");
         ret = -1;
@@ -1883,7 +1883,7 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
     }
 
     if (strstr (parent_dir, "//") != NULL) {
-        seaf_warning ("[put file] parent_dir cantains // sequence.\n");
+        winguf_warning ("[put file] parent_dir cantains // sequence.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                      "Invalid parent dir");
         ret = -1;
@@ -1895,10 +1895,10 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
     /* Write blocks. */
     if (repo->encrypted) {
         unsigned char key[16], iv[16];
-        if (seaf_passwd_manager_get_decrypt_key_raw (seaf->passwd_mgr,
+        if (winguf_passwd_manager_get_decrypt_key_raw (winguf->passwd_mgr,
                                                      repo_id, user,
                                                      key, iv) < 0) {
-            seaf_warning ("Passwd for repo %s is not set.\n", repo_id);
+            winguf_warning ("Passwd for repo %s is not set.\n", repo_id);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "Passwd is not set");
             ret = -1;
@@ -1907,9 +1907,9 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
         crypt = wingufile_crypt_new (repo->enc_version, key, iv);
     }
 
-    if (seaf_fs_manager_index_blocks (seaf->fs_mgr, temp_file_path,
+    if (winguf_fs_manager_index_blocks (winguf->fs_mgr, temp_file_path,
                                       sha1, crypt) < 0) {
-        seaf_warning ("failed to index blocks");
+        winguf_warning ("failed to index blocks");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to index blocks");
         ret = -1;
@@ -1917,12 +1917,12 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
     }
         
     rawdata_to_hex(sha1, hex, 20);
-    new_dent = seaf_dirent_new (hex, S_IFREG, file_name);
+    new_dent = winguf_dirent_new (hex, S_IFREG, file_name);
 
     if (!fullpath)
         fullpath = g_build_filename(parent_dir, file_name, NULL);
 
-    old_file_id = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr,
+    old_file_id = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr,
                                                    head_commit->root_id,
                                                    fullpath, NULL, NULL);
 
@@ -1933,7 +1933,7 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
 
     root_id = do_put_file (head_commit->root_id, canon_path, new_dent);
     if (!root_id) {
-        seaf_warning ("[put file] Failed to put file.\n");
+        winguf_warning ("[put file] Failed to put file.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to put file");
         ret = -1;
@@ -1949,13 +1949,13 @@ seaf_repo_manager_put_file (SeafRepoManager *mgr,
 
     *new_file_id = g_strdup(new_dent->id);
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref(head_commit);
+        winguf_commit_unref(head_commit);
     if (new_dent)
         g_free (new_dent);
     g_free (root_id);
@@ -1972,7 +1972,7 @@ out:
 }
 
 int
-seaf_repo_manager_update_dir (SeafRepoManager *mgr,
+winguf_repo_manager_update_dir (SeafRepoManager *mgr,
                               const char *repo_id,
                               const char *dir_path,
                               const char *new_dir_id,
@@ -2010,11 +2010,11 @@ seaf_repo_manager_update_dir (SeafRepoManager *mgr,
 
     FAIL_IF_FILE_NOT_EXISTS(head_commit->root_id, canon_path, dirname, NULL);
 
-    new_dent = seaf_dirent_new (new_dir_id, S_IFDIR, dirname);
+    new_dent = winguf_dirent_new (new_dir_id, S_IFDIR, dirname);
 
     root_id = do_put_file (head_commit->root_id, canon_path, new_dent);
     if (!root_id) {
-        seaf_warning ("[update dir] Failed to put file.\n");
+        winguf_warning ("[update dir] Failed to put file.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to update dir");
         ret = -1;
@@ -2028,8 +2028,8 @@ seaf_repo_manager_update_dir (SeafRepoManager *mgr,
     }
 
 out:
-    seaf_repo_unref (repo);
-    seaf_commit_unref (head_commit);
+    winguf_repo_unref (repo);
+    winguf_commit_unref (head_commit);
     g_free (new_dent);
     g_free (canon_path);
     g_free (dirname);
@@ -2077,7 +2077,7 @@ revert_file_to_root (const char *root_id,
 
     *skipped = FALSE;
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr,
                                                root_id,
                                                "/", error);
     if (*error) {
@@ -2117,12 +2117,12 @@ revert_file_to_root (const char *root_id,
             break;
     }
 
-    newdent = seaf_dirent_new (file_id, S_IFREG, new_file_name);
+    newdent = winguf_dirent_new (file_id, S_IFREG, new_file_name);
     new_root_id = do_post_file (root_id, "/", newdent);
 
 out:
     if (dir)
-        seaf_dir_free (dir);
+        winguf_dir_free (dir);
 
     g_free (basename);
     g_free (ext);
@@ -2150,7 +2150,7 @@ revert_file_to_parent_dir (const char *root_id,
     
     *skipped = FALSE;
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr,
                                                root_id,
                                                parent_dir, error);
     if (*error) {
@@ -2189,7 +2189,7 @@ revert_file_to_parent_dir (const char *root_id,
     }
 
 do_revert:    
-    newdent = seaf_dirent_new (file_id, S_IFREG, new_file_name);
+    newdent = winguf_dirent_new (file_id, S_IFREG, new_file_name);
     if (is_overwrite) {
         new_root_id = do_put_file (root_id, parent_dir, newdent);
     } else {
@@ -2198,7 +2198,7 @@ do_revert:
 
 out:
     if (dir)
-        seaf_dir_free (dir);
+        winguf_dir_free (dir);
 
     g_free (basename);
     g_free (ext);
@@ -2214,7 +2214,7 @@ detect_path_exist (const char *root_id,
 {
     SeafDir *dir;
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr, root_id, path, error);
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr, root_id, path, error);
     if (*error) {
         if (g_error_matches(*error, WINGUFILE_DOMAIN, SEAF_ERR_PATH_NO_EXIST)) {
             /* path does not exist */
@@ -2226,12 +2226,12 @@ detect_path_exist (const char *root_id,
         }
     }
 
-    seaf_dir_free(dir);
+    winguf_dir_free(dir);
     return TRUE;
 }
 
 int
-seaf_repo_manager_revert_file (SeafRepoManager *mgr,
+winguf_repo_manager_revert_file (SeafRepoManager *mgr,
                                const char *repo_id,
                                const char *old_commit_id,
                                const char *file_path,
@@ -2278,10 +2278,10 @@ seaf_repo_manager_revert_file (SeafRepoManager *mgr,
             goto out;
         }
 
-        revert_to_file_id = seaf_fs_manager_get_wingufile_id_by_path (
-                    seaf->fs_mgr, old_commit->root_id, canon_path, error);
+        revert_to_file_id = winguf_fs_manager_get_wingufile_id_by_path (
+                    winguf->fs_mgr, old_commit->root_id, canon_path, error);
         if (*error) {
-            seaf_warning ("[revert file] error: %s\n", (*error)->message);
+            winguf_warning ("[revert file] error: %s\n", (*error)->message);
             g_clear_error (error);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "internal error");
@@ -2296,7 +2296,7 @@ seaf_repo_manager_revert_file (SeafRepoManager *mgr,
     parent_dir_exist = detect_path_exist (head_commit->root_id,
                                           parent_dir, error);
     if (*error) {
-        seaf_warning ("[revert file] error: %s\n", (*error)->message);
+        winguf_warning ("[revert file] error: %s\n", (*error)->message);
         g_clear_error (error);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "internal error");
@@ -2319,7 +2319,7 @@ seaf_repo_manager_revert_file (SeafRepoManager *mgr,
     }
 
     if (*error) {
-        seaf_warning ("[revert file] error: %s\n", (*error)->message);
+        winguf_warning ("[revert file] error: %s\n", (*error)->message);
         g_clear_error (error);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "internal error");
@@ -2332,7 +2332,7 @@ seaf_repo_manager_revert_file (SeafRepoManager *mgr,
     }
     
     if (!root_id) {
-        seaf_warning ("[revert file] Failed to revert file.\n");
+        winguf_warning ("[revert file] Failed to revert file.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to revert file");
         ret = -1;
@@ -2354,15 +2354,15 @@ seaf_repo_manager_revert_file (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref (head_commit);
+        winguf_commit_unref (head_commit);
     if (old_commit)
-        seaf_commit_unref (old_commit);
+        winguf_commit_unref (old_commit);
 
     g_free (root_id);
     g_free (parent_dir);
@@ -2397,7 +2397,7 @@ revert_dir (const char *root_id,
 
     *skipped = FALSE;
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr,
                                                root_id,
                                                parent_dir, error);
     if (*error) {
@@ -2428,12 +2428,12 @@ revert_dir (const char *root_id,
             break;
     }
 
-    newdent = seaf_dirent_new (dir_id, S_IFDIR, new_dir_name);
+    newdent = winguf_dirent_new (dir_id, S_IFDIR, new_dir_name);
     new_root_id = do_post_file (root_id, parent_dir, newdent);
 
 out:
     if (dir)
-        seaf_dir_free (dir);
+        winguf_dir_free (dir);
 
     g_free (newdent);
 
@@ -2441,7 +2441,7 @@ out:
 }
 
 int
-seaf_repo_manager_revert_dir (SeafRepoManager *mgr,
+winguf_repo_manager_revert_dir (SeafRepoManager *mgr,
                               const char *repo_id,
                               const char *old_commit_id,
                               const char *dir_path,
@@ -2481,10 +2481,10 @@ seaf_repo_manager_revert_dir (SeafRepoManager *mgr,
     if (!canon_path) {
         canon_path = get_canonical_path (dir_path);
 
-        revert_to_dir_id = seaf_fs_manager_get_seafdir_id_by_path (
-                    seaf->fs_mgr, old_commit->root_id, canon_path, error);
+        revert_to_dir_id = winguf_fs_manager_get_wingufdir_id_by_path (
+                    winguf->fs_mgr, old_commit->root_id, canon_path, error);
         if (*error) {
-            seaf_warning ("[revert dir] error: %s\n", (*error)->message);
+            winguf_warning ("[revert dir] error: %s\n", (*error)->message);
             g_clear_error (error);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                          "internal error");
@@ -2499,7 +2499,7 @@ seaf_repo_manager_revert_dir (SeafRepoManager *mgr,
     parent_dir_exist = detect_path_exist (head_commit->root_id,
                                           parent_dir, error);
     if (*error) {
-        seaf_warning ("[revert dir] error: %s\n", (*error)->message);
+        winguf_warning ("[revert dir] error: %s\n", (*error)->message);
         g_clear_error (error);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "internal error");
@@ -2525,7 +2525,7 @@ seaf_repo_manager_revert_dir (SeafRepoManager *mgr,
     }
 
     if (*error) {
-        seaf_warning ("[revert dir] error: %s\n", (*error)->message);
+        winguf_warning ("[revert dir] error: %s\n", (*error)->message);
         g_clear_error (error);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "internal error");
@@ -2538,7 +2538,7 @@ seaf_repo_manager_revert_dir (SeafRepoManager *mgr,
     }
     
     if (!root_id) {
-        seaf_warning ("[revert dir] Failed to revert dir.\n");
+        winguf_warning ("[revert dir] Failed to revert dir.\n");
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to revert dir");
         ret = -1;
@@ -2553,15 +2553,15 @@ seaf_repo_manager_revert_dir (SeafRepoManager *mgr,
         goto out;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref (head_commit);
+        winguf_commit_unref (head_commit);
     if (old_commit)
-        seaf_commit_unref (old_commit);
+        winguf_commit_unref (old_commit);
 
     g_free (root_id);
     g_free (parent_dir);
@@ -2616,7 +2616,7 @@ get_file_id_with_cache (SeafCommit *commit,
         return g_strdup(file_id);
     }
 
-    file_id = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr,
+    file_id = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr,
                     commit->root_id, path, &mode, error);
 
     if (file_id != NULL) {
@@ -2686,12 +2686,12 @@ collect_file_revisions (SeafCommit *commit, void *vdata, gboolean *stop)
 
     if (!commit->parent_id) {
         /* Initial commit */
-        seaf_commit_ref (commit);
+        winguf_commit_ref (commit);
         g_hash_table_insert (wanted_commits, commit->commit_id, commit);
         goto out;
     }
 
-    parent_commit = seaf_commit_manager_get_commit (seaf->commit_mgr,
+    parent_commit = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                              commit->parent_id);
     if (!parent_commit) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
@@ -2714,7 +2714,7 @@ collect_file_revisions (SeafCommit *commit, void *vdata, gboolean *stop)
 
     /* In case of a merge, the second parent also need compare */
     if (commit->second_parent_id) {
-        parent_commit2 = seaf_commit_manager_get_commit (seaf->commit_mgr,
+        parent_commit2 = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                                  commit->second_parent_id);
         if (!parent_commit2) {
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
@@ -2739,7 +2739,7 @@ collect_file_revisions (SeafCommit *commit, void *vdata, gboolean *stop)
     if (!data->got_latest)
         data->got_latest = TRUE;
 
-    seaf_commit_ref (commit);
+    winguf_commit_ref (commit);
     g_hash_table_insert (wanted_commits, commit->commit_id, commit);
 
 out:
@@ -2747,8 +2747,8 @@ out:
     g_free (parent_file_id);
     g_free (parent_file_id2);
 
-    if (parent_commit) seaf_commit_unref (parent_commit);
-    if (parent_commit2) seaf_commit_unref (parent_commit2);
+    if (parent_commit) winguf_commit_unref (parent_commit);
+    if (parent_commit2) winguf_commit_unref (parent_commit2);
 
     return ret;
 }
@@ -2761,7 +2761,7 @@ compare_commit_by_time (const SeafCommit *a, const SeafCommit *b)
 }
 
 GList *
-seaf_repo_manager_list_file_revisions (SeafRepoManager *mgr,
+winguf_repo_manager_list_file_revisions (SeafRepoManager *mgr,
                                        const char *repo_id,
                                        const char *path,
                                        int max_revision,
@@ -2772,7 +2772,7 @@ seaf_repo_manager_list_file_revisions (SeafRepoManager *mgr,
     GList *commit_list = NULL;
     CollectRevisionParam data = {0};
 
-    repo = seaf_repo_manager_get_repo (mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "No such repo %s", repo_id);
@@ -2783,19 +2783,19 @@ seaf_repo_manager_list_file_revisions (SeafRepoManager *mgr,
     data.error = error;
     data.max_revision = max_revision;
 
-    data.truncate_time = seaf_repo_manager_get_repo_truncate_time (mgr, repo_id);
+    data.truncate_time = winguf_repo_manager_get_repo_truncate_time (mgr, repo_id);
 
     /* A (commit id, commit) hash table. We specify a value destroy
      * function, so that even if we fail in half way of traversing, we can
      * free all commits in the hashtbl.*/
     data.wanted_commits = g_hash_table_new_full (g_str_hash, g_str_equal,
-                            NULL, (GDestroyNotify)seaf_commit_unref);
+                            NULL, (GDestroyNotify)winguf_commit_unref);
 
     /* A hash table to cache caculated file id of <path> in <commit> */
     data.file_id_cache = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                 g_free, g_free);
 
-    if (!seaf_commit_manager_traverse_commit_tree_with_limit (seaf->commit_mgr,
+    if (!winguf_commit_manager_traverse_commit_tree_with_limit (winguf->commit_mgr,
                                                         repo->head->commit_id,
                                                         (CommitTraverseFunc)collect_file_revisions,
                                                               limit, &data)) {
@@ -2811,14 +2811,14 @@ seaf_repo_manager_list_file_revisions (SeafRepoManager *mgr,
     g_hash_table_iter_init (&iter, data.wanted_commits);
     while (g_hash_table_iter_next (&iter, &key, &value)) {
         SeafCommit *commit = value;
-        seaf_commit_ref (commit);
+        winguf_commit_ref (commit);
         commit_list = g_list_insert_sorted (commit_list, commit,
                                             (GCompareFunc)compare_commit_by_time);
     }
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (data.wanted_commits)
         g_hash_table_destroy (data.wanted_commits);
     if (data.file_id_cache)
@@ -2870,7 +2870,7 @@ collect_files_last_modified (SeafCommit *commit, void *vdata, gboolean *stop)
     gboolean ret = TRUE;
 
     data->current_commit = commit;
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr,
                                                commit->root_id,
                                                data->parent_dir,
                                                error);
@@ -2923,7 +2923,7 @@ collect_files_last_modified (SeafCommit *commit, void *vdata, gboolean *stop)
     }
 
 out:
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
 
     return ret;
 }
@@ -2938,7 +2938,7 @@ out:
  * commit previous to that commit.
  */
 GList *
-seaf_repo_manager_calc_files_last_modified (SeafRepoManager *mgr,
+winguf_repo_manager_calc_files_last_modified (SeafRepoManager *mgr,
                                             const char *repo_id,
                                             const char *parent_dir,
                                             int limit,
@@ -2952,21 +2952,21 @@ seaf_repo_manager_calc_files_last_modified (SeafRepoManager *mgr,
     CalcFilesLastModifiedParam data = {0};
     GList *ret_list = NULL;
 
-    repo = seaf_repo_manager_get_repo (mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "No such repo %s", repo_id);
         goto out;
     }
 
-    head_commit = seaf_commit_manager_get_commit (seaf->commit_mgr, repo->head->commit_id);
+    head_commit = winguf_commit_manager_get_commit (winguf->commit_mgr, repo->head->commit_id);
     if (!head_commit) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Failed to get commit %s", repo->head->commit_id);
         goto out;
     }
 
-    dir = seaf_fs_manager_get_seafdir_by_path (seaf->fs_mgr, head_commit->root_id,
+    dir = winguf_fs_manager_get_wingufdir_by_path (winguf->fs_mgr, head_commit->root_id,
                                                parent_dir, error);
     if (*error || !dir) {
         goto out;
@@ -3001,11 +3001,11 @@ seaf_repo_manager_calc_files_last_modified (SeafRepoManager *mgr,
     data.parent_dir = parent_dir;
     data.error = error;
 
-    if (!seaf_commit_manager_traverse_commit_tree_with_limit (seaf->commit_mgr,
+    if (!winguf_commit_manager_traverse_commit_tree_with_limit (winguf->commit_mgr,
                                                         repo->head->commit_id,
                                 (CommitTraverseFunc)collect_files_last_modified,
                                                               limit, &data)) {
-        seaf_warning ("error when travsersing commits: %s\n", (*error)->message);
+        winguf_warning ("error when travsersing commits: %s\n", (*error)->message);
         g_clear_error (error);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "failed to traverse commit of repo %s", repo_id);
@@ -3028,21 +3028,21 @@ seaf_repo_manager_calc_files_last_modified (SeafRepoManager *mgr,
 
 out:
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
     if (head_commit)
-        seaf_commit_unref(head_commit);
+        winguf_commit_unref(head_commit);
     if (data.last_modified_hash)
         g_hash_table_destroy (data.last_modified_hash);
     if (data.current_file_id_hash)
         g_hash_table_destroy (data.current_file_id_hash);
     if (dir)
-        seaf_dir_free (dir);
+        winguf_dir_free (dir);
 
     return g_list_reverse(ret_list);
 }
 
 int
-seaf_repo_manager_revert_on_server (SeafRepoManager *mgr,
+winguf_repo_manager_revert_on_server (SeafRepoManager *mgr,
                                     const char *repo_id,
                                     const char *commit_id,
                                     const char *user_name,
@@ -3054,14 +3054,14 @@ seaf_repo_manager_revert_on_server (SeafRepoManager *mgr,
     int ret = 0;
 
 retry:
-    repo = seaf_repo_manager_get_repo (mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "No such repo");
         return -1;
     }
 
-    commit = seaf_commit_manager_get_commit (seaf->commit_mgr, commit_id);
+    commit = winguf_commit_manager_get_commit (winguf->commit_mgr, commit_id);
     if (!commit) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Commit doesn't exist");
@@ -3077,42 +3077,42 @@ retry:
               localtime((time_t *)(&commit->ctime)));
 #endif
 
-    new_commit = seaf_commit_new (NULL, repo->id, commit->root_id,
+    new_commit = winguf_commit_new (NULL, repo->id, commit->root_id,
                                   user_name, EMPTY_SHA1,
                                   desc, 0);
 
     new_commit->parent_id = g_strdup (repo->head->commit_id);
 
-    seaf_repo_to_commit (repo, new_commit);
+    winguf_repo_to_commit (repo, new_commit);
 
-    if (seaf_commit_manager_add_commit (seaf->commit_mgr, new_commit) < 0) {
+    if (winguf_commit_manager_add_commit (winguf->commit_mgr, new_commit) < 0) {
         ret = -1;
         goto out;
     }
 
-    seaf_branch_set_commit (repo->head, new_commit->commit_id);
-    if (seaf_branch_manager_test_and_update_branch (seaf->branch_mgr,
+    winguf_branch_set_commit (repo->head, new_commit->commit_id);
+    if (winguf_branch_manager_test_and_update_branch (winguf->branch_mgr,
                                                     repo->head,
                                                     new_commit->parent_id) < 0)
     {
-        seaf_warning ("[revert] Concurrent branch update, retry.\n");
-        seaf_repo_unref (repo);
-        seaf_commit_unref (commit);
-        seaf_commit_unref (new_commit);
+        winguf_warning ("[revert] Concurrent branch update, retry.\n");
+        winguf_repo_unref (repo);
+        winguf_commit_unref (commit);
+        winguf_commit_unref (new_commit);
         repo = NULL;
         commit = new_commit = NULL;
         goto retry;
     }
 
-    seaf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
+    winguf_repo_manager_merge_virtual_repo (mgr, repo_id, NULL);
 
 out:
     if (new_commit)
-        seaf_commit_unref (new_commit);
+        winguf_commit_unref (new_commit);
     if (commit)
-        seaf_commit_unref (commit);
+        winguf_commit_unref (commit);
     if (repo)
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
 
     if (ret == 0) {
         update_repo_size (repo_id);
@@ -3150,7 +3150,7 @@ add_deleted_entry (GHashTable *entries,
                           NULL);
 
     if (S_ISREG(dent->mode)) {
-        file = seaf_fs_manager_get_wingufile (seaf->fs_mgr, dent->id);
+        file = winguf_fs_manager_get_wingufile (winguf->fs_mgr, dent->id);
         if (!file) {
             g_free (path);
             g_object_unref (entry);
@@ -3178,15 +3178,15 @@ find_deleted_recursive (const char *root1,
     if (strcmp (root1, root2) == 0)
         return 0;
 
-    d1 = seaf_fs_manager_get_seafdir_sorted (seaf->fs_mgr, root1);
+    d1 = winguf_fs_manager_get_wingufdir_sorted (winguf->fs_mgr, root1);
     if (!d1) {
-        seaf_warning ("Failed to find dir %s.\n", root1);
+        winguf_warning ("Failed to find dir %s.\n", root1);
         return -1;
     }
-    d2 = seaf_fs_manager_get_seafdir_sorted (seaf->fs_mgr, root2);
+    d2 = winguf_fs_manager_get_wingufdir_sorted (winguf->fs_mgr, root2);
     if (!d2) {
-        seaf_warning ("Failed to find dir %s.\n", root2);
-        seaf_dir_free (d1);
+        winguf_warning ("Failed to find dir %s.\n", root2);
+        winguf_dir_free (d1);
         return -1;
     }
 
@@ -3234,8 +3234,8 @@ find_deleted_recursive (const char *root1,
     }
 
 out:
-    seaf_dir_free (d1);
-    seaf_dir_free (d2);
+    winguf_dir_free (d1);
+    winguf_dir_free (d2);
     return ret;
 }
 
@@ -3262,36 +3262,36 @@ collect_deleted (SeafCommit *commit, void *vdata, gboolean *stop)
     if (commit->parent_id == NULL)
         return TRUE;
 
-    p1 = seaf_commit_manager_get_commit (commit->manager, commit->parent_id);
+    p1 = winguf_commit_manager_get_commit (commit->manager, commit->parent_id);
     if (!p1) {
-        seaf_warning ("Failed to find commit %s.\n", commit->parent_id);
+        winguf_warning ("Failed to find commit %s.\n", commit->parent_id);
         return FALSE;
     }
     if ((gint64)(p1->ctime) >= truncate_time) {
         if (find_deleted_recursive (commit->root_id, p1->root_id, "/",
                                     commit, p1, entries) < 0) {
-            seaf_commit_unref (p1);
+            winguf_commit_unref (p1);
             return FALSE;
         }
     }
-    seaf_commit_unref (p1);
+    winguf_commit_unref (p1);
 
     if (commit->second_parent_id) {
-        p2 = seaf_commit_manager_get_commit (commit->manager,
+        p2 = winguf_commit_manager_get_commit (commit->manager,
                                              commit->second_parent_id);
         if (!p2) {
-            seaf_warning ("Failed to find commit %s.\n",
+            winguf_warning ("Failed to find commit %s.\n",
                           commit->second_parent_id);
             return FALSE;
         }
         if ((gint64)(p2->ctime) >= truncate_time) {
             if (find_deleted_recursive (commit->root_id, p2->root_id, "/",
                                         commit, p2, entries) < 0) {
-                seaf_commit_unref (p2);
+                winguf_commit_unref (p2);
                 return FALSE;
             }
         }
-        seaf_commit_unref (p2);
+        winguf_commit_unref (p2);
     }
 
     return TRUE;
@@ -3305,7 +3305,7 @@ remove_existing (gpointer key, gpointer value, gpointer user_data)
     guint32 mode = wingufile_deleted_entry_get_mode(e), mode_out = 0;
     char *path = key;
 
-    char *obj_id = seaf_fs_manager_path_to_obj_id (seaf->fs_mgr, head->root_id,
+    char *obj_id = winguf_fs_manager_path_to_obj_id (winguf->fs_mgr, head->root_id,
                                                     path, &mode_out, NULL);
     if (obj_id == NULL)
         return FALSE;
@@ -3327,15 +3327,15 @@ filter_out_existing_entries (GHashTable *entries, const char *head_id)
 {
     SeafCommit *head;
 
-    head = seaf_commit_manager_get_commit (seaf->commit_mgr, head_id);
+    head = winguf_commit_manager_get_commit (winguf->commit_mgr, head_id);
     if (!head) {
-        seaf_warning ("Failed to find head commit %s.\n", head_id);
+        winguf_warning ("Failed to find head commit %s.\n", head_id);
         return -1;
     }
 
     g_hash_table_foreach_remove (entries, remove_existing, head);
 
-    seaf_commit_unref (head);
+    winguf_commit_unref (head);
     return 0;
 }
 
@@ -3351,7 +3351,7 @@ hash_to_list (gpointer key, gpointer value, gpointer user_data)
 }
 
 GList *
-seaf_repo_manager_get_deleted_entries (SeafRepoManager *mgr,
+winguf_repo_manager_get_deleted_entries (SeafRepoManager *mgr,
                                        const char *repo_id,
                                        int show_days,
                                        GError **error)
@@ -3360,7 +3360,7 @@ seaf_repo_manager_get_deleted_entries (SeafRepoManager *mgr,
     gint64 truncate_time, show_time;
     GList *ret = NULL;
 
-    truncate_time = seaf_repo_manager_get_repo_truncate_time (mgr, repo_id);
+    truncate_time = winguf_repo_manager_get_repo_truncate_time (mgr, repo_id);
     if (truncate_time == 0)
         return NULL;
 
@@ -3369,7 +3369,7 @@ seaf_repo_manager_get_deleted_entries (SeafRepoManager *mgr,
     else
         show_time = (gint64)time(NULL) - show_days * 24 * 3600;
 
-    repo = seaf_repo_manager_get_repo (mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (mgr, repo_id);
     if (!repo) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL,
                      "Invalid repo id");
@@ -3382,7 +3382,7 @@ seaf_repo_manager_get_deleted_entries (SeafRepoManager *mgr,
     data.entries = entries;
     data.truncate_time = MAX (show_time, truncate_time);
 
-    if (!seaf_commit_manager_traverse_commit_tree (seaf->commit_mgr,
+    if (!winguf_commit_manager_traverse_commit_tree (winguf->commit_mgr,
                                                    repo->head->commit_id,
                                                    collect_deleted,
                                                    &data,
@@ -3391,7 +3391,7 @@ seaf_repo_manager_get_deleted_entries (SeafRepoManager *mgr,
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_INTERNAL,
                      "Internal error");
         g_hash_table_destroy (entries);
-        seaf_repo_unref (repo);
+        winguf_repo_unref (repo);
         return NULL;
     }
 
@@ -3414,27 +3414,27 @@ get_commit(SeafRepo *repo, const char *branch_or_commit)
     SeafBranch *b;
     SeafCommit *c;
 
-    b = seaf_branch_manager_get_branch (seaf->branch_mgr, repo->id,
+    b = winguf_branch_manager_get_branch (winguf->branch_mgr, repo->id,
                                         branch_or_commit);
     if (!b) {
         if (strcmp(branch_or_commit, "HEAD") == 0)
-            c = seaf_commit_manager_get_commit (seaf->commit_mgr,
+            c = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                                 repo->head->commit_id);
         else
-            c = seaf_commit_manager_get_commit (seaf->commit_mgr,
+            c = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                                 branch_or_commit);
     } else {
-        c = seaf_commit_manager_get_commit (seaf->commit_mgr, b->commit_id);
+        c = winguf_commit_manager_get_commit (winguf->commit_mgr, b->commit_id);
     }
 
     if (b)
-        seaf_branch_unref (b);
+        winguf_branch_unref (b);
     
     return c;
 }
 
 GList *
-seaf_repo_diff (SeafRepo *repo, const char *old, const char *new, char **error)
+winguf_repo_diff (SeafRepo *repo, const char *old, const char *new, char **error)
 {
     SeafCommit *c1 = NULL, *c2 = NULL;
     int ret = 0;
@@ -3453,18 +3453,18 @@ seaf_repo_diff (SeafRepo *repo, const char *old, const char *new, char **error)
             ret = diff_merge (c2, &diff_entries);
             if (ret < 0) {
                 *error = g_strdup("Failed to do diff");
-                seaf_commit_unref (c2);
+                winguf_commit_unref (c2);
                 return NULL;
             }
-            seaf_commit_unref (c2);
+            winguf_commit_unref (c2);
             return diff_entries;
         }
 
         if (!c2->parent_id) {
-            seaf_commit_unref (c2);
+            winguf_commit_unref (c2);
             return NULL;
         }
-        c1 = seaf_commit_manager_get_commit (seaf->commit_mgr,
+        c1 = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                              c2->parent_id);
     } else {
         c1 = get_commit (repo, old);
@@ -3472,7 +3472,7 @@ seaf_repo_diff (SeafRepo *repo, const char *old, const char *new, char **error)
 
     if (!c1) {
         *error = g_strdup("Can't find old commit");
-        seaf_commit_unref (c2);
+        winguf_commit_unref (c2);
         return NULL;
     }
 
@@ -3481,8 +3481,8 @@ seaf_repo_diff (SeafRepo *repo, const char *old, const char *new, char **error)
     if (ret < 0)
         *error = g_strdup("Failed to do diff");
 
-    seaf_commit_unref (c1);
-    seaf_commit_unref (c2);
+    winguf_commit_unref (c1);
+    winguf_commit_unref (c2);
 
     return diff_entries;
 }

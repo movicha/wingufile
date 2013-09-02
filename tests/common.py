@@ -1,5 +1,5 @@
 import sys
-#sys.path = ['../../python', '../../python/ccnet/.libs', '../../python/pyccnetevent/.libs', '../python', '../python/wingufile/.libs', '../../lib/searpc', '../../lib/searpc/pysearpc/.libs'] + sys.path
+#sys.path = ['../../python', '../../python/ccnet/.libs', '../../python/pyccnetevent/.libs', '../python', '../python/wingufile/.libs', '../../lib/wingurpc', '../../lib/wingurpc/pywingurpc/.libs'] + sys.path
 
 from datetime import datetime
 import os
@@ -36,7 +36,7 @@ class SeafileDaemon(object):
             # child
             #os.execl("../net/ccnet", "ccnet", "-c", self.confdir,
             #         "-D", "All", "-f", "-")
-            os.execl("../daemon/seaf-daemon", "seaf-daemon", "-c",
+            os.execl("../daemon/winguf-daemon", "winguf-daemon", "-c",
                      self.confdir, *args)
             
     def stop(self):

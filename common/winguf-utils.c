@@ -1,8 +1,8 @@
 #include "common.h"
 
 #include "wingufile-session.h"
-#include "seaf-utils.h"
-#include "seaf-db.h"
+#include "winguf-utils.h"
+#include "winguf-db.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -31,8 +31,8 @@ sqlite_db_start (SeafileSession *session)
 {
     char *db_path;
 
-    db_path = g_build_filename (session->seaf_dir, SQLITE_DB_NAME, NULL);
-    session->db = seaf_db_new_sqlite (db_path);
+    db_path = g_build_filename (session->winguf_dir, SQLITE_DB_NAME, NULL);
+    session->db = winguf_db_new_sqlite (db_path);
     if (!session->db) {
         g_warning ("Failed to start sqlite db.\n");
         return -1;
@@ -74,7 +74,7 @@ mysql_db_start (SeafileSession *session)
     unix_socket = g_key_file_get_string (session->config, 
                                          "database", "unix_socket", &error);
 
-    session->db = seaf_db_new_mysql (host, user, passwd, db, unix_socket);
+    session->db = winguf_db_new_mysql (host, user, passwd, db, unix_socket);
     if (!session->db) {
         g_warning ("Failed to start mysql db.\n");
         return -1;
@@ -122,7 +122,7 @@ pgsql_db_start (SeafileSession *session)
     unix_socket = g_key_file_get_string (session->config,
                                          "database", "unix_socket", &error);
 
-    session->db = seaf_db_new_pgsql (host, user, passwd, db, unix_socket);
+    session->db = winguf_db_new_pgsql (host, user, passwd, db, unix_socket);
     if (!session->db) {
         g_warning ("Failed to start pgsql db.\n");
         return -1;

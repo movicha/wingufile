@@ -6,6 +6,6 @@ includedir=@includedir@
 Name: libccnet
 Description: Client library for accessing wingufile service.
 Version: @VERSION@
-Libs: -L${libdir} -lwingufile @SEARPC_LIBS@
-Cflags: -I${includedir} @SEARPC_CFLAGS@
+Libs: -L${libdir} -lwingufile @WINGURPC_LIBS@
+Cflags: -I${includedir} @WINGURPC_CFLAGS@
 Requires: gobject-2.0 glib-2.0

@@ -49,10 +49,10 @@ static int
 perform_sync_task (SeafSyncManager *manager, SyncTask *task);
 static int check_sync_pulse (void *vmanager);
 static int auto_commit_pulse (void *vmanager);
-static void on_repo_fetched (SeafileSession *seaf,
+static void on_repo_fetched (SeafileSession *winguf,
                              TransferTask *tx_task,
                              SeafSyncManager *manager);
-static void on_repo_uploaded (SeafileSession *seaf,
+static void on_repo_uploaded (SeafileSession *winguf,
                               TransferTask *tx_task,
                               SeafSyncManager *manager);
 static inline void
@@ -62,12 +62,12 @@ static gint compare_sync_task (gconstpointer a, gconstpointer b);
 static void sync_task_free (SyncTask *task);
 
 SeafSyncManager*
-seaf_sync_manager_new (SeafileSession *seaf)
+winguf_sync_manager_new (SeafileSession *winguf)
 {
     SeafSyncManager *mgr = g_new0 (SeafSyncManager, 1);
     mgr->priv = g_new0 (SeafSyncManagerPriv, 1);    
     mgr->priv->auto_sync_enabled = TRUE;
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
 
     mgr->sync_interval = DEFAULT_SYNC_INTERVAL;
     mgr->sync_infos = g_hash_table_new (g_str_hash, g_str_equal);
@@ -91,14 +91,14 @@ get_sync_info (SeafSyncManager *manager, const char *repo_id)
 }
 
 SyncInfo *
-seaf_sync_manager_get_sync_info (SeafSyncManager *mgr,
+winguf_sync_manager_get_sync_info (SeafSyncManager *mgr,
                                  const char *repo_id)
 {
     return g_hash_table_lookup (mgr->sync_infos, repo_id);
 }
 
 int
-seaf_sync_manager_init (SeafSyncManager *mgr)
+winguf_sync_manager_init (SeafSyncManager *mgr)
 {
     mgr->priv->get_email_token_hash = g_hash_table_new_full (
         g_str_hash, g_str_equal, NULL, NULL);
@@ -116,10 +116,10 @@ add_relay_if_needed (SeafRepo *repo)
     char *relay_port = NULL, *relay_addr = NULL;
     GString *buf = NULL; 
 
-    seaf_repo_manager_get_repo_relay_info (seaf->repo_mgr, repo->id,
+    winguf_repo_manager_get_repo_relay_info (winguf->repo_mgr, repo->id,
                                            &relay_addr, &relay_port);
 
-    relay = ccnet_get_peer (seaf->ccnetrpc_client, repo->relay_id);
+    relay = ccnet_get_peer (winguf->ccnetrpc_client, repo->relay_id);
     if (relay) {
         /* no relay addr/port info in wingufile db. This means we are
          * updating from an old version. */
@@ -127,7 +127,7 @@ add_relay_if_needed (SeafRepo *repo)
             if (relay->public_addr && relay->public_port) {
                 char port[16];
                 snprintf (port, sizeof(port), "%d", relay->public_port);
-                seaf_repo_manager_set_repo_relay_info (seaf->repo_mgr, repo->id,
+                winguf_repo_manager_set_repo_relay_info (winguf->repo_mgr, repo->id,
                                                        relay->public_addr, port);
             }
         }
@@ -141,12 +141,12 @@ add_relay_if_needed (SeafRepo *repo)
                                 repo->relay_id, relay_addr, relay_port);
                                                
     } else {
-        seaf_warning ("[sync mgr] relay addr/port info"
+        winguf_warning ("[sync mgr] relay addr/port info"
                       " of repo %.10s is unknown\n", repo->id);
     }
 
     if (buf) {
-        ccnet_send_command (seaf->session, buf->str, NULL, NULL);
+        ccnet_send_command (winguf->session, buf->str, NULL, NULL);
     }
 
 out:
@@ -163,7 +163,7 @@ add_repo_relays ()
 {
     GList *ptr, *repo_list;
 
-    repo_list = seaf_repo_manager_get_repo_list (seaf->repo_mgr, 0, -1);
+    repo_list = winguf_repo_manager_get_repo_list (winguf->repo_mgr, 0, -1);
 
     for (ptr = repo_list; ptr; ptr = ptr->next) {
         SeafRepo *repo = ptr->data;
@@ -176,7 +176,7 @@ add_repo_relays ()
 }
 
 int
-seaf_sync_manager_start (SeafSyncManager *mgr)
+winguf_sync_manager_start (SeafSyncManager *mgr)
 {
     add_repo_relays ();
     mgr->priv->check_sync_timer = ccnet_timer_new (
@@ -185,42 +185,42 @@ seaf_sync_manager_start (SeafSyncManager *mgr)
     mgr->priv->check_commit_timer = ccnet_timer_new (
         auto_commit_pulse, mgr, CHECK_COMMIT_INTERVAL);
 
-    ccnet_proc_factory_register_processor (mgr->seaf->session->proc_factory,
+    ccnet_proc_factory_register_processor (mgr->winguf->session->proc_factory,
                                            "wingufile-sync-repo",
                                            WINGUFILE_TYPE_SYNC_REPO_PROC);
-    ccnet_proc_factory_register_processor (mgr->seaf->session->proc_factory,
+    ccnet_proc_factory_register_processor (mgr->winguf->session->proc_factory,
                                            "wingufile-notifysync",
                                            WINGUFILE_TYPE_NOTIFYSYNC_PROC);
-    ccnet_proc_factory_register_processor (mgr->seaf->session->proc_factory,
+    ccnet_proc_factory_register_processor (mgr->winguf->session->proc_factory,
                                            "wingufile-get-repo-email-token",
                                            WINGUFILE_TYPE_GETREPOEMAILTOKEN_PROC);
-    g_signal_connect (seaf, "repo-fetched",
+    g_signal_connect (winguf, "repo-fetched",
                       (GCallback)on_repo_fetched, mgr);
-    g_signal_connect (seaf, "repo-uploaded",
+    g_signal_connect (winguf, "repo-uploaded",
                       (GCallback)on_repo_uploaded, mgr);
 
     return 0;
 }
 
 int
-seaf_sync_manager_add_sync_task (SeafSyncManager *mgr,
+winguf_sync_manager_add_sync_task (SeafSyncManager *mgr,
                                  const char *repo_id,
                                  const char *dest_id,
                                  const char *token,
                                  gboolean is_sync_lan,
                                  GError **error)
 {
-    if (!seaf->started) {
-        seaf_message ("sync manager is not started, skip sync request.\n");
+    if (!winguf->started) {
+        winguf_message ("sync manager is not started, skip sync request.\n");
         return -1;
     }
 
     SyncInfo *info = get_sync_info (mgr, repo_id);
     SeafRepo *repo;
 
-    repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
-        seaf_warning ("[sync mgr] cannot find repo %s.\n", repo_id);
+        winguf_warning ("[sync mgr] cannot find repo %s.\n", repo_id);
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_REPO, "Invalid repo");
         return -1;
     }
@@ -233,8 +233,8 @@ seaf_sync_manager_add_sync_task (SeafSyncManager *mgr,
         } else {
             if (repo->relay_id)
                 dest_id = repo->relay_id;
-            /* else if (seaf->session->base.relay_id) */
-            /*     dest_id = seaf->session->base.relay_id; */
+            /* else if (winguf->session->base.relay_id) */
+            /*     dest_id = winguf->session->base.relay_id; */
             else {
                 g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_BAD_ARGS,
                              "Unknown Destination");
@@ -249,7 +249,7 @@ seaf_sync_manager_add_sync_task (SeafSyncManager *mgr,
         return -1;
     }
 
-    if (seaf_repo_check_worktree (repo) < 0) {
+    if (winguf_repo_check_worktree (repo) < 0) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_NO_WORKTREE,
                      "Worktree doesn't exist");
         return -1;
@@ -288,15 +288,15 @@ seaf_sync_manager_add_sync_task (SeafSyncManager *mgr,
 }
 
 void
-seaf_sync_manager_cancel_sync_task (SeafSyncManager *mgr,
+winguf_sync_manager_cancel_sync_task (SeafSyncManager *mgr,
                                     const char *repo_id)
 {
     SyncInfo *info;
     SyncTask *task;
     GList *link;
 
-    if (!seaf->started) {
-        seaf_message ("sync manager is not started, skip cancel request.\n");
+    if (!winguf->started) {
+        winguf_message ("sync manager is not started, skip cancel request.\n");
         return;
     }
 
@@ -319,13 +319,13 @@ seaf_sync_manager_cancel_sync_task (SeafSyncManager *mgr,
 
     switch (task->state) {
     case SYNC_STATE_FETCH:
-        seaf_transfer_manager_cancel_task (seaf->transfer_mgr,
+        winguf_transfer_manager_cancel_task (winguf->transfer_mgr,
                                            task->tx_id,
                                            TASK_TYPE_DOWNLOAD);
         transition_sync_state (task, SYNC_STATE_CANCEL_PENDING);
         break;
     case SYNC_STATE_UPLOAD:
-        seaf_transfer_manager_cancel_task (seaf->transfer_mgr,
+        winguf_transfer_manager_cancel_task (winguf->transfer_mgr,
                                            task->tx_id,
                                            TASK_TYPE_UPLOAD);
         transition_sync_state (task, SYNC_STATE_CANCEL_PENDING);
@@ -344,7 +344,7 @@ seaf_sync_manager_cancel_sync_task (SeafSyncManager *mgr,
 
 #if 0
 int
-seaf_sync_manager_notify_peer_sync (SeafSyncManager *mgr,
+winguf_sync_manager_notify_peer_sync (SeafSyncManager *mgr,
                                     const char *repo_id,
                                     const char *peer_id,
                                     GError **error)
@@ -356,27 +356,27 @@ seaf_sync_manager_notify_peer_sync (SeafSyncManager *mgr,
         return -1;
     }
 
-    token = seaf_repo_manager_generate_tmp_token (seaf->repo_mgr,
+    token = winguf_repo_manager_generate_tmp_token (winguf->repo_mgr,
                                                   repo_id, peer_id);
     if (!token) {
-        seaf_warning ("[sync-mgr] failed to generate tmp token for repo %s.\n",
+        winguf_warning ("[sync-mgr] failed to generate tmp token for repo %s.\n",
                       repo_id);
         return -1;
     }
     processor = ccnet_proc_factory_create_remote_master_processor (
-        seaf->session->proc_factory, "wingufile-notifysync", peer_id);
+        winguf->session->proc_factory, "wingufile-notifysync", peer_id);
     if (!processor) {
-        seaf_warning ("[sync-mgr] failed to create get wingufile-notifysync proc.\n");
+        winguf_warning ("[sync-mgr] failed to create get wingufile-notifysync proc.\n");
         return -1;
     }
 
     if (ccnet_processor_startl (processor, repo_id, token, NULL) < 0) {
-        seaf_warning ("[sync-mgr] failed to start get wingufile-notifysync proc.\n");
+        winguf_warning ("[sync-mgr] failed to start get wingufile-notifysync proc.\n");
         g_free (token);
         return -1;
     }
 
-    seaf_debug ("[sync-mgr] Notify peer %s sync repo %s in lan\n",
+    winguf_debug ("[sync-mgr] Notify peer %s sync repo %s in lan\n",
                 peer_id, repo_id);
     g_free (token);
     return 0;
@@ -387,9 +387,9 @@ seaf_sync_manager_notify_peer_sync (SeafSyncManager *mgr,
 static gboolean
 need_notify_sync (SeafRepo *repo)
 {
-    char *notify_setting = wingufile_session_config_get_string(seaf, "notify_sync");
+    char *notify_setting = wingufile_session_config_get_string(winguf, "notify_sync");
     if (notify_setting == NULL) {
-        wingufile_session_config_set_string(seaf, "notify_sync", "on");
+        wingufile_session_config_set_string(winguf, "notify_sync", "on");
         return TRUE;
     }
 
@@ -419,7 +419,7 @@ transition_sync_state (SyncTask *task, int new_state)
         if (!task->quiet &&
             !(task->state == SYNC_STATE_DONE && new_state == SYNC_STATE_INIT) &&
             !(task->state == SYNC_STATE_INIT && new_state == SYNC_STATE_DONE)) {
-            seaf_message ("Repo '%s' sync state transition from '%s' to '%s'.\n",
+            winguf_message ("Repo '%s' sync state transition from '%s' to '%s'.\n",
                           task->repo->name,
                           sync_state_str[task->state],
                           sync_state_str[new_state]);
@@ -430,7 +430,7 @@ transition_sync_state (SyncTask *task, int new_state)
             need_notify_sync(task->repo))
         {
             SeafCommit *head;
-            head = seaf_commit_manager_get_commit (seaf->commit_mgr,
+            head = winguf_commit_manager_get_commit (winguf->commit_mgr,
                                                    task->repo->head->commit_id);
             if (head) {
                 GString *buf = g_string_new (NULL);
@@ -438,11 +438,11 @@ transition_sync_state (SyncTask *task, int new_state)
                                         task->repo->name,
                                         task->repo->id,
                                         head->desc);
-                seaf_mq_manager_publish_notification (seaf->mq_mgr,
+                winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                                       "sync.done",
                                                       buf->str);
                 g_string_free (buf, TRUE);
-                seaf_commit_unref (head);
+                winguf_commit_unref (head);
             }
         }
 
@@ -484,12 +484,12 @@ static const char *sync_error_str[] = {
 };
 
 void
-seaf_sync_manager_set_task_error (SyncTask *task, int error)
+winguf_sync_manager_set_task_error (SyncTask *task, int error)
 {
     g_assert (error >= 0 && error < SYNC_ERROR_NUM);
 
     if (task->state != SYNC_STATE_ERROR) {
-        seaf_message ("Repo '%s' sync state transition from %s to '%s': '%s'.\n",
+        winguf_message ("Repo '%s' sync state transition from %s to '%s': '%s'.\n",
                       task->repo->name,
                       sync_state_str[task->state],
                       sync_state_str[SYNC_STATE_ERROR],
@@ -506,7 +506,7 @@ seaf_sync_manager_set_task_error (SyncTask *task, int error)
             GString *buf = g_string_new (NULL);
             g_string_append_printf (buf, "%s\t%s", task->repo->name,
                                     task->repo->id);
-            seaf_mq_manager_publish_notification (seaf->mq_mgr,
+            winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                                   "sync.error",
                                                   buf->str);
             g_string_free (buf, TRUE);
@@ -530,7 +530,7 @@ start_upload_if_necessary (SyncTask *task)
     GError *error = NULL;
     const char *repo_id = task->repo->id;
 
-    char *tx_id = seaf_transfer_manager_add_upload (seaf->transfer_mgr,
+    char *tx_id = winguf_transfer_manager_add_upload (winguf->transfer_mgr,
                                                     repo_id,
                                                     task->dest_id,
                                                     "local",
@@ -538,8 +538,8 @@ start_upload_if_necessary (SyncTask *task)
                                                     task->token,
                                                     &error);
     if (error != NULL) {
-        seaf_warning ("Failed to start upload: %s\n", error->message);
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_START_UPLOAD);
+        winguf_warning ("Failed to start upload: %s\n", error->message);
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_START_UPLOAD);
         return;
     }
     task->tx_id = tx_id;
@@ -553,7 +553,7 @@ start_fetch_if_necessary (SyncTask *task)
     char *tx_id;
     const char *repo_id = task->repo->id;
 
-    tx_id = seaf_transfer_manager_add_download (seaf->transfer_mgr,
+    tx_id = winguf_transfer_manager_add_download (winguf->transfer_mgr,
                                                 repo_id,
                                                 task->dest_id,
                                                 "fetch_head",
@@ -562,9 +562,9 @@ start_fetch_if_necessary (SyncTask *task)
                                                 &error);
 
     if (error != NULL) {
-        seaf_warning ("[sync-mgr] Failed to start download: %s\n",
+        winguf_warning ("[sync-mgr] Failed to start download: %s\n",
                          error->message);
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_START_FETCH);
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_START_FETCH);
         return;
     }
     task->tx_id = tx_id;
@@ -584,17 +584,17 @@ fix_dirty_worktree (SeafRepo *repo)
     char *commit_id;
     GError *error = NULL;
 
-    commit_id = seaf_repo_index_commit (repo, "", &error);
+    commit_id = winguf_repo_index_commit (repo, "", &error);
     if (error != NULL) {
-        seaf_warning ("Failed to commit unclean worktree.\n");
+        winguf_warning ("Failed to commit unclean worktree.\n");
         g_error_free (error);
         return -1;
     }
     g_free (commit_id);
 
     /* After commit, the worktree should be clean. */
-    if (seaf_repo_is_worktree_changed (repo)) {
-        seaf_warning ("Worktree is still dirty after commit.\n");
+    if (winguf_repo_is_worktree_changed (repo)) {
+        winguf_warning ("Worktree is still dirty after commit.\n");
         return -1;
     }
 
@@ -612,15 +612,15 @@ merge_job (void *vtask)
     res->task = task;
 
     if (repo->delete_pending) {
-        seaf_message ("Repo %s was deleted, don't need to merge.\n", repo->id);
+        winguf_message ("Repo %s was deleted, don't need to merge.\n", repo->id);
         return res;
     }
 
     pthread_mutex_lock (&repo->lock);
 
     /* Try to commit if worktree is not clean. */
-    if (seaf_repo_is_worktree_changed (repo) && fix_dirty_worktree (repo) < 0) {
-        seaf_message ("[sync mgr] Worktree is not clean. Skip merging repo %s(%.8s).\n",
+    if (winguf_repo_is_worktree_changed (repo) && fix_dirty_worktree (repo) < 0) {
+        winguf_message ("[sync mgr] Worktree is not clean. Skip merging repo %s(%.8s).\n",
                    repo->name, repo->id);
         res->success = FALSE;
         res->worktree_dirty = TRUE;
@@ -639,8 +639,8 @@ merge_job (void *vtask)
      * For 2 and 4, the errors are ignored by the merge routine (return 0).
      * For 3, just wait another merge retry.
      * */
-    if (seaf_repo_merge (repo, "master", &err_msg, &res->real_merge) < 0) {
-        seaf_message ("[Sync mgr] Merge of repo %s(%.8s) is not clean.\n",
+    if (winguf_repo_merge (repo, "master", &err_msg, &res->real_merge) < 0) {
+        winguf_message ("[Sync mgr] Merge of repo %s(%.8s) is not clean.\n",
                    repo->name, repo->id);
         res->success = FALSE;
         g_free (err_msg);
@@ -651,7 +651,7 @@ merge_job (void *vtask)
     res->success = TRUE;
     g_free (err_msg);
     pthread_mutex_unlock (&repo->lock);
-    seaf_message ("[Sync mgr] Merged repo %s(%.8s).\n", repo->name, repo->id);
+    winguf_message ("[Sync mgr] Merged repo %s(%.8s).\n", repo->name, repo->id);
     return res;
 }
 
@@ -663,7 +663,7 @@ merge_job_done (void *vresult)
 
     if (repo->delete_pending) {
         transition_sync_state (res->task, SYNC_STATE_CANCELED);
-        seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
         g_free (res);
         return;
     }
@@ -675,31 +675,31 @@ merge_job_done (void *vresult)
     }
 
     if (repo->auto_sync && res->task->force_upload) {
-        if (seaf_wt_monitor_refresh_repo (seaf->wt_monitor, 
+        if (winguf_wt_monitor_refresh_repo (winguf->wt_monitor, 
                                           repo->id) < 0) {
-            seaf_warning ("[sync mgr] failed to refresh worktree "
+            winguf_warning ("[sync mgr] failed to refresh worktree "
                           "watch for repo %s(%.8s).\n",
                           repo->name, repo->id);
         }
     }
 
     if (res->success) {
-        SeafBranch *master = seaf_branch_manager_get_branch (seaf->branch_mgr,
+        SeafBranch *master = winguf_branch_manager_get_branch (winguf->branch_mgr,
                                                              repo->id,
                                                              "master");
         if (!master) {
-            seaf_warning ("[sync mgr] master branch doesn't exist.\n");
-            seaf_sync_manager_set_task_error (res->task, SYNC_ERROR_DATA_CORRUPT);
+            winguf_warning ("[sync mgr] master branch doesn't exist.\n");
+            winguf_sync_manager_set_task_error (res->task, SYNC_ERROR_DATA_CORRUPT);
             goto out;
         }
         /* Save head commit id of master branch for GC, since we've
          * checked out the blocks on the master branch.
          */
-        seaf_repo_manager_set_repo_property (seaf->repo_mgr,
+        winguf_repo_manager_set_repo_property (winguf->repo_mgr,
                                              repo->id,
                                              REPO_REMOTE_HEAD,
                                              master->commit_id);
-        seaf_branch_unref (master);
+        winguf_branch_unref (master);
     }
 
     if (res->success && res->real_merge)
@@ -707,9 +707,9 @@ merge_job_done (void *vresult)
     else if (res->success)
         transition_sync_state (res->task, SYNC_STATE_DONE);
     else if (res->worktree_dirty)
-        seaf_sync_manager_set_task_error (res->task, SYNC_ERROR_WORKTREE_DIRTY);
+        winguf_sync_manager_set_task_error (res->task, SYNC_ERROR_WORKTREE_DIRTY);
     else
-        seaf_sync_manager_set_task_error (res->task, SYNC_ERROR_MERGE);
+        winguf_sync_manager_set_task_error (res->task, SYNC_ERROR_MERGE);
 
 out:
     g_free (res);
@@ -727,7 +727,7 @@ merge_branches_if_necessary (SyncTask *task)
     }
     transition_sync_state (task, SYNC_STATE_MERGE);
 
-    ccnet_job_manager_schedule_job (seaf->job_mgr, 
+    ccnet_job_manager_schedule_job (winguf->job_mgr, 
                                     merge_job, 
                                     merge_job_done,
                                     task);
@@ -740,19 +740,19 @@ update_sync_status (SyncTask *task)
     SeafRepo *repo = task->repo;
     SeafBranch *master, *local;
 
-    local = seaf_branch_manager_get_branch (
-        seaf->branch_mgr, info->repo_id, "local");
+    local = winguf_branch_manager_get_branch (
+        winguf->branch_mgr, info->repo_id, "local");
     if (!local) {
-        seaf_warning ("[sync-mgr] Branch local not found for repo %s(%.8s).\n",
+        winguf_warning ("[sync-mgr] Branch local not found for repo %s(%.8s).\n",
                    repo->name, repo->id);
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_DATA_CORRUPT);
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_DATA_CORRUPT);
         return;
     }
-    master = seaf_branch_manager_get_branch (
-        seaf->branch_mgr, info->repo_id, "master");
+    master = winguf_branch_manager_get_branch (
+        winguf->branch_mgr, info->repo_id, "master");
 
     if (info->repo_corrupted) {
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_REPO_CORRUPT);
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_REPO_CORRUPT);
     } else if (info->deleted_on_relay) {
         /* First upload. */
         if (!master)
@@ -761,13 +761,13 @@ update_sync_status (SyncTask *task)
          * it was deleted on relay. In this case we remove this repo.
          */
         else {
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_NOREPO);
-            seaf_debug ("remove repo %s(%.8s) since it's deleted on relay\n",
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_NOREPO);
+            winguf_debug ("remove repo %s(%.8s) since it's deleted on relay\n",
                         repo->name, repo->id);
-            seaf_mq_manager_publish_notification (seaf->mq_mgr,
+            winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                                   "repo.deleted_on_relay",
                                                   repo->name);
-            seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+            winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
         }
     } else if (info->branch_deleted_on_relay || /* branch deleted on relay */
                is_fast_forward (local->commit_id, info->head_commit)) {
@@ -780,15 +780,15 @@ update_sync_status (SyncTask *task)
             /* Try to merge even if we don't need to fetch. */
             merge_branches_if_necessary (task);
         } else {
-            /* seaf_debug ("[sync-mgr] The repo %s is already uptodate\n", */
+            /* winguf_debug ("[sync-mgr] The repo %s is already uptodate\n", */
             /*             info->repo_id); */
             transition_sync_state (task, SYNC_STATE_DONE);
         }
     }
 
-    seaf_branch_unref (local);
+    winguf_branch_unref (local);
     if (master)
-        seaf_branch_unref (master);
+        winguf_branch_unref (master);
 }
 
 static void
@@ -799,7 +799,7 @@ sync_done_cb (CcnetProcessor *processor, gboolean success, void *data)
 
     if (repo->delete_pending) {
         transition_sync_state (task, SYNC_STATE_CANCELED);
-        seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
         return;
     }
 
@@ -815,15 +815,15 @@ sync_done_cb (CcnetProcessor *processor, gboolean success, void *data)
             g_assert(0);
         case PROC_REMOTE_DEAD:
         case PROC_NO_SERVICE:
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_SERVICE_DOWN);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_SERVICE_DOWN);
             break;
         case PROC_PERM_ERR:
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_PROC_PERM_ERR);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_PROC_PERM_ERR);
             break;
         case PROC_BAD_RESP:
         case PROC_NOTSET:
         default:
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_UNKNOWN);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_UNKNOWN);
         }
         return;
     }
@@ -840,7 +840,7 @@ get_dest_id (SeafRepo *repo)
     else
         return NULL;
 
-    if (!ccnet_peer_is_ready(seaf->ccnetrpc_client, dest_id))
+    if (!ccnet_peer_is_ready(winguf->ccnetrpc_client, dest_id))
         return NULL;
 
     return dest_id;
@@ -859,32 +859,32 @@ start_sync_repo_proc (SeafSyncManager *manager, SyncTask *task)
      */
     if (!task->dest_id) {
         if (!task->repo->relay_id) {
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_RELAY_OFFLINE);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_RELAY_OFFLINE);
             return -1;
         }
         task->dest_id = g_strdup(task->repo->relay_id);
     }
 
     /* If relay is not ready, wait until it is. */
-    if (!ccnet_peer_is_ready (seaf->ccnetrpc_client, task->dest_id)) {
-        seaf_message ("[sync-mgr] Relay for %s is not ready, wait.\n",
+    if (!ccnet_peer_is_ready (winguf->ccnetrpc_client, task->dest_id)) {
+        winguf_message ("[sync-mgr] Relay for %s is not ready, wait.\n",
                       task->repo->name);
         task->conn_timer = ccnet_timer_new (check_net_state, task, 1000);
         return 0;
     }
 
     processor = ccnet_proc_factory_create_remote_master_processor (
-        seaf->session->proc_factory, "wingufile-sync-repo", task->dest_id);
+        winguf->session->proc_factory, "wingufile-sync-repo", task->dest_id);
     if (!processor) {
-        seaf_warning ("[sync-mgr] failed to create get wingufile-sync-repo proc.\n");
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_UNKNOWN);
+        winguf_warning ("[sync-mgr] failed to create get wingufile-sync-repo proc.\n");
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_UNKNOWN);
         return -1;
     }
     ((SeafileSyncRepoProc *)processor)->task = task;
 
     if (ccnet_processor_startl (processor, NULL) < 0) {
-        seaf_warning ("[sync-mgr] failed to start get wingufile-sync-repo proc.\n");
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_UNKNOWN);
+        winguf_warning ("[sync-mgr] failed to start get wingufile-sync-repo proc.\n");
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_UNKNOWN);
         return -1;
     }
 
@@ -900,7 +900,7 @@ check_net_state (void *data)
 {
     SyncTask *task = data;
 
-    if (ccnet_peer_is_ready (seaf->ccnetrpc_client, task->dest_id)) {
+    if (ccnet_peer_is_ready (winguf->ccnetrpc_client, task->dest_id)) {
         ccnet_timer_free (&task->conn_timer);
         start_sync_repo_proc (task->mgr, task);
         return 0;
@@ -933,9 +933,9 @@ commit_job (void *vtask)
     res->changed = TRUE;
     res->success = TRUE;
 
-    char *commit_id = seaf_repo_index_commit (repo, "", &error);
+    char *commit_id = winguf_repo_index_commit (repo, "", &error);
     if (commit_id == NULL && error != NULL) {
-        seaf_warning ("[Sync mgr] Failed to commit to repo %s(%.8s).\n",
+        winguf_warning ("[Sync mgr] Failed to commit to repo %s(%.8s).\n",
                       repo->name, repo->id);
         res->success = FALSE;
     } else if (commit_id == NULL) {
@@ -955,7 +955,7 @@ commit_job_done (void *vres)
 
     if (repo->delete_pending) {
         transition_sync_state (res->task, SYNC_STATE_CANCELED);
-        seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
         g_free (res);
         return;
     }
@@ -967,16 +967,16 @@ commit_job_done (void *vres)
     }
 
     if (repo->auto_sync && res->task->force_upload) {
-        if (seaf_wt_monitor_refresh_repo (seaf->wt_monitor, 
+        if (winguf_wt_monitor_refresh_repo (winguf->wt_monitor, 
                                           repo->id) < 0) {
-            seaf_warning ("[sync mgr] failed to refresh worktree "
+            winguf_warning ("[sync mgr] failed to refresh worktree "
                           "watch for repo %s(%.8s).\n",
                           repo->name, repo->id);
         }
     }
 
     if (!res->success) {
-        seaf_sync_manager_set_task_error (res->task, SYNC_ERROR_COMMIT);
+        winguf_sync_manager_set_task_error (res->task, SYNC_ERROR_COMMIT);
         g_free (res);
         return;
     }
@@ -986,8 +986,8 @@ commit_job_done (void *vres)
      * will create a "index" branch. This branch is of no use after the
      * first commit operation succeeds.
      */
-    if (seaf_branch_manager_branch_exists (seaf->branch_mgr, repo->id, "index"))
-        seaf_branch_manager_del_branch (seaf->branch_mgr, repo->id, "index");
+    if (winguf_branch_manager_branch_exists (winguf->branch_mgr, repo->id, "index"))
+        winguf_branch_manager_del_branch (winguf->branch_mgr, repo->id, "index");
 
     /* If nothing committed and is not manual sync, no need to sync. */
     if (!res->changed && !res->task->force_upload) {
@@ -1011,7 +1011,7 @@ commit_repo (SyncTask *task)
 {
     transition_sync_state (task, SYNC_STATE_COMMIT);
 
-    ccnet_job_manager_schedule_job (seaf->job_mgr, 
+    ccnet_job_manager_schedule_job (winguf->job_mgr, 
                                     commit_job, 
                                     commit_job_done,
                                     task);
@@ -1023,21 +1023,21 @@ commit_repo (SyncTask *task)
 static void
 get_email_token_done (CcnetProcessor *processor, gboolean success, void *data)
 {
-    GHashTable *htbl = seaf->sync_mgr->priv->get_email_token_hash;
+    GHashTable *htbl = winguf->sync_mgr->priv->get_email_token_hash;
     SyncTask *task = data;
     char *repo_id = task->info->repo_id;
 
     if (task->repo->delete_pending) {
         transition_sync_state (task, SYNC_STATE_CANCELED);
-        seaf_repo_manager_del_repo (seaf->repo_mgr, task->repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, task->repo);
         return;
     }
 
     if (!success) {
-        seaf_warning ("[sync mgr] failed to get email and token "
+        winguf_warning ("[sync mgr] failed to get email and token "
                       "for repo %s\n", repo_id);
         g_hash_table_replace (htbl, repo_id, (gpointer)GET_EMAIL_TOKEN_FAILED);
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
     } else {
         task->token = g_strdup(task->repo->token);
         start_sync_repo_proc (task->mgr, task);
@@ -1060,14 +1060,14 @@ try_get_repo_email_token (SeafSyncManager *mgr,
     if (!task->dest_id) {
         const char *dest_id = get_dest_id (task->repo);
         if (!dest_id) {
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_RELAY_OFFLINE);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_RELAY_OFFLINE);
             return -1;
         }
         task->dest_id = g_strdup(dest_id);
     } else {
         /* We also check relay net status in manual sync. */
-        if (!ccnet_peer_is_ready (seaf->ccnetrpc_client, task->dest_id)) {
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_RELAY_OFFLINE);
+        if (!ccnet_peer_is_ready (winguf->ccnetrpc_client, task->dest_id)) {
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_RELAY_OFFLINE);
             return -1;
         }
     }
@@ -1077,7 +1077,7 @@ try_get_repo_email_token (SeafSyncManager *mgr,
     long status = (long)g_hash_table_lookup (htbl, repo_id);
 
     if (status == GET_EMAIL_TOKEN_FAILED) {
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
         return -1;
         
     } else if (status == GET_EMAIL_TOKEN_IN_PROGRESS) {
@@ -1087,19 +1087,19 @@ try_get_repo_email_token (SeafSyncManager *mgr,
 
     CcnetProcessor *processor;
     processor = ccnet_proc_factory_create_remote_master_processor (
-        seaf->session->proc_factory, "wingufile-get-repo-email-token",
+        winguf->session->proc_factory, "wingufile-get-repo-email-token",
         task->dest_id);
 
     if (!processor) {
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
-        seaf_warning ("[sync-mgr] failed to create "
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
+        winguf_warning ("[sync-mgr] failed to create "
                       "get wingufile-get-repo-email-token proc.\n");
         return -1;
     }
 
     if (ccnet_processor_startl (processor, repo_id, NULL) < 0) {
-        seaf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
-        seaf_warning ("[sync-mgr] failed to start "
+        winguf_sync_manager_set_task_error (task, SYNC_ERROR_UPGRADE_REPO);
+        winguf_warning ("[sync-mgr] failed to start "
                       "get wingufile-get-repo-email-token proc.\n");
     }
 
@@ -1146,16 +1146,16 @@ perform_sync_task (SeafSyncManager *manager, SyncTask *task)
      * But once start_sync() is called, the repo should always
      * exists since it can only be deleted in the sync loop.
      */
-    SeafRepo *repo = seaf_repo_manager_get_repo (seaf->repo_mgr,
+    SeafRepo *repo = winguf_repo_manager_get_repo (winguf->repo_mgr,
                                                  task->info->repo_id);
     if (!repo) {
-        seaf_message ("repo %s was deleted, don't need to sync.\n", 
+        winguf_message ("repo %s was deleted, don't need to sync.\n", 
                       task->info->repo_id);
         sync_task_free (task);
         return 0;
     }
     if (repo->delete_pending) {
-        seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
         sync_task_free (task);
         return 0;
     }
@@ -1166,7 +1166,7 @@ perform_sync_task (SeafSyncManager *manager, SyncTask *task)
         return 0;
     }
 
-    seaf_debug ("Sync task for repo '%s' is running, reschedule.\n",
+    winguf_debug ("Sync task for repo '%s' is running, reschedule.\n",
                 repo->name);
 
     return -1;
@@ -1213,7 +1213,7 @@ add_auto_sync_tasks (SeafSyncManager *manager)
 
     timeline = (int) (time(NULL) - manager->sync_interval);
 
-    repos = seaf_repo_manager_get_repo_list (manager->seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (manager->winguf->repo_mgr, -1, -1);
 
     /* Sort repos by last_sync_time, so that we don't "starve" any repo. */
     repos = g_list_sort_with_data (repos, cmp_repos_by_sync_time, NULL);
@@ -1234,7 +1234,7 @@ add_auto_sync_tasks (SeafSyncManager *manager)
             continue;
 
         /* Don't sync if worktree doesn't exist. */
-        if (!repo->head || seaf_repo_check_worktree (repo) < 0)
+        if (!repo->head || winguf_repo_check_worktree (repo) < 0)
             continue;
 
         /* Don't sync repos without a relay-id */
@@ -1250,7 +1250,7 @@ add_auto_sync_tasks (SeafSyncManager *manager)
         if (!dest_id)
             continue;
 
-        CcnetPeer *peer = ccnet_get_peer (seaf->ccnetrpc_client, dest_id);
+        CcnetPeer *peer = ccnet_get_peer (winguf->ccnetrpc_client, dest_id);
         if (!peer->session_key) {
             g_object_unref (peer);
             continue;
@@ -1300,19 +1300,19 @@ check_sync_pulse (void *vmanager)
 static void
 auto_delete_repo (SeafSyncManager *manager, SeafRepo *repo)
 {
-    SyncInfo *info = seaf_sync_manager_get_sync_info (manager, repo->id);
+    SyncInfo *info = winguf_sync_manager_get_sync_info (manager, repo->id);
     char *name = g_strdup (repo->name);
 
-    seaf_message ("Auto deleted repo '%s'.\n", repo->name);
+    winguf_message ("Auto deleted repo '%s'.\n", repo->name);
 
     if (info != NULL && info->in_sync) {
-        seaf_repo_manager_mark_repo_deleted (seaf->repo_mgr, repo);
+        winguf_repo_manager_mark_repo_deleted (winguf->repo_mgr, repo);
     } else {
-        seaf_repo_manager_del_repo (seaf->repo_mgr, repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, repo);
     }
 
     /* Publish a message, for applet to notify in the system tray */
-    seaf_mq_manager_publish_notification (seaf->mq_mgr,
+    winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                           "repo.removed",
                                           name);
     g_free (name);
@@ -1333,12 +1333,12 @@ enqueue_sync_task (SeafSyncManager *manager, SeafRepo *repo, gboolean quiet)
     SyncInfo *info;
     SyncTask *task;
 
-    seaf_debug ("Enqueue sync task for repo '%s'.\n", repo->name);
+    winguf_debug ("Enqueue sync task for repo '%s'.\n", repo->name);
 
     if (g_queue_find_custom (manager->sync_tasks,
                              repo->id,
                              compare_sync_task) != NULL) {
-        seaf_debug ("[sync-mgr] Task for '%s' is in queue, don't add again.\n",
+        winguf_debug ("[sync-mgr] Task for '%s' is in queue, don't add again.\n",
                     repo->name);
         return;
     }
@@ -1360,7 +1360,7 @@ auto_commit_pulse (void *vmanager)
     gint now = (gint)time(NULL);
     gint last_changed;
 
-    repos = seaf_repo_manager_get_repo_list (manager->seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (manager->winguf->repo_mgr, -1, -1);
 
     for (ptr = repos; ptr != NULL; ptr = ptr->next) {
         repo = ptr->data;
@@ -1376,15 +1376,15 @@ auto_commit_pulse (void *vmanager)
         /* If repo has been checked out and the worktree doesn't exist,
          * we'll delete the repo automatically.
          */
-        if (repo->head != NULL && seaf_repo_check_worktree (repo) < 0) {
-            seaf_repo_manager_invalidate_repo_worktree (seaf->repo_mgr, repo);
+        if (repo->head != NULL && winguf_repo_check_worktree (repo) < 0) {
+            winguf_repo_manager_invalidate_repo_worktree (winguf->repo_mgr, repo);
             auto_delete_repo (manager, repo);
             continue;
         }
         repo->worktree_invalid = FALSE;
 
         if (manager->priv->auto_sync_enabled && repo->auto_sync) {
-            status = seaf_wt_monitor_get_worktree_status (manager->seaf->wt_monitor,
+            status = winguf_wt_monitor_get_worktree_status (manager->winguf->wt_monitor,
                                                           repo->id);
             if (status) {
                 last_changed = g_atomic_int_get (&status->last_changed);
@@ -1414,14 +1414,14 @@ send_sync_error_notification (SeafRepo *repo, const char *type)
 {
     GString *buf = g_string_new (NULL);
     g_string_append_printf (buf, "%s\t%s", repo->name, repo->id);
-    seaf_mq_manager_publish_notification (seaf->mq_mgr,
+    winguf_mq_manager_publish_notification (winguf->mq_mgr,
                                           type,
                                           buf->str);
     g_string_free (buf, TRUE);
 }
 
 static void
-on_repo_fetched (SeafileSession *seaf,
+on_repo_fetched (SeafileSession *winguf,
                  TransferTask *tx_task,
                  SeafSyncManager *manager)
 {
@@ -1434,7 +1434,7 @@ on_repo_fetched (SeafileSession *seaf,
 
     if (task->repo->delete_pending) {
         transition_sync_state (task, SYNC_STATE_CANCELED);
-        seaf_repo_manager_del_repo (seaf->repo_mgr, task->repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, task->repo);
         return;
     }
 
@@ -1445,18 +1445,18 @@ on_repo_fetched (SeafileSession *seaf,
         transition_sync_state (task, SYNC_STATE_CANCELED);
     } else if (tx_task->state == TASK_STATE_ERROR) {
         if (tx_task->error == TASK_ERR_ACCESS_DENIED) {
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_ACCESS_DENIED);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_ACCESS_DENIED);
             if (!task->repo->access_denied_notified) {
                 send_sync_error_notification (task->repo, "sync.access_denied");
                 task->repo->access_denied_notified = 1;
             }
         } else
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_FETCH);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_FETCH);
     }
 }
 
 static void
-on_repo_uploaded (SeafileSession *seaf,
+on_repo_uploaded (SeafileSession *winguf,
                   TransferTask *tx_task,
                   SeafSyncManager *manager)
 {
@@ -1467,7 +1467,7 @@ on_repo_uploaded (SeafileSession *seaf,
 
     if (task->repo->delete_pending) {
         transition_sync_state (task, SYNC_STATE_CANCELED);
-        seaf_repo_manager_del_repo (seaf->repo_mgr, task->repo);
+        winguf_repo_manager_del_repo (winguf->repo_mgr, task->repo);
         return;
     }
 
@@ -1475,7 +1475,7 @@ on_repo_uploaded (SeafileSession *seaf,
         memcpy (info->head_commit, tx_task->head, 41);
 
         /* Save current head commit id for GC. */
-        seaf_repo_manager_set_repo_property (seaf->repo_mgr,
+        winguf_repo_manager_set_repo_property (winguf->repo_mgr,
                                              task->repo->id,
                                              REPO_LOCAL_HEAD,
                                              task->repo->head->commit_id);
@@ -1485,20 +1485,20 @@ on_repo_uploaded (SeafileSession *seaf,
         transition_sync_state (task, SYNC_STATE_CANCELED);
     } else if (tx_task->state == TASK_STATE_ERROR) {
         if (tx_task->error == TASK_ERR_ACCESS_DENIED) {
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_ACCESS_DENIED);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_ACCESS_DENIED);
             if (!task->repo->access_denied_notified) {
                 send_sync_error_notification (task->repo, "sync.access_denied");
                 task->repo->access_denied_notified = 1;
             }
         } else if (tx_task->error == TASK_ERR_QUOTA_FULL) {
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_QUOTA_FULL);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_QUOTA_FULL);
             /* Only notify "quota full" once. */
             if (!task->repo->quota_full_notified) {
                 send_sync_error_notification (task->repo, "sync.quota_full");
                 task->repo->quota_full_notified = 1;
             }
         } else
-            seaf_sync_manager_set_task_error (task, SYNC_ERROR_UPLOAD);
+            winguf_sync_manager_set_task_error (task, SYNC_ERROR_UPLOAD);
     }
 }
 
@@ -1507,7 +1507,7 @@ const char *
 sync_error_to_str (int error)
 {
     if (error < 0 || error >= SYNC_ERROR_NUM) {
-        seaf_warning ("illegal sync error: %d\n", error); 
+        winguf_warning ("illegal sync error: %d\n", error); 
         return NULL;
     }
 
@@ -1518,7 +1518,7 @@ const char *
 sync_state_to_str (int state)
 {
     if (state < 0 || state >= SYNC_STATE_NUM) {
-        seaf_warning ("illegal sync state: %d\n", state); 
+        winguf_warning ("illegal sync state: %d\n", state); 
         return NULL;
     }
 
@@ -1532,20 +1532,20 @@ cancel_all_sync_tasks (SeafSyncManager *mgr)
     GList *ptr;
     SeafRepo *repo;
 
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1);
     for (ptr = repos; ptr; ptr = ptr->next) {
         repo = ptr->data;
-        seaf_sync_manager_cancel_sync_task (mgr, repo->id);
+        winguf_sync_manager_cancel_sync_task (mgr, repo->id);
     }
 
     g_list_free (repos);
 }
 
 int
-seaf_sync_manager_disable_auto_sync (SeafSyncManager *mgr)
+winguf_sync_manager_disable_auto_sync (SeafSyncManager *mgr)
 {
-    if (!seaf->started) {
-        seaf_message ("sync manager is not started, skip disable auto sync.\n");
+    if (!winguf->started) {
+        winguf_message ("sync manager is not started, skip disable auto sync.\n");
         return -1;
     }
 
@@ -1561,7 +1561,7 @@ add_sync_tasks_for_all (SeafSyncManager *mgr)
     GList *repos, *ptr;
     SeafRepo *repo;
 
-    repos = seaf_repo_manager_get_repo_list (seaf->repo_mgr, -1, -1);
+    repos = winguf_repo_manager_get_repo_list (winguf->repo_mgr, -1, -1);
     for (ptr = repos; ptr; ptr = ptr->next) {
         repo = ptr->data;
         if (!repo->auto_sync)
@@ -1577,10 +1577,10 @@ add_sync_tasks_for_all (SeafSyncManager *mgr)
 }
 
 int
-seaf_sync_manager_enable_auto_sync (SeafSyncManager *mgr)
+winguf_sync_manager_enable_auto_sync (SeafSyncManager *mgr)
 {
-    if (!seaf->started) {
-        seaf_message ("sync manager is not started, skip enable auto sync.\n");
+    if (!winguf->started) {
+        winguf_message ("sync manager is not started, skip enable auto sync.\n");
         return -1;
     }
 
@@ -1591,7 +1591,7 @@ seaf_sync_manager_enable_auto_sync (SeafSyncManager *mgr)
 }
 
 int
-seaf_sync_manager_is_auto_sync_enabled (SeafSyncManager *mgr)
+winguf_sync_manager_is_auto_sync_enabled (SeafSyncManager *mgr)
 {
     if (mgr->priv->auto_sync_enabled)
         return 1;

@@ -4,7 +4,7 @@
 
 #include "wingufile-session.h"
 #include "utils.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 #include "block-mgr.h"
 
 #include <stdio.h>
@@ -26,21 +26,21 @@ block_backend_fs_new (const char *block_dir, const char *tmp_dir);
 
 
 SeafBlockManager *
-seaf_block_manager_new (struct _SeafileSession *seaf,
-                        const char *seaf_dir)
+winguf_block_manager_new (struct _SeafileSession *winguf,
+                        const char *winguf_dir)
 {
     SeafBlockManager *mgr;
 
     mgr = g_new0 (SeafBlockManager, 1);
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
 
 #ifdef WINGUFILE_SERVER
-    mgr->backend = load_block_backend(mgr->seaf->config);
+    mgr->backend = load_block_backend(mgr->winguf->config);
 #endif
     if (!mgr->backend) {
         char *block_dir;
-        block_dir = g_build_filename (seaf_dir, SEAF_BLOCK_DIR, NULL);
-        mgr->backend = block_backend_fs_new (block_dir, seaf->tmp_file_dir);
+        block_dir = g_build_filename (winguf_dir, SEAF_BLOCK_DIR, NULL);
+        mgr->backend = block_backend_fs_new (block_dir, winguf->tmp_file_dir);
         g_free (block_dir);
         if (!mgr->backend) {
             g_warning ("[Block mgr] Failed to load backend.\n");
@@ -57,14 +57,14 @@ onerror:
 }
 
 int
-seaf_block_manager_init (SeafBlockManager *mgr)
+winguf_block_manager_init (SeafBlockManager *mgr)
 {
     return 0;
 }
 
 
 BlockHandle *
-seaf_block_manager_open_block (SeafBlockManager *mgr,
+winguf_block_manager_open_block (SeafBlockManager *mgr,
                                const char *block_id,
                                int rw_type)
 {
@@ -72,7 +72,7 @@ seaf_block_manager_open_block (SeafBlockManager *mgr,
 }
 
 int
-seaf_block_manager_read_block (SeafBlockManager *mgr,
+winguf_block_manager_read_block (SeafBlockManager *mgr,
                                BlockHandle *handle,
                                void *buf, int len)
 {
@@ -80,7 +80,7 @@ seaf_block_manager_read_block (SeafBlockManager *mgr,
 }
 
 int
-seaf_block_manager_write_block (SeafBlockManager *mgr,
+winguf_block_manager_write_block (SeafBlockManager *mgr,
                                 BlockHandle *handle,
                                 const void *buf, int len)
 {
@@ -88,55 +88,55 @@ seaf_block_manager_write_block (SeafBlockManager *mgr,
 }
 
 int
-seaf_block_manager_close_block (SeafBlockManager *mgr,
+winguf_block_manager_close_block (SeafBlockManager *mgr,
                                 BlockHandle *handle)
 {
     return mgr->backend->close_block (mgr->backend, handle);
 }
 
 void
-seaf_block_manager_block_handle_free (SeafBlockManager *mgr,
+winguf_block_manager_block_handle_free (SeafBlockManager *mgr,
                                       BlockHandle *handle)
 {
     return mgr->backend->block_handle_free (mgr->backend, handle);
 }
 
 int
-seaf_block_manager_commit_block (SeafBlockManager *mgr,
+winguf_block_manager_commit_block (SeafBlockManager *mgr,
                                  BlockHandle *handle)
 {
     return mgr->backend->commit_block (mgr->backend, handle);
 }
     
-gboolean seaf_block_manager_block_exists (SeafBlockManager *mgr,
+gboolean winguf_block_manager_block_exists (SeafBlockManager *mgr,
                                           const char *block_id)
 {
     return mgr->backend->exists (mgr->backend, block_id);
 }
 
 int
-seaf_block_manager_remove_block (SeafBlockManager *mgr,
+winguf_block_manager_remove_block (SeafBlockManager *mgr,
                                  const char *block_id)
 {
     return mgr->backend->remove_block (mgr->backend, block_id);
 }
 
 BlockMetadata *
-seaf_block_manager_stat_block (SeafBlockManager *mgr,
+winguf_block_manager_stat_block (SeafBlockManager *mgr,
                                const char *block_id)
 {
     return mgr->backend->stat_block (mgr->backend, block_id);
 }
 
 BlockMetadata *
-seaf_block_manager_stat_block_by_handle (SeafBlockManager *mgr,
+winguf_block_manager_stat_block_by_handle (SeafBlockManager *mgr,
                                          BlockHandle *handle)
 {
     return mgr->backend->stat_block_by_handle (mgr->backend, handle);
 }
 
 int
-seaf_block_manager_foreach_block (SeafBlockManager *mgr,
+winguf_block_manager_foreach_block (SeafBlockManager *mgr,
                                   SeafBlockFunc process,
                                   void *user_data)
 {
@@ -154,11 +154,11 @@ get_block_number (const char *block_id, void *data)
 }
 
 guint64
-seaf_block_manager_get_block_number (SeafBlockManager *mgr)
+winguf_block_manager_get_block_number (SeafBlockManager *mgr)
 {
     guint64 n_blocks = 0;
 
-    seaf_block_manager_foreach_block (mgr, get_block_number, &n_blocks);
+    winguf_block_manager_foreach_block (mgr, get_block_number, &n_blocks);
 
     return n_blocks;
 }

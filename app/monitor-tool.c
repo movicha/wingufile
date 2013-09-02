@@ -8,10 +8,10 @@
 #include <errno.h>
 #include <string.h>
 
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 
 #include <ccnet.h>
-#include <searpc-transport.h>
+#include <wingurpc-transport.h>
 
 struct cmd {
     char *name;
@@ -66,7 +66,7 @@ getcmd (char *name)
 void usage()
 {
     fputs (
-"Usage: seaf-server [--version ] [-c CONF_DIR] COMMAND [ARGS]\n"
+"Usage: winguf-server [--version ] [-c CONF_DIR] COMMAND [ARGS]\n"
 "\n"
 "Available commands are:\n"
 "  add-server       Add a chunk server\n"
@@ -80,9 +80,9 @@ void show_version()
     fputs ("wingufile version: 0.1\n", stderr);
 }
 
-SEARPC_CLIENT_DEFUN_INT__STRING(monitor_add_chunk_server)
-SEARPC_CLIENT_DEFUN_INT__STRING(monitor_del_chunk_server)
-SEARPC_CLIENT_DEFUN_STRING__VOID(monitor_list_chunk_servers)
+WINGURPC_CLIENT_DEFUN_INT__STRING(monitor_add_chunk_server)
+WINGURPC_CLIENT_DEFUN_INT__STRING(monitor_del_chunk_server)
+WINGURPC_CLIENT_DEFUN_STRING__VOID(monitor_list_chunk_servers)
 
 static gboolean print_version = FALSE;
 static char *config_dir = NULL;
@@ -150,8 +150,8 @@ int main (int argc, char *argv[])
     priv.peer_id = NULL;
     priv.service = "monitor";
 
-    rpc_client = searpc_client_new ();
-    rpc_client->transport = searpc_transport_send;
+    rpc_client = wingurpc_client_new ();
+    rpc_client->transport = wingurpc_transport_send;
     rpc_client->arg = &priv;
 
     argc -= 2;

@@ -2,7 +2,7 @@
 
 '''
 
-seaf-cli is command line interface for wingufile client.
+winguf-cli is command line interface for wingufile client.
 
 Subcommands:
 
@@ -26,39 +26,39 @@ init
 ----
 Initialize wingufile client. This command initializes the config dir. It also creates sub-directories `wingufile-data` and `wingufile` under `parent-dir`. `wingufile-data` is used to store internal data, while `wingufile` is used as the default location put downloaded libraries.
 
-    seaf-cli init [-c <config-dir>] -d <parent-dir>
+    winguf-cli init [-c <config-dir>] -d <parent-dir>
 
 start
 -----
-Start wingufile client. This command start `ccnet` and `seaf-daemon`, `ccnet` is the network part of wingufile client, `seaf-daemon` manages the files.
+Start wingufile client. This command start `ccnet` and `winguf-daemon`, `ccnet` is the network part of wingufile client, `winguf-daemon` manages the files.
 
-    seaf-cli start [-c <config-dir>]
+    winguf-cli start [-c <config-dir>]
 
 stop
 ----
 Stop wingufile client.
 
-    seaf-cli stop [-c <config-dir>]
+    winguf-cli stop [-c <config-dir>]
 
 
 Download
 --------
 Download a library from wingufile server
 
-    seaf-cli download -l <library-id> -s <winguhub-server-url> -d <parent-directory> -u <username> -p <password>
+    winguf-cli download -l <library-id> -s <winguhub-server-url> -d <parent-directory> -u <username> -p <password>
 
 
 sync
 ----
 Synchronize a library with an existing folder.
 
-    seaf-cli sync -l <library-id> -s <winguhub-server-url> -d <existing-folder> -u <username> -p <password>
+    winguf-cli sync -l <library-id> -s <winguhub-server-url> -d <existing-folder> -u <username> -p <password>
 
 desync
 ------
 Desynchronize a library from wingufile server
 
-    seaf-cli desync -d <existing-folder>
+    winguf-cli desync -d <existing-folder>
 
 '''
 
@@ -98,7 +98,7 @@ def _check_wingufile():
             if os.path.exists(path):
                 return True
 
-    progs = [ 'ccnet', 'ccnet-init', 'seaf-daemon' ]
+    progs = [ 'ccnet', 'ccnet-init', 'winguf-daemon' ]
 
     for prog in progs:
         if not exist_in_path(prog):
@@ -187,7 +187,7 @@ def get_repo_downlod_info(url, token):
     repo_info = urlopen(url, headers=headers)
     return json.loads(repo_info)
 
-def seaf_init(args):
+def winguf_init(args):
     ''' initialize config directorys'''
 
     ccnet_conf_dir = DEFAULT_CONF_DIR
@@ -220,16 +220,16 @@ def seaf_init(args):
     print "Writen wingufile data directory %s to %s" % (wingufile_data, wingufile_ini)
 
 
-def seaf_start_all(args):
+def winguf_start_all(args):
     ''' start ccnet and wingufile daemon '''
 
-    seaf_start_ccnet(args)
+    winguf_start_ccnet(args)
     # wait ccnet process
     time.sleep(1)
-    seaf_start_wingufile(args)
+    winguf_start_wingufile(args)
 
 
-def seaf_start_ccnet(args):
+def winguf_start_ccnet(args):
     ''' start ccnet daemon '''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -250,7 +250,7 @@ def seaf_start_ccnet(args):
 
     print "Started: ccnet daemon ..."
 
-def seaf_start_wingufile(args):
+def winguf_start_wingufile(args):
     ''' start wingufile daemon '''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -264,7 +264,7 @@ def seaf_start_wingufile(args):
 
     print "starting wingufile daemon ..."
     
-    cmd = [ "seaf-daemon", "--daemon", "-c", conf_dir, "-d", wingufile_datadir,
+    cmd = [ "winguf-daemon", "--daemon", "-c", conf_dir, "-d", wingufile_datadir,
             "-w", wingufile_worktree ]
     if run_argv(cmd, env=get_env()) != 0:
         print 'Failed to start wingufile daemon'
@@ -272,7 +272,7 @@ def seaf_start_wingufile(args):
 
     print "Started: wingufile daemon ..."
 
-def seaf_stop(args):
+def winguf_stop(args):
     '''stop wingufile daemon '''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -293,7 +293,7 @@ def seaf_stop(args):
         pass
 
 
-def seaf_list(args):
+def winguf_list(args):
     '''List local libraries'''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -314,7 +314,7 @@ def seaf_list(args):
         print repo.name, repo.id, repo.worktree
 
 
-def seaf_download(args):
+def winguf_download(args):
     '''Download a library from wingufile server '''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -384,7 +384,7 @@ def seaf_download(args):
                          email)
 
 
-def seaf_sync(args):
+def winguf_sync(args):
     ''' synchronize a library from wingufile server '''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -454,7 +454,7 @@ def seaf_sync(args):
                       email)
 
 
-def seaf_desync(args):
+def winguf_desync(args):
     '''Desynchronize a library from wingufile server'''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -489,7 +489,7 @@ def seaf_desync(args):
         print "%s is not a library" % args.folder
 
 
-def seaf_status(args):
+def winguf_status(args):
     '''Show status'''
 
     conf_dir = DEFAULT_CONF_DIR
@@ -548,7 +548,7 @@ def seaf_status(args):
         else:
             if not t:
                 # Relay is ready, but the sync task is not scheduled yet
-                # (shortly after seaf-daemon is started)
+                # (shortly after winguf-daemon is started)
                 print "%s\t%s" % (repo.name, "initializing")
             elif t.state == "error":
                 print "%s\t%s" % (repo.name, t.error)
@@ -565,36 +565,36 @@ def main():
 
     # init
     parser_init = subparsers.add_parser('init', help='Initialize config directory')
-    parser_init.set_defaults(func=seaf_init)
+    parser_init.set_defaults(func=winguf_init)
     parser_init.add_argument('-c', '--confdir', help='the config directory', type=str)
     parser_init.add_argument('-d', '--dir', help='the parent directory to put wingufile-data', type=str)
 
     # start
     parser_start = subparsers.add_parser('start',
                                          help='Start ccnet and wingufile daemon')
-    parser_start.set_defaults(func=seaf_start_all)
+    parser_start.set_defaults(func=winguf_start_all)
     parser_start.add_argument('-c', '--confdir', help='the config directory', type=str)
 
     # stop
     parser_stop = subparsers.add_parser('stop',
                                          help='Start ccnet and wingufile daemon')
-    parser_stop.set_defaults(func=seaf_stop)
+    parser_stop.set_defaults(func=winguf_stop)
     parser_stop.add_argument('-c', '--confdir', help='the config directory', type=str)
 
     # list
     parser_list = subparsers.add_parser('list', help='list local libraries')
-    parser_list.set_defaults(func=seaf_list)
+    parser_list.set_defaults(func=winguf_list)
     parser_list.add_argument('-c', '--confdir', help='the config directory', type=str)
 
     # status
     parser_status = subparsers.add_parser('status', help='show syncing status')
-    parser_status.set_defaults(func=seaf_status)
+    parser_status.set_defaults(func=winguf_status)
     parser_status.add_argument('-c', '--confdir', help='the config directory', type=str)
 
     # download
     parser_download = subparsers.add_parser('download',
                                          help='Download a library from wingufile server')
-    parser_download.set_defaults(func=seaf_download)
+    parser_download.set_defaults(func=winguf_download)
     parser_download.add_argument('-c', '--confdir', help='the config directory', type=str)
     parser_download.add_argument('-l', '--library', help='library id', type=str)
     parser_download.add_argument('-s', '--server', help='URL for wingufile server', type=str)
@@ -606,7 +606,7 @@ def main():
     # sync
     parser_sync = subparsers.add_parser('sync',
                                         help='Sync a library with an existing foler')
-    parser_sync.set_defaults(func=seaf_sync)
+    parser_sync.set_defaults(func=winguf_sync)
     parser_sync.add_argument('-c', '--confdir', help='the config directory', type=str)
     parser_sync.add_argument('-l', '--library', help='library id', type=str)
     parser_sync.add_argument('-s', '--server', help='URL for wingufile server', type=str)
@@ -617,7 +617,7 @@ def main():
     # desync
     parser_desync = subparsers.add_parser('desync',
                                           help='Desync a library with wingufile server')
-    parser_desync.set_defaults(func=seaf_desync)
+    parser_desync.set_defaults(func=winguf_desync)
     parser_desync.add_argument('-c', '--confdir', help='the config directory', type=str)
     parser_desync.add_argument('-d', '--folder', help='the local folder', type=str)
 

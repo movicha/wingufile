@@ -118,12 +118,12 @@ get_branch_head (CcnetProcessor *processor)
     SeafBranch *branch;
     USE_PRIV;
 
-    branch = seaf_branch_manager_get_branch (seaf->branch_mgr, 
+    branch = winguf_branch_manager_get_branch (winguf->branch_mgr, 
                                              priv->repo_id, priv->branch_name);
     if (branch != NULL) {
         priv->has_branch = 1;
         memcpy (priv->head_id, branch->commit_id, 41);
-        seaf_branch_unref (branch);
+        winguf_branch_unref (branch);
 
         priv->rsp_code = g_strdup(SC_OK);
         priv->rsp_msg = g_strdup(SS_OK);
@@ -148,7 +148,7 @@ check_repo_share_permission (SearpcClient *rpc_client,
     char *shared_repo_id;
     gboolean ret = FALSE;
 
-    if (seaf_share_manager_check_permission (seaf->share_mgr,
+    if (winguf_share_manager_check_permission (winguf->share_mgr,
                                              repo_id,
                                              user_name) != NULL)
         return TRUE;
@@ -158,7 +158,7 @@ check_repo_share_permission (SearpcClient *rpc_client,
         group = pgroup->data;
         g_object_get (group, "id", &group_id, NULL);
 
-        repos = seaf_repo_manager_get_group_repoids (seaf->repo_mgr,
+        repos = winguf_repo_manager_get_group_repoids (winguf->repo_mgr,
                                                      group_id, NULL);
         for (prepo = repos; prepo != NULL; prepo = prepo->next) {
             shared_repo_id = prepo->data;
@@ -193,7 +193,7 @@ check_tx (void *vprocessor)
     char *repo_id = priv->repo_id;
 
     rpc_client = create_sync_ccnetrpc_client
-        (seaf->session->config_dir, "ccnet-threaded-rpcserver");
+        (winguf->session->config_dir, "ccnet-threaded-rpcserver");
 
     if (!rpc_client) {
         priv->rsp_code = g_strdup(SC_SERVER_ERROR);
@@ -201,7 +201,7 @@ check_tx (void *vprocessor)
         goto out;
     }
 
-    if (!seaf_repo_manager_repo_exists (seaf->repo_mgr, repo_id)) {
+    if (!winguf_repo_manager_repo_exists (winguf->repo_mgr, repo_id)) {
         priv->rsp_code = g_strdup(SC_BAD_REPO);
         priv->rsp_msg = g_strdup(SS_BAD_REPO);
         goto out;
@@ -211,7 +211,7 @@ check_tx (void *vprocessor)
         check_repo_owner_quota (processor, rpc_client, repo_id) < 0)
         goto out;
     
-    owner = seaf_repo_manager_get_repo_owner (seaf->repo_mgr, repo_id);
+    owner = winguf_repo_manager_get_repo_owner (winguf->repo_mgr, repo_id);
     if (owner != NULL) {
         /* If the user is not owner, check share permission */
         if (strcmp (owner, priv->email) != 0) {
@@ -223,7 +223,7 @@ check_tx (void *vprocessor)
         }
     } else {
         /* This should be a repo created in an org. */
-        org_id = seaf_repo_manager_get_repo_org (seaf->repo_mgr, repo_id);
+        org_id = winguf_repo_manager_get_repo_org (winguf->repo_mgr, repo_id);
         if (org_id < 0 ||
             !ccnet_org_user_exists (rpc_client, org_id, priv->email)) {
             priv->rsp_code = g_strdup(SC_ACCESS_DENIED);
@@ -325,7 +325,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     memcpy (priv->repo_id, repo_id, 37);
     priv->branch_name = g_strdup(branch_name);
 
-    ccnet_get_binding_email_async (seaf->async_ccnetrpc_client_t, processor->peer_id,
+    ccnet_get_binding_email_async (winguf->async_ccnetrpc_client_t, processor->peer_id,
                                    get_email_cb, processor);
 
     return 0;
@@ -348,7 +348,7 @@ handle_update (CcnetProcessor *processor,
     }
 
     if (strncmp (code, SC_GET_TOKEN, 3) == 0) {
-        token = seaf_token_manager_generate_token (seaf->token_mgr,
+        token = winguf_token_manager_generate_token (winguf->token_mgr,
                                                    processor->peer_id,
                                                    priv->repo_id);
         ccnet_processor_send_response (processor,

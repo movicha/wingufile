@@ -14,7 +14,7 @@ typedef struct _SeafShareManager SeafShareManager;
 typedef struct _SeafShareManagerPriv SeafShareManagerPriv;
 
 struct _SeafShareManager {
-    struct _SeafileSession *seaf;
+    struct _SeafileSession *winguf;
 
     int sync_interval;
     int sync_relay_interval;
@@ -22,32 +22,32 @@ struct _SeafShareManager {
     SeafShareManagerPriv *priv;
 };
 
-SeafShareManager *seaf_share_manager_new (struct _SeafileSession *seaf);
+SeafShareManager *winguf_share_manager_new (struct _SeafileSession *winguf);
 
-int seaf_share_manager_init (SeafShareManager *mgr);
-int seaf_share_manager_start (SeafShareManager *mgr);
+int winguf_share_manager_init (SeafShareManager *mgr);
+int winguf_share_manager_start (SeafShareManager *mgr);
 
-const char* seaf_share_manager_share (SeafShareManager *share_mgr,
+const char* winguf_share_manager_share (SeafShareManager *share_mgr,
                                       const char *repo_id,
                                       const char *group_id);
 
-int seaf_share_manager_unshare (SeafShareManager *share_mgr,
+int winguf_share_manager_unshare (SeafShareManager *share_mgr,
                                 const char *item_id);
 
 
 GList *
-seaf_share_manager_list_share_info_by_repo (SeafShareManager *mgr,
+winguf_share_manager_list_share_info_by_repo (SeafShareManager *mgr,
                                             const char *repo_id);
 
 GList *
-seaf_share_manager_list_share_info_by_group (SeafShareManager *mgr,
+winguf_share_manager_list_share_info_by_group (SeafShareManager *mgr,
                                              const char *group_id);
 
 GList*
-seaf_share_manager_list_share_info (SeafShareManager *mgr,
+winguf_share_manager_list_share_info (SeafShareManager *mgr,
                                     int offset,
                                     int limit);
 
-char *seaf_share_manager_dump_share_info (SeafShareManager *share_mgr);
+char *winguf_share_manager_dump_share_info (SeafShareManager *share_mgr);
 
 #endif

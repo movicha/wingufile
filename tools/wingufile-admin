@@ -237,8 +237,8 @@ def check_wingufile_install():
 
     progs = [
         'ccnet-init',
-        'seaf-server-init',
-        'seaf-server',
+        'winguf-server-init',
+        'winguf-server',
         'ccnet-server',
         'httpserver',
         'wingufile-controller',
@@ -645,7 +645,7 @@ def init_ccnet_wingufile():
     if not conf[CONF_WINGUFILE_CONF_EXISTS]:
         info('Generating wingufile configuration...')
         argv = [
-            'seaf-server-init',
+            'winguf-server-init',
             '--wingufile-dir', conf[CONF_WINGUFILE_DIR],
             '--port', conf[CONF_WINGUFILE_PORT],
             '--httpserver-port', conf[CONF_HTTPSERVER_PORT],
@@ -785,11 +785,11 @@ def check_config(args):
     conf[CONF_SEAHUB_ERRLOG]    = os.path.join(runtime_dir, 'error.log')
 
 def check_directory_layout():
-    seaf_server_dir = os.path.join(cwd, 'wingufile-server')
-    if not os.path.exists(seaf_server_dir):
+    winguf_server_dir = os.path.join(cwd, 'wingufile-server')
+    if not os.path.exists(winguf_server_dir):
         error('"wingufile-server/" not found in current directory. \nPlease run wingufile-admin in the correct directory.')
 
-    winguhub_dir = os.path.join(seaf_server_dir, 'winguhub')
+    winguhub_dir = os.path.join(winguf_server_dir, 'winguhub')
     if not os.path.exists(winguhub_dir):
         error('"wingufile-server/winguhub/" not found. \nPlease download winguhub first.')
 

@@ -131,12 +131,12 @@ get_branch_head (CcnetProcessor *processor)
     SeafBranch *branch;
     USE_PRIV;
 
-    branch = seaf_branch_manager_get_branch (seaf->branch_mgr, 
+    branch = winguf_branch_manager_get_branch (winguf->branch_mgr, 
                                              priv->repo_id, priv->branch_name);
     if (branch != NULL) {
         priv->has_branch = 1;
         memcpy (priv->head_id, branch->commit_id, 41);
-        seaf_branch_unref (branch);
+        winguf_branch_unref (branch);
 
         priv->rsp_code = g_strdup(SC_OK);
         priv->rsp_msg = g_strdup(SS_OK);
@@ -163,7 +163,7 @@ decrypt_token (CcnetProcessor *processor)
     /* raw data is half the length of hexidecimal */
     hex_len = strlen(priv->token);
     if (hex_len % 2 != 0) {
-        seaf_warning ("[check tx slave v3] invalid length of encrypted token\n"); 
+        winguf_warning ("[check tx slave v3] invalid length of encrypted token\n"); 
         ret = -1;
         goto out;
     }
@@ -187,7 +187,7 @@ decrypt_token (CcnetProcessor *processor)
     
     if (wingufile_decrypt (&token, &token_len, encrypted_token,
                          encrypted_len, crypt) < 0) {
-        seaf_warning ("[check tx slave v3] failed to decrypt token\n");
+        winguf_warning ("[check tx slave v3] failed to decrypt token\n");
         ret = -1;
         goto out;
     }
@@ -213,7 +213,7 @@ check_tx (void *vprocessor)
     char *user = NULL;
     char *repo_id = priv->repo_id;
 
-    if (!seaf_repo_manager_repo_exists (seaf->repo_mgr, repo_id)) {
+    if (!winguf_repo_manager_repo_exists (winguf->repo_mgr, repo_id)) {
         priv->rsp_code = g_strdup(SC_BAD_REPO);
         priv->rsp_msg = g_strdup(SS_BAD_REPO);
         goto out;
@@ -225,8 +225,8 @@ check_tx (void *vprocessor)
         goto out;
     }
 
-    user = seaf_repo_manager_get_email_by_token (
-        seaf->repo_mgr, repo_id, priv->token);
+    user = winguf_repo_manager_get_email_by_token (
+        winguf->repo_mgr, repo_id, priv->token);
     
     if (!user) {
         priv->rsp_code = g_strdup(SC_ACCESS_DENIED);
@@ -235,13 +235,13 @@ check_tx (void *vprocessor)
     }
 
     if (priv->type == CHECK_TX_TYPE_UPLOAD &&
-        seaf_quota_manager_check_quota (seaf->quota_mgr, repo_id) < 0) {
+        winguf_quota_manager_check_quota (winguf->quota_mgr, repo_id) < 0) {
         priv->rsp_code = g_strdup(SC_QUOTA_FULL);
         priv->rsp_msg = g_strdup(SS_QUOTA_FULL);
         goto out;
     }
     
-    char *perm = seaf_repo_manager_check_permission (seaf->repo_mgr,
+    char *perm = winguf_repo_manager_check_permission (winguf->repo_mgr,
                                                      repo_id, user, NULL);
     if (!perm ||
         (strcmp (perm, "r") == 0 && priv->type == CHECK_TX_TYPE_UPLOAD))
@@ -256,15 +256,15 @@ check_tx (void *vprocessor)
     /* Record the (token, email, <peer info>) information, <peer info> may
      * include peer_id, peer_ip, peer_name, etc.
      */
-    if (!seaf_repo_manager_token_peer_info_exists (seaf->repo_mgr, priv->token))
-        seaf_repo_manager_add_token_peer_info (seaf->repo_mgr,
+    if (!winguf_repo_manager_token_peer_info_exists (winguf->repo_mgr, priv->token))
+        winguf_repo_manager_add_token_peer_info (winguf->repo_mgr,
                                                priv->token,
                                                processor->peer_id,
                                                priv->peer_addr,
                                                priv->peer_name,
                                                (gint64)time(NULL));
     else
-        seaf_repo_manager_update_token_peer_info (seaf->repo_mgr,
+        winguf_repo_manager_update_token_peer_info (winguf->repo_mgr,
                                                   priv->token,
                                                   priv->peer_addr,
                                                   (gint64)time(NULL));
@@ -342,9 +342,9 @@ start (CcnetProcessor *processor, int argc, char **argv)
 
     priv->token = g_strdup(token);
 
-    CcnetPeer *peer = ccnet_get_peer (seaf->ccnetrpc_client, processor->peer_id);
+    CcnetPeer *peer = ccnet_get_peer (winguf->ccnetrpc_client, processor->peer_id);
     if (!peer || !peer->session_key) {
-        seaf_warning ("[check tx slave v3] session key of peer %.10s is null\n",
+        winguf_warning ("[check tx slave v3] session key of peer %.10s is null\n",
                       processor->peer_id);
         ccnet_processor_send_response (processor, SC_BAD_PEER, SS_BAD_PEER, NULL, 0);
         ccnet_processor_done (processor, FALSE);
@@ -360,9 +360,9 @@ start (CcnetProcessor *processor, int argc, char **argv)
         priv->peer_name = g_strdup("Unknown");
     g_object_unref (peer);
 
-    seaf_debug ("[check-tx] %s repo %.8s.\n", argv[0], repo_id);
+    winguf_debug ("[check-tx] %s repo %.8s.\n", argv[0], repo_id);
 
-    ccnet_processor_thread_create (processor, seaf->job_mgr,
+    ccnet_processor_thread_create (processor, winguf->job_mgr,
                                    check_tx, thread_done, processor);
 
     return 0;
@@ -385,7 +385,7 @@ handle_update (CcnetProcessor *processor,
     }
 
     if (strncmp (code, SC_GET_TOKEN, 3) == 0) {
-        token = seaf_token_manager_generate_token (seaf->token_mgr,
+        token = winguf_token_manager_generate_token (winguf->token_mgr,
                                                    processor->peer_id,
                                                    priv->repo_id);
         ccnet_processor_send_response (processor,

@@ -1,5 +1,5 @@
 
-from seaserv import get_user_messages, get_group_messages, get_messages, \
+from winguserv import get_user_messages, get_group_messages, get_messages, \
     count_message, count_user_message, count_group_message
 
 

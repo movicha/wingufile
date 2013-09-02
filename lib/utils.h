@@ -54,7 +54,7 @@ static inline int ccnet_rename(const char *oldfile, const char *newfile)
 }
 
 #define SeafStat struct __stat64
-#define seaf_fstat(fd,st) _fstat64(fd,st)
+#define winguf_fstat(fd,st) _fstat64(fd,st)
 
 #else
 
@@ -68,14 +68,14 @@ static inline int ccnet_rename(const char *oldfile, const char *newfile)
 #define ccnet_rename g_rename
 
 #define SeafStat struct stat
-#define seaf_fstat(fd,st) fstat(fd,st)
+#define winguf_fstat(fd,st) fstat(fd,st)
 
 #endif
 
 #define pipereadn(a,b,c) recvn((a),(b),(c))
 #define pipewriten(a,b,c) sendn((a),(b),(c))
 
-int seaf_stat (const char *path, SeafStat *st);
+int winguf_stat (const char *path, SeafStat *st);
 
 #ifndef O_BINARY
 #define O_BINARY 0

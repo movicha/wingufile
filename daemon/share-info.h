@@ -18,17 +18,17 @@ struct _SeafShareInfo {
 };
 
 SeafShareInfo*
-seaf_share_info_new (const char *id,
+winguf_share_info_new (const char *id,
                      const char *repo_id, 
                      const char *share_id,
                      const char *user_id,
                      gint64 timestamp);
 
 
-void seaf_share_info_free (SeafShareInfo* sinfo);
-void seaf_share_info_list_free (GList *list);
-char *seaf_share_info_to_json (SeafShareInfo *info);
-SeafShareInfo *seaf_share_info_from_json (const char *str);
+void winguf_share_info_free (SeafShareInfo* sinfo);
+void winguf_share_info_list_free (GList *list);
+char *winguf_share_info_to_json (SeafShareInfo *info);
+SeafShareInfo *winguf_share_info_from_json (const char *str);
 
 
 #endif

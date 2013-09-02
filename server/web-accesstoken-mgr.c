@@ -42,11 +42,11 @@ free_access_info (AccessInfo *info)
 }
 
 SeafWebAccessTokenManager*
-seaf_web_at_manager_new (SeafileSession *seaf)
+winguf_web_at_manager_new (SeafileSession *winguf)
 {
     SeafWebAccessTokenManager *mgr = g_new0 (SeafWebAccessTokenManager, 1);
 
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
     mgr->access_token_hash = g_hash_table_new_full (g_str_hash, g_str_equal,
                                                     g_free,
                                                     (GDestroyNotify)free_access_info);
@@ -97,7 +97,7 @@ clean_pulse (void *vmanager)
 }
 
 int
-seaf_web_at_manager_start (SeafWebAccessTokenManager *mgr)
+winguf_web_at_manager_start (SeafWebAccessTokenManager *mgr)
 {
     ccnet_timer_new (clean_pulse, mgr, CLEANING_INTERVAL_MSEC);
 
@@ -123,7 +123,7 @@ gen_new_token (GHashTable *token_hash)
 }
 
 char *
-seaf_web_at_manager_get_access_token (SeafWebAccessTokenManager *mgr,
+winguf_web_at_manager_get_access_token (SeafWebAccessTokenManager *mgr,
                                       const char *repo_id,
                                       const char *obj_id,
                                       const char *op,
@@ -169,7 +169,7 @@ seaf_web_at_manager_get_access_token (SeafWebAccessTokenManager *mgr,
 }
 
 SeafileWebAccess *
-seaf_web_at_manager_query_access_token (SeafWebAccessTokenManager *mgr,
+winguf_web_at_manager_query_access_token (SeafWebAccessTokenManager *mgr,
                                         const char *token)
 {
     SeafileWebAccess *webaccess;

@@ -9,7 +9,7 @@
 
 #include <glib.h>
 
-#include <searpc-client.h>
+#include <wingurpc-client.h>
 #include "wingufile-object.h"
 
 char *
@@ -18,7 +18,7 @@ wingufile_get_config (SearpcClient *client, const char *key)
     if (!key)
         return NULL;
 
-    return searpc_client_call__string (
+    return wingurpc_client_call__string (
         client, "wingufile_get_config", NULL, 
         1, "string", key);
 }
@@ -30,7 +30,7 @@ wingufile_get_config_async (SearpcClient *client, const char *key,
     if (!key)
         return -1;
 
-    return searpc_client_async_call__string (
+    return wingurpc_client_async_call__string (
         client, "wingufile_get_config", callback, user_data,
         1, "string", key);
 }
@@ -41,7 +41,7 @@ wingufile_set_config (SearpcClient *client, const char *key, const char *value)
     if (!key || !value)
         return -1;
 
-    return searpc_client_call__int (
+    return wingurpc_client_call__int (
         client, "wingufile_set_config", NULL,
         2, "string", key, "string", value);
 }
@@ -54,7 +54,7 @@ int wingufile_set_config_async (SearpcClient *client,
     if (!key || !value)
         return -1;
 
-    return searpc_client_async_call__int (
+    return wingurpc_client_async_call__int (
         client, "wingufile_set_config", callback, user_data,
         2, "string", key, "string", value);   
 }
@@ -71,7 +71,7 @@ wingufile_create_repo (SearpcClient *client,
 {
     g_return_val_if_fail (client && name && description && worktree, NULL);
 
-    return searpc_client_call__string (
+    return wingurpc_client_call__string (
         client, "wingufile_create_repo", error,
         6, "string", name, "string", description,
         "string", worktree, "string", passwd,
@@ -90,7 +90,7 @@ wingufile_create_repo_async (SearpcClient *client,
 {
     g_return_val_if_fail (client && name && description && worktree, -1);
 
-    return searpc_client_async_call__string (
+    return wingurpc_client_async_call__string (
         client, "wingufile_create_repo", callback, user_data,
         6, "string", name, "string", description,
         "string", worktree, "string", passwd,
@@ -103,7 +103,7 @@ wingufile_destroy_repo (SearpcClient *client,
 {
     g_return_val_if_fail (client && repo_id, -1);
 
-    return searpc_client_call__int (
+    return wingurpc_client_call__int (
         client, "wingufile_destroy_repo", error,
         1, "string", repo_id);
 }
@@ -116,7 +116,7 @@ wingufile_set_repo_token (SearpcClient *client,
 {
     g_return_val_if_fail (client && repo_id && token, -1);
 
-    return searpc_client_call__int (
+    return wingurpc_client_call__int (
         client, "wingufile_set_repo_token", error,
         2, "string", repo_id, "string", token);
 }
@@ -128,7 +128,7 @@ wingufile_get_repo_token (SearpcClient *client,
 {
     g_return_val_if_fail (client && repo_id, NULL);
 
-    return searpc_client_call__string (
+    return wingurpc_client_call__string (
         client, "wingufile_get_repo_token", error,
         1, "string", repo_id);
 }
@@ -138,7 +138,7 @@ wingufile_get_repo_list (SearpcClient *client,
                        int offset,
                        int limit, GError **error)
 {
-    return searpc_client_call__objlist (
+    return wingurpc_client_call__objlist (
         client, "wingufile_get_repo_list", WINGUFILE_TYPE_REPO, error,
         2, "int", offset, "int", limit);
 }
@@ -150,7 +150,7 @@ wingufile_get_repo (SearpcClient *client,
 {
     g_return_val_if_fail (client && repo_id, NULL);
 
-    return searpc_client_call__object (
+    return wingurpc_client_call__object (
         client, "wingufile_get_repo", WINGUFILE_TYPE_REPO, error,
         1, "string", repo_id);
 }
@@ -164,7 +164,7 @@ wingufile_set_repo_property (SearpcClient *client,
 {
     g_return_val_if_fail (client && repo_id && key, -1);
 
-    return searpc_client_call__int (
+    return wingurpc_client_call__int (
         client, "wingufile_set_repo_property", error,
         3, "string", repo_id, "string", key, "string", value);
 }
@@ -177,7 +177,7 @@ wingufile_get_repo_property (SearpcClient *client,
 {
     g_return_val_if_fail (client && repo_id, NULL);
 
-    return searpc_client_call__string (
+    return wingurpc_client_call__string (
         client, "wingufile_get_repo_property", error,
         2, "string", repo_id, "string", key);
 }
@@ -186,7 +186,7 @@ wingufile_get_repo_property (SearpcClient *client,
 int
 wingufile_calc_dir_size (SearpcClient *client, const char *path, GError **error)
 {
-    return searpc_client_call__int (client, "wingufile_calc_dir_size", error,
+    return wingurpc_client_call__int (client, "wingufile_calc_dir_size", error,
                                     1, "string", path);
 }
 
@@ -198,7 +198,7 @@ wingufile_add_chunk_server (SearpcClient *client,
     if (!server_id)
         return -1;
 
-    return searpc_client_call__int (
+    return wingurpc_client_call__int (
         client, "wingufile_add_chunk_server", error, 
         1, "string", server_id);
 }
@@ -210,7 +210,7 @@ wingufile_del_chunk_server (SearpcClient *client,
     if (!server_id)
         return -1;
 
-    return searpc_client_call__int (
+    return wingurpc_client_call__int (
         client, "wingufile_del_chunk_server", error, 
         1, "string", server_id);
 }
@@ -218,7 +218,7 @@ wingufile_del_chunk_server (SearpcClient *client,
 char *
 wingufile_list_chunk_servers (SearpcClient *client, GError **error)
 {
-    return searpc_client_call__string (
+    return wingurpc_client_call__string (
         client, "wingufile_list_chunk_servers", error,
         0);
 }
@@ -230,7 +230,7 @@ wingufile_set_monitor (SearpcClient *client, const char *peer_id,
     if (!peer_id)
         return -1;
 
-    return searpc_client_call__int (
+    return wingurpc_client_call__int (
         client, "wingufile_set_monitor", error, 
         1, "string", peer_id);
 }
@@ -238,7 +238,7 @@ wingufile_set_monitor (SearpcClient *client, const char *peer_id,
 char *
 wingufile_get_monitor (SearpcClient *client, GError **error)
 {
-    return searpc_client_call__string (
+    return wingurpc_client_call__string (
         client, "wingufile_get_monitor", error,
         0);
 }
@@ -249,7 +249,7 @@ wingufile_repo_query_access_property (SearpcClient *client,
                                     const char *repo_id,
                                     GError **error)
 {
-    return searpc_client_call__string (
+    return wingurpc_client_call__string (
         client, "wingufile_repo_query_access_property", error,
         1, "string", repo_id);
 }
@@ -259,7 +259,7 @@ wingufile_web_query_access_token (SearpcClient *client,
                                 const char *token,
                                 GError **error)
 {
-    return searpc_client_call__object (
+    return wingurpc_client_call__object (
         client, "wingufile_web_query_access_token", WINGUFILE_TYPE_WEB_ACCESS, error,
         1, "string", token);
 }
@@ -270,7 +270,7 @@ wingufile_get_decrypt_key (SearpcClient *client,
                          const char *user,
                          GError **error)
 {
-    return searpc_client_call__object (
+    return wingurpc_client_call__object (
         client, "wingufile_get_decrypt_key", WINGUFILE_TYPE_CRYPT_KEY, error,
         2, "string", repo_id, "string", user);
 }
@@ -285,7 +285,7 @@ wingufile_put_file (SearpcClient *client,
                   const char *head_id,
                   GError **error)
 {
-    return searpc_client_call__string (client, "wingufile_put_file", error,
+    return wingurpc_client_call__string (client, "wingufile_put_file", error,
                                     6, "string", repo_id,
                                     "string", file_path,
                                     "string", parent_dir,
@@ -303,7 +303,7 @@ wingufile_post_file (SearpcClient *client,
                    const char *user,
                    GError **error)
 {
-    return searpc_client_call__int (client, "wingufile_post_file", error,
+    return wingurpc_client_call__int (client, "wingufile_post_file", error,
                                     5, "string", repo_id,
                                     "string", file_path,
                                     "string", parent_dir,
@@ -320,7 +320,7 @@ wingufile_post_multi_files (SearpcClient *client,
                           const char *user,
                           GError **error)
 {
-    return searpc_client_call__string (client, "wingufile_post_multi_files", error,
+    return wingurpc_client_call__string (client, "wingufile_post_multi_files", error,
                                        5, "string", repo_id,
                                        "string", parent_dir,
                                        "string", filenames_json,
@@ -334,7 +334,7 @@ wingufile_set_user_quota (SearpcClient *client,
                         gint64 quota,
                         GError **error)
 {
-    return searpc_client_call__int (client, "set_user_quota", error,
+    return wingurpc_client_call__int (client, "set_user_quota", error,
                                     2, "string", user, "int64", &quota);
 }
 
@@ -344,7 +344,7 @@ wingufile_set_org_quota (SearpcClient *client,
                        gint64 quota,
                        GError **error)
 {
-    return searpc_client_call__int (client, "set_org_quota", error,
+    return wingurpc_client_call__int (client, "set_org_quota", error,
                                     2, "int", org_id, "int64", &quota);
 }
 
@@ -355,7 +355,7 @@ wingufile_set_org_user_quota (SearpcClient *client,
                             gint64 quota,
                             GError **error)
 {
-    return searpc_client_call__int (client, "set_org_user_quota", error,
+    return wingurpc_client_call__int (client, "set_org_user_quota", error,
                                     3, "int", org_id,
                                     "string", user,
                                     "int64", &quota);
@@ -366,7 +366,7 @@ wingufile_check_quota (SearpcClient *client,
                      const char *repo_id,
                      GError **error)
 {
-    return searpc_client_call__int (client, "check_quota", error,
+    return wingurpc_client_call__int (client, "check_quota", error,
                                     1, "string", repo_id);
 }
 
@@ -375,7 +375,7 @@ wingufile_disable_auto_sync_async (SearpcClient *client,
                                  AsyncCallback callback,
                                  void *user_data)
 {
-    return searpc_client_async_call__int (client,
+    return wingurpc_client_async_call__int (client,
                                           "wingufile_disable_auto_sync",
                                           callback, user_data, 0);
 }
@@ -385,7 +385,7 @@ wingufile_enable_auto_sync_async (SearpcClient *client,
                                  AsyncCallback callback,
                                  void *user_data)
 {
-    return searpc_client_async_call__int (client,
+    return wingurpc_client_async_call__int (client,
                                           "wingufile_enable_auto_sync",
                                           callback, user_data, 0);
 }
@@ -395,7 +395,7 @@ wingufile_is_auto_sync_enabled_async (SearpcClient *client,
                                     AsyncCallback callback,
                                     void *user_data)
 {
-    return searpc_client_async_call__int (client,
+    return wingurpc_client_async_call__int (client,
                                           "wingufile_is_auto_sync_enabled",
                                           callback, user_data, 0);
 }

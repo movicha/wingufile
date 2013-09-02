@@ -5,7 +5,7 @@
  * 
  *  - Publishing heartbeat messages every HEARTBEAT_INTERVAL senconds to
  *    indicate it's alive. If wingufile-applet doesn't get the message, it would
- *    check and try to restart seaf-daemon.
+ *    check and try to restart winguf-daemon.
  *
  *  - Provide API for other modules to publish their messages.
  *
@@ -28,34 +28,34 @@ struct _CcnetMessage;
 typedef struct _SeafMqManager SeafMqManager;
 
 struct _SeafMqManager {
-    struct _SeafileSession   *seaf;
+    struct _SeafileSession   *winguf;
     struct _SeafMqManagerPriv *priv;
 };
 
-SeafMqManager *seaf_mq_manager_new (struct _SeafileSession *seaf);   
+SeafMqManager *winguf_mq_manager_new (struct _SeafileSession *winguf);   
 
-void seaf_mq_manager_set_heartbeat_name (SeafMqManager *mgr, const char *app);
+void winguf_mq_manager_set_heartbeat_name (SeafMqManager *mgr, const char *app);
 
-int seaf_mq_manager_init (SeafMqManager *mgr);
+int winguf_mq_manager_init (SeafMqManager *mgr);
 
-int seaf_mq_manager_start (SeafMqManager *mgr);
+int winguf_mq_manager_start (SeafMqManager *mgr);
 
 
-void seaf_mq_manager_publish_message (SeafMqManager *mgr,
+void winguf_mq_manager_publish_message (SeafMqManager *mgr,
                                       struct _CcnetMessage *msg);
 
 void
-seaf_mq_manager_publish_message_full (SeafMqManager *mgr,
+winguf_mq_manager_publish_message_full (SeafMqManager *mgr,
                                       const char *app,
                                       const char *body,
                                       int flags);
 
 void
-seaf_mq_manager_publish_notification (SeafMqManager *mgr,
+winguf_mq_manager_publish_notification (SeafMqManager *mgr,
                                       const char *type,
                                       const char *content);
 
 void
-seaf_mq_manager_publish_event (SeafMqManager *mgr, const char *content);
+winguf_mq_manager_publish_event (SeafMqManager *mgr, const char *content);
 
 #endif

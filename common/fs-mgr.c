@@ -14,14 +14,14 @@
 
 #include <json-glib/json-glib.h>
 #include <openssl/sha.h>
-#include <searpc-utils.h>
+#include <wingurpc-utils.h>
 
 #include "wingufile-session.h"
 #include "wingufile-error.h"
 #include "fs-mgr.h"
 #include "block-mgr.h"
 #include "utils.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 #include "log.h"
 #include "../common/wingufile-crypt.h"
 
@@ -32,7 +32,7 @@
 
 #include "db.h"
 
-#define SEAF_TMP_EXT ".seaftmp~"
+#define SEAF_TMP_EXT ".winguftmp~"
 
 struct _SeafFSManagerPriv {
     /* GHashTable      *wingufile_cache; */
@@ -66,14 +66,14 @@ write_wingufile (SeafFSManager *fs_mgr,
 #endif  /* WINGUFILE_SERVER */
 
 SeafFSManager *
-seaf_fs_manager_new (SeafileSession *seaf,
-                     const char *seaf_dir)
+winguf_fs_manager_new (SeafileSession *winguf,
+                     const char *winguf_dir)
 {
     SeafFSManager *mgr = g_new0 (SeafFSManager, 1);
 
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
 
-    mgr->obj_store = seaf_obj_store_new (seaf, "fs");
+    mgr->obj_store = winguf_obj_store_new (winguf, "fs");
     if (!mgr->obj_store) {
         g_free (mgr);
         return NULL;
@@ -85,15 +85,15 @@ seaf_fs_manager_new (SeafileSession *seaf,
 }
 
 int
-seaf_fs_manager_init (SeafFSManager *mgr)
+winguf_fs_manager_init (SeafFSManager *mgr)
 {
 #if defined WINGUFILE_SERVER && defined FULL_FEATURE
-    if (seaf_obj_store_init (mgr->obj_store, TRUE, seaf->ev_mgr) < 0) {
+    if (winguf_obj_store_init (mgr->obj_store, TRUE, winguf->ev_mgr) < 0) {
         g_warning ("[fs mgr] Failed to init fs object store.\n");
         return -1;
     }
 #else
-    if (seaf_obj_store_init (mgr->obj_store, FALSE, NULL) < 0) {
+    if (winguf_obj_store_init (mgr->obj_store, FALSE, NULL) < 0) {
         g_warning ("[fs mgr] Failed to init fs object store.\n");
         return -1;
     }
@@ -108,21 +108,21 @@ checkout_block (const char *block_id,
                 int wfd,
                 SeafileCrypt *crypt)
 {
-    SeafBlockManager *block_mgr = seaf->block_mgr;
+    SeafBlockManager *block_mgr = winguf->block_mgr;
     BlockHandle *handle;
     BlockMetadata *bmd;
     char *dec_out = NULL;
     int dec_out_len = -1;
     char *blk_content = NULL;
 
-    handle = seaf_block_manager_open_block (block_mgr, block_id, BLOCK_READ);
+    handle = winguf_block_manager_open_block (block_mgr, block_id, BLOCK_READ);
     if (!handle) {
         g_warning ("Failed to open block %s\n", block_id);
         return -1;
     }
 
     /* first stat the block to get its size */
-    bmd = seaf_block_manager_stat_block_by_handle (block_mgr, handle);
+    bmd = winguf_block_manager_stat_block_by_handle (block_mgr, handle);
     if (!bmd) {
         g_warning ("can't stat block %s.\n", block_id);    
         goto checkout_blk_error;
@@ -130,15 +130,15 @@ checkout_block (const char *block_id,
 
     /* empty file, skip it */
     if (bmd->size == 0) {
-        seaf_block_manager_close_block (block_mgr, handle);
-        seaf_block_manager_block_handle_free (block_mgr, handle);
+        winguf_block_manager_close_block (block_mgr, handle);
+        winguf_block_manager_block_handle_free (block_mgr, handle);
         return 0;
     }
 
     blk_content = (char *)malloc (bmd->size * sizeof(char));
 
     /* read the block to prepare decryption */
-    if (seaf_block_manager_read_block (block_mgr, handle, 
+    if (winguf_block_manager_read_block (block_mgr, handle, 
                                        blk_content, bmd->size) != bmd->size) {
         g_warning ("Error when reading from block %s.\n", block_id);
         goto checkout_blk_error;
@@ -190,8 +190,8 @@ checkout_block (const char *block_id,
     }
 
     g_free (bmd);
-    seaf_block_manager_close_block (block_mgr, handle);
-    seaf_block_manager_block_handle_free (block_mgr, handle);
+    winguf_block_manager_close_block (block_mgr, handle);
+    winguf_block_manager_block_handle_free (block_mgr, handle);
     return 0;
 
 checkout_blk_error:
@@ -203,13 +203,13 @@ checkout_blk_error:
     if (bmd)
         g_free (bmd);
 
-    seaf_block_manager_close_block (block_mgr, handle);
-    seaf_block_manager_block_handle_free (block_mgr, handle);
+    winguf_block_manager_close_block (block_mgr, handle);
+    winguf_block_manager_block_handle_free (block_mgr, handle);
     return -1;
 }
 
 int 
-seaf_fs_manager_checkout_file (SeafFSManager *mgr, 
+winguf_fs_manager_checkout_file (SeafFSManager *mgr, 
                                const char *file_id, 
                                const char *file_path,
                                guint32 mode,
@@ -227,7 +227,7 @@ seaf_fs_manager_checkout_file (SeafFSManager *mgr,
 
     *conflicted = FALSE;
 
-    wingufile = seaf_fs_manager_get_wingufile (mgr, file_id);
+    wingufile = winguf_fs_manager_get_wingufile (mgr, file_id);
     if (!wingufile) {
         g_warning ("File %s does not exist.\n", file_id);
         return -1;
@@ -309,7 +309,7 @@ write_wingufile (SeafFSManager *fs_mgr,
     ondisk->file_size = hton64 (cdc->file_size);
     memcpy (ondisk->block_ids, cdc->blk_sha1s, cdc->block_nr * 20);
 
-    if (seaf_obj_store_write_obj (fs_mgr->obj_store, wingufile_id,
+    if (winguf_obj_store_write_obj (fs_mgr->obj_store, wingufile_id,
                                   ondisk, ondisk_size) < 0)
         ret = -1;
     g_free (ondisk);
@@ -333,7 +333,7 @@ calculate_chunk_size (uint64_t total_size)
 static int
 do_write_chunk (uint8_t *checksum, const char *buf, int len)
 {
-    SeafBlockManager *blk_mgr = seaf->block_mgr;
+    SeafBlockManager *blk_mgr = winguf->block_mgr;
     char chksum_str[41];
     BlockHandle *handle;
     int n;
@@ -341,32 +341,32 @@ do_write_chunk (uint8_t *checksum, const char *buf, int len)
     rawdata_to_hex (checksum, chksum_str, 20);
 
     /* Don't write if the block already exists. */
-    if (seaf_block_manager_block_exists (seaf->block_mgr, chksum_str))
+    if (winguf_block_manager_block_exists (winguf->block_mgr, chksum_str))
         return 0;
 
-    handle = seaf_block_manager_open_block (blk_mgr, chksum_str, BLOCK_WRITE);
+    handle = winguf_block_manager_open_block (blk_mgr, chksum_str, BLOCK_WRITE);
     if (!handle) {
         g_warning ("Failed to open block %s.\n", chksum_str);
         return -1;
     }
 
-    n = seaf_block_manager_write_block (blk_mgr, handle, buf, len);
+    n = winguf_block_manager_write_block (blk_mgr, handle, buf, len);
     if (n < 0) {
         g_warning ("Failed to write chunk %s.\n", chksum_str);
-        seaf_block_manager_close_block (blk_mgr, handle);
-        seaf_block_manager_block_handle_free (blk_mgr, handle);
+        winguf_block_manager_close_block (blk_mgr, handle);
+        winguf_block_manager_block_handle_free (blk_mgr, handle);
         return -1;
     }
 
-    seaf_block_manager_close_block (blk_mgr, handle);
+    winguf_block_manager_close_block (blk_mgr, handle);
 
-    if (seaf_block_manager_commit_block (blk_mgr, handle) < 0) {
+    if (winguf_block_manager_commit_block (blk_mgr, handle) < 0) {
         g_warning ("failed to commit chunk %s.\n", chksum_str);
-        seaf_block_manager_block_handle_free (blk_mgr, handle);
+        winguf_block_manager_block_handle_free (blk_mgr, handle);
         return -1;
     }
 
-    seaf_block_manager_block_handle_free (blk_mgr, handle);
+    winguf_block_manager_block_handle_free (blk_mgr, handle);
     return 0;
 }
 
@@ -423,7 +423,7 @@ create_cdc_for_empty_file (CDCFileDescriptor *cdc)
 }
 
 int
-seaf_fs_manager_index_blocks (SeafFSManager *mgr,
+winguf_fs_manager_index_blocks (SeafFSManager *mgr,
                               const char *file_path,
                               unsigned char sha1[],
                               SeafileCrypt *crypt)
@@ -431,7 +431,7 @@ seaf_fs_manager_index_blocks (SeafFSManager *mgr,
     SeafStat sb;
     CDCFileDescriptor cdc;
 
-    if (seaf_stat (file_path, &sb) < 0) {
+    if (winguf_stat (file_path, &sb) < 0) {
         g_warning ("Bad file %s: %s.\n", file_path, strerror(errno));
         return -1;
     }
@@ -548,7 +548,7 @@ wingufile_unref (Seafile *wingufile)
 }
 
 Seafile *
-seaf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id)
+winguf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id)
 {
     void *data;
     int len;
@@ -569,7 +569,7 @@ seaf_fs_manager_get_wingufile (SeafFSManager *mgr, const char *file_id)
         return wingufile;
     }
 
-    if (seaf_obj_store_read_obj (mgr->obj_store, file_id, &data, &len) < 0) {
+    if (winguf_obj_store_read_obj (mgr->obj_store, file_id, &data, &len) < 0) {
         g_warning ("[fs mgr] Failed to read file %s.\n", file_id);
         return NULL;
     }
@@ -614,7 +614,7 @@ static void compute_dir_id (SeafDir *dir, GList *entries)
 }
 
 SeafDir *
-seaf_dir_new (const char *id, GList *entries, gint64 ctime)
+winguf_dir_new (const char *id, GList *entries, gint64 ctime)
 {
     SeafDir *dir;
 
@@ -633,7 +633,7 @@ seaf_dir_new (const char *id, GList *entries, gint64 ctime)
 } 
 
 void 
-seaf_dir_free (SeafDir *dir)
+winguf_dir_free (SeafDir *dir)
 {
     if (dir == NULL)
         return;
@@ -649,7 +649,7 @@ seaf_dir_free (SeafDir *dir)
 }
 
 SeafDir *
-seaf_dir_from_data (const char *dir_id, const uint8_t *data, int len)
+winguf_dir_from_data (const char *dir_id, const uint8_t *data, int len)
 {
     SeafDir *root;
     SeafDirent *dent;
@@ -702,12 +702,12 @@ seaf_dir_from_data (const char *dir_id, const uint8_t *data, int len)
     return root;
 
 bad:
-    seaf_dir_free (root);
+    winguf_dir_free (root);
     return NULL;
 }
 
 int
-seaf_metadata_type_from_data (const uint8_t *data, int len)
+winguf_metadata_type_from_data (const uint8_t *data, int len)
 {
     const uint8_t *ptr = data;
 
@@ -724,7 +724,7 @@ ondisk_dirent_size (SeafDirent *dirent)
 }
 
 void *
-seaf_dir_to_data (SeafDir *dir, int *len)
+winguf_dir_to_data (SeafDir *dir, int *len)
 {
     SeafdirOndisk *ondisk;
     int dir_ondisk_size = sizeof(SeafdirOndisk);
@@ -760,7 +760,7 @@ seaf_dir_to_data (SeafDir *dir, int *len)
 }
 
 int 
-seaf_dir_save (SeafFSManager *fs_mgr, SeafDir *dir)
+winguf_dir_save (SeafFSManager *fs_mgr, SeafDir *dir)
 {
     void *data;
     int len;
@@ -770,9 +770,9 @@ seaf_dir_save (SeafFSManager *fs_mgr, SeafDir *dir)
     if (memcmp (dir->dir_id, EMPTY_SHA1, 40) == 0)
         return 0;
 
-    data = seaf_dir_to_data (dir, &len);
+    data = winguf_dir_to_data (dir, &len);
 
-    if (seaf_obj_store_write_obj (fs_mgr->obj_store, dir->dir_id,
+    if (winguf_obj_store_write_obj (fs_mgr->obj_store, dir->dir_id,
                                   data, len) < 0)
         ret = -1;
 
@@ -782,7 +782,7 @@ seaf_dir_save (SeafFSManager *fs_mgr, SeafDir *dir)
 }
 
 SeafDir *
-seaf_fs_manager_get_seafdir (SeafFSManager *mgr, const char *dir_id)
+winguf_fs_manager_get_wingufdir (SeafFSManager *mgr, const char *dir_id)
 {
     void *data;
     int len;
@@ -796,12 +796,12 @@ seaf_fs_manager_get_seafdir (SeafFSManager *mgr, const char *dir_id)
         return dir;
     }
 
-    if (seaf_obj_store_read_obj (mgr->obj_store, dir_id, &data, &len) < 0) {
+    if (winguf_obj_store_read_obj (mgr->obj_store, dir_id, &data, &len) < 0) {
         g_warning ("[fs mgr] Failed to read dir %s.\n", dir_id);
         return NULL;
     }
 
-    dir = seaf_dir_from_data (dir_id, data, len);
+    dir = winguf_dir_from_data (dir_id, data, len);
     g_free (data);
 
     return dir;
@@ -839,9 +839,9 @@ is_dirents_sorted (GList *dirents)
 }
 
 SeafDir *
-seaf_fs_manager_get_seafdir_sorted (SeafFSManager *mgr, const char *dir_id)
+winguf_fs_manager_get_wingufdir_sorted (SeafFSManager *mgr, const char *dir_id)
 {
-    SeafDir *dir = seaf_fs_manager_get_seafdir(mgr, dir_id);
+    SeafDir *dir = winguf_fs_manager_get_wingufdir(mgr, dir_id);
 
     if (!dir)
         return NULL;
@@ -853,7 +853,7 @@ seaf_fs_manager_get_seafdir_sorted (SeafFSManager *mgr, const char *dir_id)
 }
 
 SeafDirent *
-seaf_dirent_new (const char *sha1, int mode, const char *name)
+winguf_dirent_new (const char *sha1, int mode, const char *name)
 {
     SeafDirent *dent;
 
@@ -870,7 +870,7 @@ seaf_dirent_new (const char *sha1, int mode, const char *name)
 }
 
 SeafDirent *
-seaf_dirent_dup (SeafDirent *dent)
+winguf_dirent_dup (SeafDirent *dent)
 {
     return g_memdup (dent, sizeof(SeafDirent));
 }
@@ -903,14 +903,14 @@ block_list_free (BlockList *bl)
 void
 block_list_generate_bitmap (BlockList *bl)
 {
-    SeafBlockManager *blk_mgr = seaf->block_mgr;
+    SeafBlockManager *blk_mgr = winguf->block_mgr;
     char *block_id;
     size_t i = 0;
 
     BitfieldConstruct (&bl->block_map, bl->n_blocks);
     for (i = 0; i < bl->n_blocks; ++i) {
         block_id = g_ptr_array_index (bl->block_ids, i);
-        if (seaf_block_manager_block_exists (blk_mgr, block_id)) {
+        if (winguf_block_manager_block_exists (blk_mgr, block_id)) {
             BitfieldAdd (&bl->block_map, i);
             ++bl->n_valid_blocks;
         }
@@ -1000,7 +1000,7 @@ traverse_dir (SeafFSManager *mgr,
 {
     SeafDir *dir;
     GList *p;
-    SeafDirent *seaf_dent;
+    SeafDirent *winguf_dent;
     gboolean stop = FALSE;
 
     if (!callback (mgr, id, SEAF_METADATA_TYPE_DIR, user_data, &stop) &&
@@ -1010,41 +1010,41 @@ traverse_dir (SeafFSManager *mgr,
     if (stop)
         return 0;
 
-    dir = seaf_fs_manager_get_seafdir (mgr, id);
+    dir = winguf_fs_manager_get_wingufdir (mgr, id);
     if (!dir) {
-        g_warning ("[fs-mgr]get seafdir %s failed\n", id);
+        g_warning ("[fs-mgr]get wingufdir %s failed\n", id);
         if (skip_errors)
             return 0;
         return -1;
     }
     for (p = dir->entries; p; p = p->next) {
-        seaf_dent = (SeafDirent *)p->data;
+        winguf_dent = (SeafDirent *)p->data;
 
-        if (S_ISREG(seaf_dent->mode)) {
-            if (traverse_file (mgr, seaf_dent->id,
+        if (S_ISREG(winguf_dent->mode)) {
+            if (traverse_file (mgr, winguf_dent->id,
                                callback, user_data, skip_errors) < 0) {
                 if (!skip_errors) {
-                    seaf_dir_free (dir);
+                    winguf_dir_free (dir);
                     return -1;
                 }
             }
-        } else if (S_ISDIR(seaf_dent->mode)) {
-            if (traverse_dir (mgr, seaf_dent->id,
+        } else if (S_ISDIR(winguf_dent->mode)) {
+            if (traverse_dir (mgr, winguf_dent->id,
                               callback, user_data, skip_errors) < 0) {
                 if (!skip_errors) {
-                    seaf_dir_free (dir);
+                    winguf_dir_free (dir);
                     return -1;
                 }
             }
         }
     }
 
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
     return 0;
 }
 
 int
-seaf_fs_manager_traverse_tree (SeafFSManager *mgr,
+winguf_fs_manager_traverse_tree (SeafFSManager *mgr,
                                const char *root_id,
                                TraverseFSTreeCallback callback,
                                void *user_data,
@@ -1068,7 +1068,7 @@ fill_blocklist (SeafFSManager *mgr, const char *obj_id, int type,
     int i;
 
     if (type == SEAF_METADATA_TYPE_FILE) {
-        wingufile = seaf_fs_manager_get_wingufile (mgr, obj_id);
+        wingufile = winguf_fs_manager_get_wingufile (mgr, obj_id);
         if (!wingufile) {
             g_warning ("[fs mgr] Failed to find file %s.\n", obj_id);
             return FALSE;
@@ -1084,34 +1084,34 @@ fill_blocklist (SeafFSManager *mgr, const char *obj_id, int type,
 }
 
 int
-seaf_fs_manager_populate_blocklist (SeafFSManager *mgr,
+winguf_fs_manager_populate_blocklist (SeafFSManager *mgr,
                                     const char *root_id,
                                     BlockList *bl)
 {
-    return seaf_fs_manager_traverse_tree (mgr, root_id, 
+    return winguf_fs_manager_traverse_tree (mgr, root_id, 
                                           fill_blocklist,
                                           bl, FALSE);
 }
 
 gboolean
-seaf_fs_manager_object_exists (SeafFSManager *mgr, const char *id)
+winguf_fs_manager_object_exists (SeafFSManager *mgr, const char *id)
 {
     /* Empty file and dir always exists. */
     if (memcmp (id, EMPTY_SHA1, 40) == 0)
         return TRUE;
 
-    return seaf_obj_store_obj_exists (mgr->obj_store, id);
+    return winguf_obj_store_obj_exists (mgr->obj_store, id);
 }
 
 gint64
-seaf_fs_manager_get_file_size (SeafFSManager *mgr, const char *file_id)
+winguf_fs_manager_get_file_size (SeafFSManager *mgr, const char *file_id)
 {
     Seafile *file;
     gint64 file_size;
 
-    file = seaf_fs_manager_get_wingufile (seaf->fs_mgr, file_id);
+    file = winguf_fs_manager_get_wingufile (winguf->fs_mgr, file_id);
     if (!file) {
-        seaf_warning ("Couldn't get file %s", file_id);
+        winguf_warning ("Couldn't get file %s", file_id);
         return -1;
     }
 
@@ -1125,41 +1125,41 @@ static gint64
 get_dir_size (SeafFSManager *mgr, const char *id)
 {
     SeafDir *dir;
-    SeafDirent *seaf_dent;
+    SeafDirent *winguf_dent;
     guint64 size = 0;
     gint64 result;
     GList *p;
 
-    dir = seaf_fs_manager_get_seafdir (mgr, id);
+    dir = winguf_fs_manager_get_wingufdir (mgr, id);
     if (!dir)
         return -1;
 
     for (p = dir->entries; p; p = p->next) {
-        seaf_dent = (SeafDirent *)p->data;
+        winguf_dent = (SeafDirent *)p->data;
 
-        if (S_ISREG(seaf_dent->mode)) {
-            result = seaf_fs_manager_get_file_size (mgr, seaf_dent->id);
+        if (S_ISREG(winguf_dent->mode)) {
+            result = winguf_fs_manager_get_file_size (mgr, winguf_dent->id);
             if (result < 0) {
-                seaf_dir_free (dir);
+                winguf_dir_free (dir);
                 return result;
             }
             size += result;
-        } else if (S_ISDIR(seaf_dent->mode)) {
-            result = get_dir_size (mgr, seaf_dent->id);
+        } else if (S_ISDIR(winguf_dent->mode)) {
+            result = get_dir_size (mgr, winguf_dent->id);
             if (result < 0) {
-                seaf_dir_free (dir);
+                winguf_dir_free (dir);
                 return result;
             }
             size += result;
         }
     }
 
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
     return size;
 }
 
 gint64
-seaf_fs_manager_get_fs_size (SeafFSManager *mgr,
+winguf_fs_manager_get_fs_size (SeafFSManager *mgr,
                              const char *root_id)
 {
      if (strcmp (root_id, EMPTY_SHA1) == 0)
@@ -1171,36 +1171,36 @@ static int
 count_dir_files (SeafFSManager *mgr, const char *id)
 {
     SeafDir *dir;
-    SeafDirent *seaf_dent;
+    SeafDirent *winguf_dent;
     int count = 0;
     int result;
     GList *p;
 
-    dir = seaf_fs_manager_get_seafdir (mgr, id);
+    dir = winguf_fs_manager_get_wingufdir (mgr, id);
     if (!dir)
         return -1;
 
     for (p = dir->entries; p; p = p->next) {
-        seaf_dent = (SeafDirent *)p->data;
+        winguf_dent = (SeafDirent *)p->data;
 
-        if (S_ISREG(seaf_dent->mode)) {
+        if (S_ISREG(winguf_dent->mode)) {
             count ++;
-        } else if (S_ISDIR(seaf_dent->mode)) {
-            result = count_dir_files (mgr, seaf_dent->id);
+        } else if (S_ISDIR(winguf_dent->mode)) {
+            result = count_dir_files (mgr, winguf_dent->id);
             if (result < 0) {
-                seaf_dir_free (dir);
+                winguf_dir_free (dir);
                 return result;
             }
             count += result;
         }
     }
 
-    seaf_dir_free (dir);
+    winguf_dir_free (dir);
     return count;
 }
 
 int
-seaf_fs_manager_count_fs_files (SeafFSManager *mgr,
+winguf_fs_manager_count_fs_files (SeafFSManager *mgr,
                                 const char *root_id)
 {
      if (strcmp (root_id, EMPTY_SHA1) == 0)
@@ -1209,7 +1209,7 @@ seaf_fs_manager_count_fs_files (SeafFSManager *mgr,
 }
 
 SeafDir *
-seaf_fs_manager_get_seafdir_by_path (SeafFSManager *mgr,
+winguf_fs_manager_get_wingufdir_by_path (SeafFSManager *mgr,
                                      const char *root_id,
                                      const char *path,
                                      GError **error)
@@ -1220,7 +1220,7 @@ seaf_fs_manager_get_seafdir_by_path (SeafFSManager *mgr,
     char *name, *saveptr;
     char *tmp_path = g_strdup(path);
 
-    dir = seaf_fs_manager_get_seafdir (mgr, dir_id);
+    dir = winguf_fs_manager_get_wingufdir (mgr, dir_id);
     if (!dir) {
         g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_DIR_MISSING, "directory is missing");
         return NULL;
@@ -1241,14 +1241,14 @@ seaf_fs_manager_get_seafdir_by_path (SeafFSManager *mgr,
         if (!l) {
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_PATH_NO_EXIST,
                          "Path does not exists %s", path);
-            seaf_dir_free (dir);
+            winguf_dir_free (dir);
             dir = NULL;
             break;
         }
 
         SeafDir *prev = dir;
-        dir = seaf_fs_manager_get_seafdir (mgr, dir_id);
-        seaf_dir_free (prev);
+        dir = winguf_fs_manager_get_wingufdir (mgr, dir_id);
+        winguf_dir_free (prev);
 
         if (!dir) {
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_DIR_MISSING, 
@@ -1264,7 +1264,7 @@ seaf_fs_manager_get_seafdir_by_path (SeafFSManager *mgr,
 }
 
 char *
-seaf_fs_manager_path_to_obj_id (SeafFSManager *mgr,
+winguf_fs_manager_path_to_obj_id (SeafFSManager *mgr,
                                  const char *root_id,
                                  const char *path,
                                  guint32 *mode,
@@ -1292,7 +1292,7 @@ seaf_fs_manager_path_to_obj_id (SeafFSManager *mgr,
 
     slash = strrchr (copy, '/');
     if (!slash) {
-        base_dir = seaf_fs_manager_get_seafdir (mgr, root_id);
+        base_dir = winguf_fs_manager_get_wingufdir (mgr, root_id);
         if (!base_dir) {
             g_warning ("Failed to find root dir %s.\n", root_id);
             g_set_error (error, WINGUFILE_DOMAIN, SEAF_ERR_GENERAL, " ");
@@ -1303,7 +1303,7 @@ seaf_fs_manager_path_to_obj_id (SeafFSManager *mgr,
         *slash = 0;
         name = slash + 1;
         GError *tmp_error = NULL;
-        base_dir = seaf_fs_manager_get_seafdir_by_path (mgr,
+        base_dir = winguf_fs_manager_get_wingufdir_by_path (mgr,
                                                         root_id,
                                                         copy,
                                                         &tmp_error);
@@ -1334,13 +1334,13 @@ seaf_fs_manager_path_to_obj_id (SeafFSManager *mgr,
 
 out:
     if (base_dir)
-        seaf_dir_free (base_dir);
+        winguf_dir_free (base_dir);
     g_free (copy);
     return obj_id;
 }
 
 char *
-seaf_fs_manager_get_wingufile_id_by_path (SeafFSManager *mgr,
+winguf_fs_manager_get_wingufile_id_by_path (SeafFSManager *mgr,
                                         const char *root_id,
                                         const char *path,
                                         GError **error)
@@ -1348,7 +1348,7 @@ seaf_fs_manager_get_wingufile_id_by_path (SeafFSManager *mgr,
     guint32 mode;
     char *file_id;
 
-    file_id = seaf_fs_manager_path_to_obj_id (mgr, root_id, path, &mode, error);
+    file_id = winguf_fs_manager_path_to_obj_id (mgr, root_id, path, &mode, error);
 
     if (!file_id)
         return NULL;
@@ -1362,7 +1362,7 @@ seaf_fs_manager_get_wingufile_id_by_path (SeafFSManager *mgr,
 }
 
 char *
-seaf_fs_manager_get_seafdir_id_by_path (SeafFSManager *mgr,
+winguf_fs_manager_get_wingufdir_id_by_path (SeafFSManager *mgr,
                                        const char *root_id,
                                        const char *path,
                                        GError **error)
@@ -1370,7 +1370,7 @@ seaf_fs_manager_get_seafdir_id_by_path (SeafFSManager *mgr,
     guint32 mode = 0;
     char *dir_id;
 
-    dir_id = seaf_fs_manager_path_to_obj_id (mgr, root_id, path, &mode, error);
+    dir_id = winguf_fs_manager_path_to_obj_id (mgr, root_id, path, &mode, error);
 
     if (!dir_id)
         return NULL;

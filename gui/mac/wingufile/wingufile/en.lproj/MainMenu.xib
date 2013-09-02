@@ -86,7 +86,7 @@
 													<object class="NSTextFieldCell" key="NSCell" id="725282369">
 														<int key="NSCellFlags">67108864</int>
 														<int key="NSCellFlags2">272629760</int>
-														<string key="NSContents">Please choose a directory to store Seafile data.  We will create directory 'seafile' in it. This directory will be used for storing synchronized folders you downloaded from servers.</string>
+														<string key="NSContents">Please choose a directory to store Seafile data.  We will create directory 'wingufile' in it. This directory will be used for storing synchronized folders you downloaded from servers.</string>
 														<object class="NSFont" key="NSSupport">
 															<string key="NSName">LucidaGrande</string>
 															<double key="NSSize">13</double>
@@ -491,7 +491,7 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">initseafile_ok:</string>
+						<string key="label">initwingufile_ok:</string>
 						<reference key="source" ref="976324537"/>
 						<reference key="destination" ref="904362059"/>
 					</object>
@@ -507,7 +507,7 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">initseafile_choose_dir:</string>
+						<string key="label">initwingufile_choose_dir:</string>
 						<reference key="source" ref="976324537"/>
 						<reference key="destination" ref="612654289"/>
 					</object>
@@ -523,7 +523,7 @@
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBActionConnection" key="connection">
-						<string key="label">initseafile_cancel:</string>
+						<string key="label">initwingufile_cancel:</string>
 						<reference key="source" ref="976324537"/>
 						<reference key="destination" ref="253775790"/>
 					</object>
@@ -981,9 +981,9 @@
 					<dictionary class="NSMutableDictionary" key="actions">
 						<string key="disableAutoSync:">id</string>
 						<string key="enableAutoSync:">id</string>
-						<string key="initseafile_cancel:">id</string>
-						<string key="initseafile_choose_dir:">id</string>
-						<string key="initseafile_ok:">id</string>
+						<string key="initwingufile_cancel:">id</string>
+						<string key="initwingufile_choose_dir:">id</string>
+						<string key="initwingufile_ok:">id</string>
 						<string key="openSeafileSite:">id</string>
 						<string key="open_browser:">id</string>
 						<string key="quit:">id</string>
@@ -998,16 +998,16 @@
 							<string key="name">enableAutoSync:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="initseafile_cancel:">
-							<string key="name">initseafile_cancel:</string>
+						<object class="IBActionInfo" key="initwingufile_cancel:">
+							<string key="name">initwingufile_cancel:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="initseafile_choose_dir:">
-							<string key="name">initseafile_choose_dir:</string>
+						<object class="IBActionInfo" key="initwingufile_choose_dir:">
+							<string key="name">initwingufile_choose_dir:</string>
 							<string key="candidateClassName">id</string>
 						</object>
-						<object class="IBActionInfo" key="initseafile_ok:">
-							<string key="name">initseafile_ok:</string>
+						<object class="IBActionInfo" key="initwingufile_ok:">
+							<string key="name">initwingufile_ok:</string>
 							<string key="candidateClassName">id</string>
 						</object>
 						<object class="IBActionInfo" key="openSeafileSite:">

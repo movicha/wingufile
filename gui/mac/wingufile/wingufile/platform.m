@@ -98,21 +98,21 @@ int start_wingufile_daemon (void)
     NSBundle *bundle = [NSBundle mainBundle];
 
     NSTask *task = [[NSTask alloc] init];
-    [task setLaunchPath: [bundle pathForResource: @"seaf-daemon" ofType: nil]];
+    [task setLaunchPath: [bundle pathForResource: @"winguf-daemon" ofType: nil]];
 
     NSMutableArray *args = [NSMutableArray array];
     NSString *ccnet_conf = [[NSString alloc] initWithUTF8String: applet->config_dir];
-    NSString *seaf_conf = [[NSString alloc] initWithUTF8String: applet->wingufile_dir];
+    NSString *winguf_conf = [[NSString alloc] initWithUTF8String: applet->wingufile_dir];
     NSString *wtree =  [[NSString alloc] initWithUTF8String: applet->wingufile_worktree];
 
-    applet_message ("Starting seaf-daemon ...\n");
+    applet_message ("Starting winguf-daemon ...\n");
     applet_message ("data dir:      %s\n", applet->wingufile_dir);
     applet_message ("worktree dir:  %s\n", applet->wingufile_worktree);
 
     [args addObject: @"-c" ];
     [args addObject: ccnet_conf];
     [args addObject: @"-d"];
-    [args addObject: seaf_conf];
+    [args addObject: winguf_conf];
     [args addObject: @"-w"];
     [args addObject: wtree];
 
@@ -128,7 +128,7 @@ int start_wingufile_daemon (void)
     [task launch];
 
     [ccnet_conf release];
-    [seaf_conf release];
+    [winguf_conf release];
     [wtree release];
 
     if (![task isRunning]) {

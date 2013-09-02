@@ -8,7 +8,7 @@
 #include "share-info.h"
 
 SeafShareInfo*
-seaf_share_info_new (const char *id,
+winguf_share_info_new (const char *id,
                      const char *repo_id,
                      const char *share_id,
                      const char *user_id,
@@ -29,7 +29,7 @@ seaf_share_info_new (const char *id,
 }
 
 void
-seaf_share_info_free (SeafShareInfo *sinfo)
+winguf_share_info_free (SeafShareInfo *sinfo)
 {
     g_free (sinfo->id);
     g_free (sinfo->repo_id);
@@ -39,7 +39,7 @@ seaf_share_info_free (SeafShareInfo *sinfo)
 }
 
 void
-seaf_share_info_list_free (GList *list)
+winguf_share_info_list_free (GList *list)
 {
     GList *ptr;
 
@@ -47,12 +47,12 @@ seaf_share_info_list_free (GList *list)
         return;
 
     for (ptr = list; ptr; ptr = ptr->next)
-        seaf_share_info_free (ptr->data);
+        winguf_share_info_free (ptr->data);
     g_list_free (list);
 }
 
 char *
-seaf_share_info_to_json(SeafShareInfo *info)
+winguf_share_info_to_json(SeafShareInfo *info)
 {
     return json_printf ("ssssi", "id", info->id,
                         "repo_id", info->repo_id,
@@ -62,7 +62,7 @@ seaf_share_info_to_json(SeafShareInfo *info)
 }
 
 SeafShareInfo *
-seaf_share_info_from_json(const char *str)
+winguf_share_info_from_json(const char *str)
 {
     SeafShareInfo *info;
     JsonParser *parser;
@@ -96,7 +96,7 @@ seaf_share_info_from_json(const char *str)
         return NULL;
     }
 
-    info = seaf_share_info_new (id, repo_id, group_id, user_id, timestamp);
+    info = winguf_share_info_new (id, repo_id, group_id, user_id, timestamp);
 
     g_object_unref (parser);
 

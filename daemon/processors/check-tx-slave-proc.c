@@ -88,14 +88,14 @@ start (CcnetProcessor *processor, int argc, char **argv)
         return -1;
     }
 
-    SeafRepo *repo = seaf_repo_manager_get_repo (seaf->repo_mgr, repo_id);
+    SeafRepo *repo = winguf_repo_manager_get_repo (winguf->repo_mgr, repo_id);
     if (!repo) {
         ccnet_processor_send_response (processor, SC_BAD_REPO, SS_BAD_REPO, NULL, 0);
         ccnet_processor_done (processor, FALSE);
         return -1;
     }
 
-    if (seaf_repo_manager_verify_tmp_token (seaf->repo_mgr, repo_id,
+    if (winguf_repo_manager_verify_tmp_token (winguf->repo_mgr, repo_id,
                                             processor->peer_id, token)) {
         g_debug ("[chek-down] verify tmp toke for repo %s success\n", repo_id);
         goto ret_ok;
@@ -103,7 +103,7 @@ start (CcnetProcessor *processor, int argc, char **argv)
     if (!repo->net_browsable)
         goto ret_no;
 
-    if (seaf_repo_manager_verify_repo_lantoken (seaf->repo_mgr, repo_id, token))
+    if (winguf_repo_manager_verify_repo_lantoken (winguf->repo_mgr, repo_id, token))
         goto ret_ok;
 
 ret_no:
@@ -113,12 +113,12 @@ ret_no:
     return -1;
 
 ret_ok:
-    branch = seaf_branch_manager_get_branch (seaf->branch_mgr,
+    branch = winguf_branch_manager_get_branch (winguf->branch_mgr,
                                              repo_id, from_branch);
     if (branch != NULL) {
         ccnet_processor_send_response (processor, SC_OK, SS_OK,
                                        branch->commit_id, 41);
-        seaf_branch_unref (branch);
+        winguf_branch_unref (branch);
         return 0;
     } else {
         ccnet_processor_send_response (processor, SC_NO_BRANCH, SS_NO_BRANCH,

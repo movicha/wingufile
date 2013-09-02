@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This is a wrapper shell script for the real seaf-cli command.
+# This is a wrapper shell script for the real winguf-cli command.
 # It prepares necessary environment variables and exec the real script.
 
 # wingufile cli client requires python 2.6 or 2.7
@@ -45,7 +45,7 @@ WINGUFILE_BIN_DIR=${INSTALLPATH}/bin
 WINGUFILE_LIB_DIR=${INSTALLPATH}/lib:${INSTALLPATH}/lib64
 WINGUFILE_PYTHON_PATH=${INSTALLPATH}/lib/python2.6/site-packages:${INSTALLPATH}/lib64/python2.6/site-packages:${INSTALLPATH}/lib/python2.7/site-packages:${INSTALLPATH}/lib64/python2.7/site-packages
 
-SEAF_CLI=${WINGUFILE_BIN_DIR}/seaf-cli.py
+SEAF_CLI=${WINGUFILE_BIN_DIR}/winguf-cli.py
 
 PATH=${WINGUFILE_BIN_DIR}:${PATH} \
 PYTHONPATH=${WINGUFILE_PYTHON_PATH}:${PYTHONPATH} \

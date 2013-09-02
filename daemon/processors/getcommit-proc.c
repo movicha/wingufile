@@ -28,7 +28,7 @@
 #include <ccnet.h>
 #include "net.h"
 #include "utils.h"
-#include "seaf-utils.h"
+#include "winguf-utils.h"
 
 #include "wingufile-session.h"
 #include "repo-mgr.h"
@@ -157,7 +157,7 @@ check_commit (CcnetProcessor *processor, const char *commit_id)
 {
     USE_PRIV;
 
-    if (!seaf_commit_manager_commit_exists (seaf->commit_mgr, commit_id)) {
+    if (!winguf_commit_manager_commit_exists (winguf->commit_mgr, commit_id)) {
         request_object_batch (priv, commit_id);
     }
 }
@@ -165,7 +165,7 @@ check_commit (CcnetProcessor *processor, const char *commit_id)
 static int
 save_commit (ObjectPack *pack, int len)
 {
-    return seaf_obj_store_write_obj (seaf->commit_mgr->obj_store,
+    return winguf_obj_store_write_obj (winguf->commit_mgr->obj_store,
                                      pack->id,
                                      pack->object,
                                      len - 41);

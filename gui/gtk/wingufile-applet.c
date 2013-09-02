@@ -64,11 +64,11 @@ start_wingufile_daemon ()
     applet_message ("Starting wingufile ...\n");
     
     g_string_append_printf (buf, 
-        "seaf-daemon -c \"%s\" -d \"%s\" -w \"%s\"",
+        "winguf-daemon -c \"%s\" -d \"%s\" -w \"%s\"",
         applet->config_dir, applet->wingufile_dir, applet->wingufile_worktree);
     
     if (spawn_process (buf->str) < 0) {
-        applet_warning ("Failed to start seaf-daemon\n");
+        applet_warning ("Failed to start winguf-daemon\n");
         applet_exit(-1);
     }
 
@@ -319,7 +319,7 @@ void trayicon_set_tip (char *tip)
 gboolean
 is_wingufile_daemon_running ()
 {
-    return process_is_running ("seaf-daemon");
+    return process_is_running ("winguf-daemon");
 }
 
 void

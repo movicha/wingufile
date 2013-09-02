@@ -13,8 +13,8 @@
 #include <glib-object.h>
 
 #include <ccnet.h>
-#include <searpc-server.h>
-#include <searpc-client.h>
+#include <wingurpc-server.h>
+#include <wingurpc-client.h>
 
 #include "wingufile-session.h"
 #include "wingufile-rpc.h"
@@ -38,7 +38,7 @@
 
 #include "cdc/cdc.h"
 
-SeafileSession *seaf;
+SeafileSession *winguf;
 SearpcClient *ccnetrpc_client;
 SearpcClient *ccnetrpc_client_t;
 SearpcClient *async_ccnetrpc_client;
@@ -51,7 +51,7 @@ static struct option long_options[] = {
     { "help", no_argument, NULL, 'h', },
     { "version", no_argument, NULL, 'v', },
     { "config-file", required_argument, NULL, 'c' },
-    { "seafdir", required_argument, NULL, 'd' },
+    { "wingufdir", required_argument, NULL, 'd' },
     { "log", required_argument, NULL, 'l' },
     { "debug", required_argument, NULL, 'D' },
     { "foreground", no_argument, NULL, 'f' },
@@ -65,7 +65,7 @@ static struct option long_options[] = {
 
 static void usage ()
 {
-    fprintf (stderr, "usage: seaf-server [-c config_dir] [-d wingufile_dir]\n");
+    fprintf (stderr, "usage: winguf-server [-c config_dir] [-d wingufile_dir]\n");
 }
 
 static void register_processors (CcnetClient *client)
@@ -96,532 +96,532 @@ static void register_processors (CcnetClient *client)
                             WINGUFILE_TYPE_CHECKBL_PROC, NULL);
 }
 
-#include <searpc.h>
-#include "searpc-signature.h"
-#include "searpc-marshal.h"
+#include <wingurpc.h>
+#include "wingurpc-signature.h"
+#include "wingurpc-marshal.h"
 
 static void start_rpc_service (CcnetClient *client, int cloud_mode)
 {
-    searpc_server_init (register_marshals);
+    wingurpc_server_init (register_marshals);
 
-    searpc_create_service ("seafserv-rpcserver");
-    ccnet_register_service (client, "seafserv-rpcserver", "rpc-inner",
+    wingurpc_create_service ("wingufserv-rpcserver");
+    ccnet_register_service (client, "wingufserv-rpcserver", "rpc-inner",
                             CCNET_TYPE_RPCSERVER_PROC, NULL);
 
-    searpc_create_service ("seafserv-threaded-rpcserver");
-    ccnet_register_service (client, "seafserv-threaded-rpcserver", "rpc-inner",
+    wingurpc_create_service ("wingufserv-threaded-rpcserver");
+    ccnet_register_service (client, "wingufserv-threaded-rpcserver", "rpc-inner",
                             CCNET_TYPE_THREADED_RPCSERVER_PROC, NULL);
 
     /* threaded services */
 
     /* repo manipulation */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_repo,
                                      "wingufile_get_repo",
-                                     searpc_signature_object__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_object__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_destroy_repo,
                                      "wingufile_destroy_repo",
-                                     searpc_signature_int__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_repo_list,
                                      "wingufile_get_repo_list",
-                                     searpc_signature_objlist__int_int());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_objlist__int_int());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_repo_owner,
                                      "wingufile_get_repo_owner",
-                                     searpc_signature_string__string());
+                                     wingurpc_signature_string__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_edit_repo,
                                      "wingufile_edit_repo",
-                                     searpc_signature_int__string_string_string_string());
+                                     wingurpc_signature_int__string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_is_repo_owner,
                                      "wingufile_is_repo_owner",
-                                     searpc_signature_int__string_string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_owned_repos,
                                      "wingufile_list_owned_repos",
-                                     searpc_signature_objlist__string());
+                                     wingurpc_signature_objlist__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_server_repo_size,
                                      "wingufile_server_repo_size",
-                                     searpc_signature_int64__string());
+                                     wingurpc_signature_int64__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_repo_set_access_property,
                                      "wingufile_repo_set_access_property",
-                                     searpc_signature_int__string_string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_repo_query_access_property,
                                      "wingufile_repo_query_access_property",
-                                     searpc_signature_string__string());
+                                     wingurpc_signature_string__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_revert_on_server,
                                      "wingufile_revert_on_server",
-                                     searpc_signature_int__string_string_string());
+                                     wingurpc_signature_int__string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_diff,
                                      "wingufile_diff",
-                                     searpc_signature_objlist__string_string_string());
+                                     wingurpc_signature_objlist__string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_post_file,
                                      "wingufile_post_file",
-                    searpc_signature_int__string_string_string_string_string());
+                    wingurpc_signature_int__string_string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_post_multi_files,
                                      "wingufile_post_multi_files",
-                    searpc_signature_string__string_string_string_string_string());
+                    wingurpc_signature_string__string_string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_put_file,
                                      "wingufile_put_file",
-                    searpc_signature_string__string_string_string_string_string_string());
+                    wingurpc_signature_string__string_string_string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_post_empty_file,
                                      "wingufile_post_empty_file",
-                        searpc_signature_int__string_string_string_string());
+                        wingurpc_signature_int__string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_post_dir,
                                      "wingufile_post_dir",
-                        searpc_signature_int__string_string_string_string());
+                        wingurpc_signature_int__string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_del_file,
                                      "wingufile_del_file",
-                        searpc_signature_int__string_string_string_string());
+                        wingurpc_signature_int__string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_copy_file,
                                      "wingufile_copy_file",
-       searpc_signature_int__string_string_string_string_string_string_string());
+       wingurpc_signature_int__string_string_string_string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_move_file,
                                      "wingufile_move_file",
-       searpc_signature_int__string_string_string_string_string_string_string());
+       wingurpc_signature_int__string_string_string_string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_rename_file,
                                      "wingufile_rename_file",
-                    searpc_signature_int__string_string_string_string_string());
+                    wingurpc_signature_int__string_string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_is_valid_filename,
                                      "wingufile_is_valid_filename",
-                                     searpc_signature_int__string_string());
+                                     wingurpc_signature_int__string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_create_repo,
                                      "wingufile_create_repo",
-                                     searpc_signature_string__string_string_string_string());
+                                     wingurpc_signature_string__string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_commit,
                                      "wingufile_get_commit",
-                                     searpc_signature_object__string());
+                                     wingurpc_signature_object__string());
     
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_dir,
                                      "wingufile_list_dir",
-                                     searpc_signature_objlist__string_int_int());
+                                     wingurpc_signature_objlist__string_int_int());
     
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_file_size,
                                      "wingufile_get_file_size",
-                                     searpc_signature_int64__string());
+                                     wingurpc_signature_int64__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_dir_size,
                                      "wingufile_get_dir_size",
-                                     searpc_signature_int64__string());
+                                     wingurpc_signature_int64__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_dir_by_path,
                                      "wingufile_list_dir_by_path",
-                                     searpc_signature_objlist__string_string());
+                                     wingurpc_signature_objlist__string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_dirid_by_path,
                                      "wingufile_get_dirid_by_path",
-                                     searpc_signature_string__string_string());
+                                     wingurpc_signature_string__string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_file_id_by_path,
                                      "wingufile_get_file_id_by_path",
-                                     searpc_signature_string__string_string());
+                                     wingurpc_signature_string__string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_dir_id_by_path,
                                      "wingufile_get_dir_id_by_path",
-                                     searpc_signature_string__string_string());
+                                     wingurpc_signature_string__string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_file_revisions,
                                      "wingufile_list_file_revisions",
-                                     searpc_signature_objlist__string_string_int_int());
+                                     wingurpc_signature_objlist__string_string_int_int());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_calc_files_last_modified,
                                      "wingufile_calc_files_last_modified",
-                                     searpc_signature_objlist__string_string_int());
+                                     wingurpc_signature_objlist__string_string_int());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_revert_file,
                                      "wingufile_revert_file",
-                                     searpc_signature_int__string_string_string_string());
+                                     wingurpc_signature_int__string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_revert_dir,
                                      "wingufile_revert_dir",
-                                     searpc_signature_int__string_string_string_string());
+                                     wingurpc_signature_int__string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_deleted,
                                      "get_deleted",
-                                     searpc_signature_objlist__string_int());
+                                     wingurpc_signature_objlist__string_int());
 
     /* share repo to user */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_add_share,
                                      "wingufile_add_share",
-                                     searpc_signature_int__string_string_string_string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_string_string_string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_share_repos,
                                      "wingufile_list_share_repos",
-                                     searpc_signature_objlist__string_string_int_int());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_objlist__string_string_int_int());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_org_share_repos,
                                      "wingufile_list_org_share_repos",
-                                     searpc_signature_objlist__int_string_string_int_int());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_objlist__int_string_string_int_int());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_remove_share,
                                      "wingufile_remove_share",
-                                     searpc_signature_int__string_string_string());
+                                     wingurpc_signature_int__string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_set_share_permission,
                                      "set_share_permission",
-                                     searpc_signature_int__string_string_string_string());
+                                     wingurpc_signature_int__string_string_string_string());
 
     /* share repo to group */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_group_share_repo,
                                      "wingufile_group_share_repo",
-                                     searpc_signature_int__string_int_string_string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_int_string_string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_group_unshare_repo,
                                      "wingufile_group_unshare_repo",
-                                     searpc_signature_int__string_int_string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_int_string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_shared_groups_by_repo,
                                      "wingufile_get_shared_groups_by_repo",
-                                     searpc_signature_string__string());
+                                     wingurpc_signature_string__string());
     
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_group_repoids,
                                      "wingufile_get_group_repoids",
-                                     searpc_signature_string__int());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_string__int());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_group_repos_by_owner,
                                      "get_group_repos_by_owner",
-                                     searpc_signature_objlist__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_objlist__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_group_repo_owner,
                                      "get_group_repo_owner",
-                                     searpc_signature_string__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_string__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_remove_repo_group,
                                      "wingufile_remove_repo_group",
-                                     searpc_signature_int__int_string());    
+                                     wingurpc_signature_int__int_string());    
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_set_group_repo_permission,
                                      "set_group_repo_permission",
-                                     searpc_signature_int__int_string_string());
+                                     wingurpc_signature_int__int_string_string());
     
     /* branch and commit */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_branch_gets,
                                      "wingufile_branch_gets",
-                                     searpc_signature_objlist__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_objlist__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_commit_list,
                                      "wingufile_get_commit_list",
-                                     searpc_signature_objlist__string_int_int());
+                                     wingurpc_signature_objlist__string_int_int());
 
     /* token */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_generate_repo_token,
                                      "wingufile_generate_repo_token",
-                                     searpc_signature_string__string_string());
+                                     wingurpc_signature_string__string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_delete_repo_token,
                                      "wingufile_delete_repo_token",
-                                     searpc_signature_int__string_string_string());
+                                     wingurpc_signature_int__string_string_string());
     
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_repo_tokens,
                                      "wingufile_list_repo_tokens",
-                                     searpc_signature_objlist__string());
+                                     wingurpc_signature_objlist__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_list_repo_tokens_by_email,
                                      "wingufile_list_repo_tokens_by_email",
-                                     searpc_signature_objlist__string());
+                                     wingurpc_signature_objlist__string());
     
     /* quota */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_user_quota_usage,
                                      "wingufile_get_user_quota_usage",
-                                     searpc_signature_int64__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int64__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_user_share_usage,
                                      "wingufile_get_user_share_usage",
-                                     searpc_signature_int64__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int64__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_org_quota_usage,
                                      "wingufile_get_org_quota_usage",
-                                     searpc_signature_int64__int());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int64__int());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_org_user_quota_usage,
                                      "wingufile_get_org_user_quota_usage",
-                                     searpc_signature_int64__int_string());
+                                     wingurpc_signature_int64__int_string());
 
     /* virtual repo */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_create_virtual_repo,
                                      "create_virtual_repo",
-                                     searpc_signature_string__string_string_string_string_string());
+                                     wingurpc_signature_string__string_string_string_string_string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_virtual_repos_by_owner,
                                      "get_virtual_repos_by_owner",
-                                     searpc_signature_objlist__string());
+                                     wingurpc_signature_objlist__string());
 
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_virtual_repo,
                                      "get_virtual_repo",
-                                     searpc_signature_object__string_string_string());
+                                     wingurpc_signature_object__string_string_string());
 
     /* -------- rpc services -------- */
     /* token for web access to repo */
-    searpc_server_register_function ("seafserv-rpcserver",
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_web_get_access_token,
                                      "wingufile_web_get_access_token",
-                                     searpc_signature_string__string_string_string_string());
-    searpc_server_register_function ("seafserv-rpcserver",
+                                     wingurpc_signature_string__string_string_string_string());
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_web_query_access_token,
                                      "wingufile_web_query_access_token",
-                                     searpc_signature_object__string());
+                                     wingurpc_signature_object__string());
 
     /* chunk server manipulation */
-    searpc_server_register_function ("seafserv-rpcserver",
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_add_chunk_server,
                                      "wingufile_add_chunk_server",
-                                     searpc_signature_int__string());
-    searpc_server_register_function ("seafserv-rpcserver",
+                                     wingurpc_signature_int__string());
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_del_chunk_server,
                                      "wingufile_del_chunk_server",
-                                     searpc_signature_int__string());
-    searpc_server_register_function ("seafserv-rpcserver",
+                                     wingurpc_signature_int__string());
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_list_chunk_servers,
                                      "wingufile_list_chunk_servers",
-                                     searpc_signature_string__void());
+                                     wingurpc_signature_string__void());
 
     /* set monitor */
-    searpc_server_register_function ("seafserv-rpcserver",
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_set_monitor,
                                      "wingufile_set_monitor",
-                                     searpc_signature_int__string());
-    searpc_server_register_function ("seafserv-rpcserver",
+                                     wingurpc_signature_int__string());
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_get_monitor,
                                      "wingufile_get_monitor",
-                                     searpc_signature_string__void());
+                                     wingurpc_signature_string__void());
 
     /* password management */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_set_passwd,
                                      "wingufile_set_passwd",
-                                     searpc_signature_int__string_string_string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_string_string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_unset_passwd,
                                      "wingufile_unset_passwd",
-                                     searpc_signature_int__string_string());
-    searpc_server_register_function ("seafserv-rpcserver",
+                                     wingurpc_signature_int__string_string());
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_is_passwd_set,
                                      "wingufile_is_passwd_set",
-                                     searpc_signature_int__string_string());
-    searpc_server_register_function ("seafserv-rpcserver",
+                                     wingurpc_signature_int__string_string());
+    wingurpc_server_register_function ("wingufserv-rpcserver",
                                      wingufile_get_decrypt_key,
                                      "wingufile_get_decrypt_key",
-                                     searpc_signature_object__string_string());
+                                     wingurpc_signature_object__string_string());
 
     /* quota management */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_set_user_quota,
                                      "set_user_quota",
-                                     searpc_signature_int__string_int64());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_int64());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_user_quota,
                                      "get_user_quota",
-                                     searpc_signature_int64__string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int64__string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_set_org_quota,
                                      "set_org_quota",
-                                     searpc_signature_int__int_int64());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__int_int64());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_org_quota,
                                      "get_org_quota",
-                                     searpc_signature_int64__int());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int64__int());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_set_org_user_quota,
                                      "set_org_user_quota",
-                                     searpc_signature_int__int_string_int64());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__int_string_int64());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_org_user_quota,
                                      "get_org_user_quota",
-                                     searpc_signature_int64__int_string());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int64__int_string());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_check_quota,
                                      "check_quota",
-                                     searpc_signature_int__string());
+                                     wingurpc_signature_int__string());
 
     /* repo permission */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_check_permission,
                                      "check_permission",
-                                     searpc_signature_string__string_string());
+                                     wingurpc_signature_string__string_string());
     
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_file_id_by_commit_and_path,
                                      "wingufile_get_file_id_by_commit_and_path",
-                                     searpc_signature_string__string_string());
+                                     wingurpc_signature_string__string_string());
 
     if (!cloud_mode) {
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_set_inner_pub_repo,
                                          "set_inner_pub_repo",
-                                         searpc_signature_int__string_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int__string_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_unset_inner_pub_repo,
                                          "unset_inner_pub_repo",
-                                         searpc_signature_int__string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int__string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_is_inner_pub_repo,
                                          "is_inner_pub_repo",
-                                         searpc_signature_int__string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int__string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_list_inner_pub_repos,
                                          "list_inner_pub_repos",
-                                         searpc_signature_objlist__void());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_objlist__void());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_count_inner_pub_repos,
                                          "count_inner_pub_repos",
-                                         searpc_signature_int64__void());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int64__void());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_list_inner_pub_repos_by_owner,
                                          "list_inner_pub_repos_by_owner",
-                                         searpc_signature_objlist__string());
+                                         wingurpc_signature_objlist__string());
     }
 
     /* Org repo */
     if (cloud_mode) {
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_create_org_repo,
                                          "wingufile_create_org_repo",
-            searpc_signature_string__string_string_string_string_int());
+            wingurpc_signature_string__string_string_string_string_int());
 
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_get_org_id_by_repo_id,
                                          "wingufile_get_org_id_by_repo_id",
-                                         searpc_signature_int__string());
+                                         wingurpc_signature_int__string());
 
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_get_org_repo_list,
                                          "wingufile_get_org_repo_list",
-                                         searpc_signature_objlist__int_int_int());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_objlist__int_int_int());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_remove_org_repo_by_org_id,
                                          "wingufile_remove_org_repo_by_org_id",
-                                         searpc_signature_int__int());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int__int());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_list_org_repos_by_owner,
                                          "list_org_repos_by_owner",
-                                  searpc_signature_objlist__int_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                  wingurpc_signature_objlist__int_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_get_org_repo_owner,
                                          "get_org_repo_owner",
-                                  searpc_signature_string__string());
+                                  wingurpc_signature_string__string());
 
         /* org group repo */
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_add_org_group_repo,
                                          "add_org_group_repo",
-            searpc_signature_int__string_int_int_string_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+            wingurpc_signature_int__string_int_int_string_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_del_org_group_repo,
                                          "del_org_group_repo",
-                                         searpc_signature_int__string_int_int());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int__string_int_int());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_get_org_group_repoids,
                                          "get_org_group_repoids",
-                                         searpc_signature_string__int_int());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_string__int_int());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_get_org_group_repo_owner,
                                          "get_org_group_repo_owner",
-                                searpc_signature_string__int_int_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                wingurpc_signature_string__int_int_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_get_org_group_repos_by_owner,
                                          "get_org_group_repos_by_owner",
-                                searpc_signature_objlist__int_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                wingurpc_signature_objlist__int_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_get_org_groups_by_repo,
                                          "get_org_groups_by_repo",
-                                         searpc_signature_string__int_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_string__int_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_set_org_group_repo_permission,
                                          "set_org_group_repo_permission",
-                                         searpc_signature_int__int_int_string_string());
+                                         wingurpc_signature_int__int_int_string_string());
                                          
         /* org inner pub repo */
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_set_org_inner_pub_repo,
                                          "set_org_inner_pub_repo",
-                                         searpc_signature_int__int_string_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int__int_string_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_unset_org_inner_pub_repo,
                                          "unset_org_inner_pub_repo",
-                                         searpc_signature_int__int_string());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_int__int_string());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_list_org_inner_pub_repos,
                                          "list_org_inner_pub_repos",
-                                         searpc_signature_objlist__int());
-        searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                         wingurpc_signature_objlist__int());
+        wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                          wingufile_list_org_inner_pub_repos_by_owner,
                                          "list_org_inner_pub_repos_by_owner",
-                                         searpc_signature_objlist__int_string());
+                                         wingurpc_signature_objlist__int_string());
     }
 
     /* History */
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_set_repo_history_limit,
                                      "set_repo_history_limit",
-                                     searpc_signature_int__string_int());
-    searpc_server_register_function ("seafserv-threaded-rpcserver",
+                                     wingurpc_signature_int__string_int());
+    wingurpc_server_register_function ("wingufserv-threaded-rpcserver",
                                      wingufile_get_repo_history_limit,
                                      "get_repo_history_limit",
-                                     searpc_signature_int__string());
+                                     wingurpc_signature_int__string());
 }
 
 static void
@@ -640,13 +640,13 @@ create_sync_rpc_clients (const char *config_dir)
     /* sync client and rpc client */
     sync_client = ccnet_client_new ();
     if ( (ccnet_client_load_confdir(sync_client, config_dir)) < 0 ) {
-        seaf_warning ("Read config dir error\n");
+        winguf_warning ("Read config dir error\n");
         exit(1);
     }
 
     if (ccnet_client_connect_daemon (sync_client, CCNET_CLIENT_SYNC) < 0)
     {
-        seaf_warning ("Connect to server fail: %s\n", strerror(errno));
+        winguf_warning ("Connect to server fail: %s\n", strerror(errno));
         exit(1);
     }
 
@@ -683,7 +683,7 @@ write_pidfile (const char *pidfile_path)
 
     FILE *pidfile = g_fopen(pidfile_path, "w");
     if (!pidfile) {
-        seaf_warning ("Failed to fopen() pidfile %s: %s\n",
+        winguf_warning ("Failed to fopen() pidfile %s: %s\n",
                       pidfile_path, strerror(errno));
         return -1;
     }
@@ -691,7 +691,7 @@ write_pidfile (const char *pidfile_path)
     char buf[32];
     snprintf (buf, sizeof(buf), "%d\n", pid);
     if (fputs(buf, pidfile) < 0) {
-        seaf_warning ("Failed to write pidfile %s: %s\n",
+        winguf_warning ("Failed to write pidfile %s: %s\n",
                       pidfile_path, strerror(errno));
         return -1;
     }
@@ -707,17 +707,17 @@ load_history_config ()
     int keep_history_days;
     GError *error = NULL;
 
-    seaf->keep_history_days = -1;
+    winguf->keep_history_days = -1;
 
-    keep_history_days = g_key_file_get_integer (seaf->config,
+    keep_history_days = g_key_file_get_integer (winguf->config,
                                                 "history", "keep_days",
                                                 &error);
     if (error == NULL)
-        seaf->keep_history_days = keep_history_days;
+        winguf->keep_history_days = keep_history_days;
 }
 
 static void
-on_seaf_server_exit(void)
+on_winguf_server_exit(void)
 {
     if (pidfile)
         remove_pidfile (pidfile);
@@ -839,7 +839,7 @@ main (int argc, char **argv)
 
     if (wingufile_log_init (logfile, ccnet_debug_level_str,
                           wingufile_debug_level_str) < 0) {
-        seaf_warning ("Failed to init log.\n");
+        winguf_warning ("Failed to init log.\n");
         exit (1);
     }
 
@@ -854,31 +854,31 @@ main (int argc, char **argv)
     create_sync_rpc_clients (config_dir);
     create_async_rpc_clients (client);
 
-    seaf = wingufile_session_new (wingufile_dir, client);
-    if (!seaf) {
-        seaf_warning ("Failed to create wingufile session.\n");
+    winguf = wingufile_session_new (wingufile_dir, client);
+    if (!winguf) {
+        winguf_warning ("Failed to create wingufile session.\n");
         exit (1);
     }
-    seaf->is_master = is_master;
-    seaf->ccnetrpc_client = ccnetrpc_client;
-    seaf->async_ccnetrpc_client = async_ccnetrpc_client;
-    seaf->ccnetrpc_client_t = ccnetrpc_client_t;
-    seaf->async_ccnetrpc_client_t = async_ccnetrpc_client_t;
-    seaf->client_pool = ccnet_client_pool_new (config_dir);
-    seaf->cloud_mode = cloud_mode;
+    winguf->is_master = is_master;
+    winguf->ccnetrpc_client = ccnetrpc_client;
+    winguf->async_ccnetrpc_client = async_ccnetrpc_client;
+    winguf->ccnetrpc_client_t = ccnetrpc_client_t;
+    winguf->async_ccnetrpc_client_t = async_ccnetrpc_client_t;
+    winguf->client_pool = ccnet_client_pool_new (config_dir);
+    winguf->cloud_mode = cloud_mode;
 
     load_history_config ();
 
     g_free (wingufile_dir);
     g_free (logfile);
 
-    set_signal_handlers (seaf);
+    set_signal_handlers (winguf);
 
-    /* init seaf */
-    if (wingufile_session_init (seaf) < 0)
+    /* init winguf */
+    if (wingufile_session_init (winguf) < 0)
         exit (1);
 
-    if (wingufile_session_start (seaf) < 0)
+    if (wingufile_session_start (winguf) < 0)
         exit (1);
 
     if (pidfile) {
@@ -887,7 +887,7 @@ main (int argc, char **argv)
             return -1;
         }
     }
-    atexit (on_seaf_server_exit);
+    atexit (on_winguf_server_exit);
 
     ccnet_main (client);
 

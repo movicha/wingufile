@@ -21,9 +21,9 @@ struct _SeafMqManagerPriv {
 static int heartbeat_pulse (void *vmanager);
 
 SeafMqManager *
-seaf_mq_manager_new (SeafileSession *seaf)
+winguf_mq_manager_new (SeafileSession *winguf)
 {
-    CcnetClient *client = seaf->session;
+    CcnetClient *client = winguf->session;
     SeafMqManager *mgr;
     SeafMqManagerPriv *priv;
 
@@ -31,7 +31,7 @@ seaf_mq_manager_new (SeafileSession *seaf)
     priv = g_new0 (SeafMqManagerPriv, 1);
     
     
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
     mgr->priv = priv;
 
     priv->mqclient_proc = (CcnetMqclientProc *)
@@ -39,7 +39,7 @@ seaf_mq_manager_new (SeafileSession *seaf)
                                                     "mq-client");
 
     if (!priv->mqclient_proc) {
-        seaf_warning ("Failed to create mqclient proc.\n");
+        winguf_warning ("Failed to create mqclient proc.\n");
         g_free (mgr);
         g_free(priv);
         return NULL;
@@ -53,17 +53,17 @@ start_mq_client (CcnetMqclientProc *mqclient)
 {
     if (ccnet_processor_startl ((CcnetProcessor *)mqclient, NULL) < 0) {
         ccnet_processor_done ((CcnetProcessor *)mqclient, FALSE);
-        seaf_warning ("Failed to start mqclient proc\n");
+        winguf_warning ("Failed to start mqclient proc\n");
         return -1;
     }
 
-    seaf_message ("[mq client] mq cilent is started\n");
+    winguf_message ("[mq client] mq cilent is started\n");
 
     return 0;
 }
 
 int
-seaf_mq_manager_init (SeafMqManager *mgr)
+winguf_mq_manager_init (SeafMqManager *mgr)
 {
     SeafMqManagerPriv *priv = mgr->priv;
     if (start_mq_client(priv->mqclient_proc) < 0)
@@ -72,7 +72,7 @@ seaf_mq_manager_init (SeafMqManager *mgr)
 }
 
 int
-seaf_mq_manager_start (SeafMqManager *mgr)
+winguf_mq_manager_start (SeafMqManager *mgr)
 {
     SeafMqManagerPriv *priv = mgr->priv;
     priv->timer = ccnet_timer_new (heartbeat_pulse, mgr, 
@@ -83,7 +83,7 @@ seaf_mq_manager_start (SeafMqManager *mgr)
 static inline CcnetMessage *
 create_message (SeafMqManager *mgr, const char *app, const char *body, int flags)
 {
-    CcnetClient *client = mgr->seaf->session;
+    CcnetClient *client = mgr->winguf->session;
     CcnetMessage *msg;
     
     char *from = client->base.id;
@@ -94,7 +94,7 @@ create_message (SeafMqManager *mgr, const char *app, const char *body, int flags
 }
 
 void
-seaf_mq_manager_set_heartbeat_name (SeafMqManager *mgr, const char *app)
+winguf_mq_manager_set_heartbeat_name (SeafMqManager *mgr, const char *app)
 {
     if (!app)
         return;
@@ -103,10 +103,10 @@ seaf_mq_manager_set_heartbeat_name (SeafMqManager *mgr, const char *app)
     if (priv->heartbeat_msg)
         return;
 
-    seaf_message ("[mq mgr] publish to hearbeat mq: %s\n", app);
+    winguf_message ("[mq mgr] publish to hearbeat mq: %s\n", app);
 
     priv->heartbeat_msg =
-        create_message (seaf->mq_mgr, app, "heartbeat", 0);
+        create_message (winguf->mq_mgr, app, "heartbeat", 0);
 }
 
 /* Wrap around ccnet_message_new since all messages we use are local. */
@@ -118,14 +118,14 @@ _send_message (SeafMqManager *mgr, CcnetMessage *msg)
 }
 
 void
-seaf_mq_manager_publish_message (SeafMqManager *mgr,
+winguf_mq_manager_publish_message (SeafMqManager *mgr,
                                  CcnetMessage *msg)
 {
     _send_message (mgr, msg);
 }
 
 void
-seaf_mq_manager_publish_message_full (SeafMqManager *mgr,
+winguf_mq_manager_publish_message_full (SeafMqManager *mgr,
                                       const char *app,
                                       const char *body,
                                       int flags)
@@ -136,7 +136,7 @@ seaf_mq_manager_publish_message_full (SeafMqManager *mgr,
 }
 
 void
-seaf_mq_manager_publish_notification (SeafMqManager *mgr,
+winguf_mq_manager_publish_notification (SeafMqManager *mgr,
                                       const char *type,
                                       const char *content)
 {
@@ -153,9 +153,9 @@ seaf_mq_manager_publish_notification (SeafMqManager *mgr,
 }
 
 void
-seaf_mq_manager_publish_event (SeafMqManager *mgr, const char *content)
+winguf_mq_manager_publish_event (SeafMqManager *mgr, const char *content)
 {
-    static const char *app = "seaf_server.event";
+    static const char *app = "winguf_server.event";
 
     CcnetMessage *msg = create_message (mgr, app, content, 0);
     _send_message (mgr, msg);

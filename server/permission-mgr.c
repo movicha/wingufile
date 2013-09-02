@@ -17,16 +17,16 @@ struct _SeafPermManagerPriv {
 static int load_db (SeafPermManager *mgr);
 
 SeafPermManager *
-seaf_perm_manager_new (SeafileSession *seaf)
+winguf_perm_manager_new (SeafileSession *winguf)
 {
     SeafPermManager *mgr = g_new0 (SeafPermManager, 1);
     mgr->priv = g_new0 (SeafPermManagerPriv, 1);
-    mgr->seaf = seaf;
+    mgr->winguf = winguf;
     return mgr;
 }
 
 int
-seaf_perm_manager_init (SeafPermManager *mgr)
+winguf_perm_manager_init (SeafPermManager *mgr)
 {
     return load_db (mgr);
 }
@@ -34,7 +34,7 @@ seaf_perm_manager_init (SeafPermManager *mgr)
 static int
 load_db (SeafPermManager *mgr)
 {
-    char *db_path = g_build_filename (mgr->seaf->seaf_dir, PERM_DB, NULL);
+    char *db_path = g_build_filename (mgr->winguf->winguf_dir, PERM_DB, NULL);
     if (sqlite_open_db (db_path, &mgr->priv->db) < 0) {
         g_critical ("[Permission mgr] Failed to open permission db\n");
         g_free (db_path);

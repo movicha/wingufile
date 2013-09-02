@@ -13,15 +13,15 @@ from web.contrib.template import render_mako
 
 import settings
 
-from seaserv import CCNET_CONF_PATH
-from seaserv import ccnet_rpc, wingufile_rpc, applet_rpc
-from seaserv import get_peers_by_role
-from seaserv import get_repos, get_repo, get_commits, \
+from winguserv import CCNET_CONF_PATH
+from winguserv import ccnet_rpc, wingufile_rpc, applet_rpc
+from winguserv import get_peers_by_role
+from winguserv import get_repos, get_repo, get_commits, \
     get_branches, open_dir, get_diff, \
     get_default_wingufile_worktree, \
     get_current_prefs
 
-from pysearpc import SearpcError
+from pywingurpc import SearpcError
 
 urls = (
     '/', 'repos',

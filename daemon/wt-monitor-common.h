@@ -4,7 +4,7 @@
 #define WT_MONITOR_COMMON_H
 
 SeafWTMonitor *
-seaf_wt_monitor_new (SeafileSession *seaf)
+winguf_wt_monitor_new (SeafileSession *winguf)
 {
     SeafWTMonitor *monitor = g_new0 (SeafWTMonitor, 1);
     SeafWTMonitorPriv *priv = g_new0 (SeafWTMonitorPriv, 1);
@@ -26,31 +26,31 @@ seaf_wt_monitor_new (SeafileSession *seaf)
 #endif
 
     monitor->priv = priv;
-    monitor->seaf = seaf;
+    monitor->winguf = winguf;
 
     return monitor;
 }
 
 
 int
-seaf_wt_monitor_start (SeafWTMonitor *monitor)
+winguf_wt_monitor_start (SeafWTMonitor *monitor)
 {
     SeafWTMonitorPriv *priv = monitor->priv;
 
     if (ccnet_pipe (priv->cmd_pipe) < 0) {
-        seaf_warning ("[wt mon] failed to create command pipe: %s.\n", strerror(errno));
+        winguf_warning ("[wt mon] failed to create command pipe: %s.\n", strerror(errno));
         return -1;
     }
 
     if (ccnet_pipe (priv->res_pipe) < 0) {
-        seaf_warning ("[wt mon] failed to create result pipe: %s.\n", strerror(errno));
+        winguf_warning ("[wt mon] failed to create result pipe: %s.\n", strerror(errno));
         return -1;
     }
 
-    if (ccnet_job_manager_schedule_job (monitor->seaf->job_mgr,
+    if (ccnet_job_manager_schedule_job (monitor->winguf->job_mgr,
                                         wt_monitor_job,
                                         NULL, monitor) < 0) {
-        seaf_warning ("[wt mon] failed to start monitor thread.\n");
+        winguf_warning ("[wt mon] failed to start monitor thread.\n");
         return -1;
     }
 
@@ -58,7 +58,7 @@ seaf_wt_monitor_start (SeafWTMonitor *monitor)
 }
 
 int
-seaf_wt_monitor_watch_repo (SeafWTMonitor *monitor, const char *repo_id)
+winguf_wt_monitor_watch_repo (SeafWTMonitor *monitor, const char *repo_id)
 {
     SeafWTMonitorPriv *priv = monitor->priv;
     WatchCommand cmd;
@@ -70,15 +70,15 @@ seaf_wt_monitor_watch_repo (SeafWTMonitor *monitor, const char *repo_id)
     int n = pipewriten (priv->cmd_pipe[1], &cmd, sizeof(cmd));
     
     if (n != sizeof(cmd)) {
-        seaf_warning ("[wt mon] fail to write command pipe.\n");
+        winguf_warning ("[wt mon] fail to write command pipe.\n");
         return -1;
     }
 
-    seaf_debug ("send a watch command, repo %s\n", repo_id);
+    winguf_debug ("send a watch command, repo %s\n", repo_id);
 
     n = pipereadn (priv->res_pipe[0], &res, sizeof(int));
     if (n != sizeof(int)) {
-        seaf_warning ("[wt mon] fail to read result pipe.\n");
+        winguf_warning ("[wt mon] fail to read result pipe.\n");
         return -1;
     }
 
@@ -86,7 +86,7 @@ seaf_wt_monitor_watch_repo (SeafWTMonitor *monitor, const char *repo_id)
 }
 
 int
-seaf_wt_monitor_unwatch_repo (SeafWTMonitor *monitor, const char *repo_id)
+winguf_wt_monitor_unwatch_repo (SeafWTMonitor *monitor, const char *repo_id)
 {
     SeafWTMonitorPriv *priv = monitor->priv;
     WatchCommand cmd;
@@ -98,15 +98,15 @@ seaf_wt_monitor_unwatch_repo (SeafWTMonitor *monitor, const char *repo_id)
     int n = pipewriten (priv->cmd_pipe[1], &cmd, sizeof(cmd));
 
     if (n != sizeof(cmd)) {
-        seaf_warning ("[wt mon] fail to write command pipe.\n");
+        winguf_warning ("[wt mon] fail to write command pipe.\n");
         return -1;
     }
 
-    seaf_debug ("send an unwatch command, repo %s\n", repo_id);
+    winguf_debug ("send an unwatch command, repo %s\n", repo_id);
 
     n = pipereadn (priv->res_pipe[0], &res, sizeof(int));
     if (n != sizeof(int)) {
-        seaf_warning ("[wt mon] fail to read result pipe.\n");
+        winguf_warning ("[wt mon] fail to read result pipe.\n");
         return -1;
     }
 
@@ -114,7 +114,7 @@ seaf_wt_monitor_unwatch_repo (SeafWTMonitor *monitor, const char *repo_id)
 }
 
 int
-seaf_wt_monitor_refresh_repo (SeafWTMonitor *monitor, const char *repo_id)
+winguf_wt_monitor_refresh_repo (SeafWTMonitor *monitor, const char *repo_id)
 {
     SeafWTMonitorPriv *priv = monitor->priv;
     WatchCommand cmd;
@@ -126,15 +126,15 @@ seaf_wt_monitor_refresh_repo (SeafWTMonitor *monitor, const char *repo_id)
     int n = pipewriten (priv->cmd_pipe[1], &cmd, sizeof(cmd));
 
     if (n != sizeof(cmd)) {
-        seaf_warning ("[wt mon] fail to write command pipe.\n");
+        winguf_warning ("[wt mon] fail to write command pipe.\n");
         return -1;
     }
 
-    seaf_debug ("send a refresh command, repo %s\n", repo_id);
+    winguf_debug ("send a refresh command, repo %s\n", repo_id);
 
     n = pipereadn (priv->res_pipe[0], &res, sizeof(int));
     if (n != sizeof(int)) {
-        seaf_warning ("[wt mon] fail to read result pipe.\n");
+        winguf_warning ("[wt mon] fail to read result pipe.\n");
         return -1;
     }
 
@@ -142,7 +142,7 @@ seaf_wt_monitor_refresh_repo (SeafWTMonitor *monitor, const char *repo_id)
 }
 
 WTStatus *
-seaf_wt_monitor_get_worktree_status (SeafWTMonitor *monitor,
+winguf_wt_monitor_get_worktree_status (SeafWTMonitor *monitor,
                                      const char *repo_id)
 {
     gpointer key, value;
@@ -161,7 +161,7 @@ reply_watch_command (SeafWTMonitorPriv *priv, int result)
 
     n = pipewriten (priv->res_pipe[1], &result, sizeof(int));
     if (n != sizeof(int))
-        seaf_warning ("[wt mon] fail to write command result.\n");
+        winguf_warning ("[wt mon] fail to write command result.\n");
 }
 
 static void
@@ -177,7 +177,7 @@ handle_watch_command (SeafWTMonitorPriv *priv, WatchCommand *cmd)
         }
 
         if (handle_add_repo(priv, cmd->repo_id, &inotify_fd) < 0) {
-            seaf_warning ("[wt mon] failed to watch worktree of repo %s.\n", cmd->repo_id);
+            winguf_warning ("[wt mon] failed to watch worktree of repo %s.\n", cmd->repo_id);
             reply_watch_command (priv, -1);
             return;
         }
@@ -187,7 +187,7 @@ handle_watch_command (SeafWTMonitorPriv *priv, WatchCommand *cmd)
         memcpy (status->repo_id, cmd->repo_id, 37);
         g_hash_table_insert (priv->status_hash, (gpointer)(long)inotify_fd, status);
 
-        seaf_debug ("[wt mon] add watch for repo %s\n", cmd->repo_id);
+        winguf_debug ("[wt mon] add watch for repo %s\n", cmd->repo_id);
         reply_watch_command (priv, 0);
     } else if (cmd->type == CMD_DELETE_WATCH) {
         gpointer key, value;
@@ -202,7 +202,7 @@ handle_watch_command (SeafWTMonitorPriv *priv, WatchCommand *cmd)
         reply_watch_command (priv, 0);
     } else if (cmd->type ==  CMD_REFRESH_WATCH) {
         if (handle_refresh_repo (priv, cmd->repo_id) < 0) {
-            seaf_warning ("[wt mon] failed to refresh watch of repo %s.\n", cmd->repo_id);
+            winguf_warning ("[wt mon] failed to refresh watch of repo %s.\n", cmd->repo_id);
             reply_watch_command (priv, -1);
             return;
         }

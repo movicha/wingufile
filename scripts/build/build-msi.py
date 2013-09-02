@@ -46,7 +46,7 @@ conf = {}
 
 # key names in the conf dictionary.
 CONF_VERSION            = 'version'
-CONF_LIBSEARPC_VERSION  = 'libsearpc_version'
+CONF_libwingurpc_VERSION  = 'libwingurpc_version'
 CONF_CCNET_VERSION      = 'ccnet_version'
 CONF_WINGUFILE_VERSION    = 'wingufile_version'
 CONF_SRCDIR             = 'srcdir'
@@ -208,7 +208,7 @@ class Project(object):
         self.projdir = os.path.join(conf[CONF_BUILDDIR], '%s-%s' % (self.name, self.version))
 
     def get_version(self):
-        # libsearpc and ccnet can have different versions from wingufile.
+        # libwingurpc and ccnet can have different versions from wingufile.
         raise NotImplementedError
 
     def get_source_commit_id(self):
@@ -248,8 +248,8 @@ class Project(object):
             if run(cmd, cwd=self.projdir) != 0:
                 error('error when running command:\n\t%s\n' % cmd)
 
-class Libsearpc(Project):
-    name = 'libsearpc'
+class libwingurpc(Project):
+    name = 'libwingurpc'
 
     def __init__(self):
         Project.__init__(self)
@@ -260,7 +260,7 @@ class Libsearpc(Project):
         ]
 
     def get_version(self):
-        return conf[CONF_LIBSEARPC_VERSION]
+        return conf[CONF_libwingurpc_VERSION]
 
 class Ccnet(Project):
     name = 'ccnet'
@@ -310,7 +310,7 @@ def check_targz_src(proj, version, srcdir):
 def validate_args(usage, options):
     required_args = [
         CONF_VERSION,
-        CONF_LIBSEARPC_VERSION,
+        CONF_libwingurpc_VERSION,
         CONF_CCNET_VERSION,
         CONF_WINGUFILE_VERSION,
         CONF_SRCDIR,
@@ -331,18 +331,18 @@ def validate_args(usage, options):
             error('%s is not a valid version' % version, usage=usage)
 
     version = get_option(CONF_VERSION)
-    libsearpc_version = get_option(CONF_LIBSEARPC_VERSION)
+    libwingurpc_version = get_option(CONF_libwingurpc_VERSION)
     ccnet_version = get_option(CONF_CCNET_VERSION)
     wingufile_version = get_option(CONF_WINGUFILE_VERSION)
 
     check_project_version(version)
-    check_project_version(libsearpc_version)
+    check_project_version(libwingurpc_version)
     check_project_version(ccnet_version)
     check_project_version(wingufile_version)
 
     # [ srcdir ]
     srcdir = to_win_path(get_option(CONF_SRCDIR))
-    check_targz_src('libsearpc', libsearpc_version, srcdir)
+    check_targz_src('libwingurpc', libwingurpc_version, srcdir)
     check_targz_src('ccnet', ccnet_version, srcdir)
     check_targz_src('wingufile', wingufile_version, srcdir)
 
@@ -368,7 +368,7 @@ def validate_args(usage, options):
     onlychinese = get_option(CONF_ONLY_CHINESE)
 
     conf[CONF_VERSION] = version
-    conf[CONF_LIBSEARPC_VERSION] = libsearpc_version
+    conf[CONF_libwingurpc_VERSION] = libwingurpc_version
     conf[CONF_CCNET_VERSION] = ccnet_version
     conf[CONF_WINGUFILE_VERSION] = wingufile_version
 
@@ -388,7 +388,7 @@ def show_build_info():
     info('Seafile msi installer: BUILD INFO')
     info('------------------------------------------')
     info('wingufile:                  %s' % conf[CONF_VERSION])
-    info('libsearpc:                %s' % conf[CONF_LIBSEARPC_VERSION])
+    info('libwingurpc:                %s' % conf[CONF_libwingurpc_VERSION])
     info('ccnet:                    %s' % conf[CONF_CCNET_VERSION])
     info('wingufile:                  %s' % conf[CONF_WINGUFILE_VERSION])
     info('builddir:                 %s' % conf[CONF_BUILDDIR])
@@ -424,10 +424,10 @@ def parse_args():
                       nargs=1,
                       help='the version to build. Must be digits delimited by dots, like 1.3.0')
 
-    parser.add_option(long_opt(CONF_LIBSEARPC_VERSION),
-                      dest=CONF_LIBSEARPC_VERSION,
+    parser.add_option(long_opt(CONF_libwingurpc_VERSION),
+                      dest=CONF_libwingurpc_VERSION,
                       nargs=1,
-                      help='the version of libsearpc as specified in its "configure.ac". Must be digits delimited by dots, like 1.3.0')
+                      help='the version of libwingurpc as specified in its "configure.ac". Must be digits delimited by dots, like 1.3.0')
 
     parser.add_option(long_opt(CONF_CCNET_VERSION),
                       dest=CONF_CCNET_VERSION,
@@ -609,12 +609,12 @@ def copy_dll_exe():
     destdir = os.path.join(conf[CONF_BUILDDIR], 'pack', 'bin')
 
     filelist = [
-        os.path.join(prefix, 'bin', 'libsearpc-1.dll'),
-        os.path.join(prefix, 'bin', 'libsearpc-json-glib-0.dll'),
+        os.path.join(prefix, 'bin', 'libwingurpc-1.dll'),
+        os.path.join(prefix, 'bin', 'libwingurpc-json-glib-0.dll'),
         os.path.join(prefix, 'bin', 'libccnet-0.dll'),
         os.path.join(prefix, 'bin', 'libwingufile-0.dll'),
         os.path.join(prefix, 'bin', 'ccnet.exe'),
-        os.path.join(prefix, 'bin', 'seaf-daemon.exe'),
+        os.path.join(prefix, 'bin', 'winguf-daemon.exe'),
         os.path.join(Seafile().projdir, 'gui', 'win', 'wingufile-applet.exe')
     ]
 
@@ -772,12 +772,12 @@ def main():
     setup_build_env()
     check_tools()
 
-    libsearpc = Libsearpc()
+    libwingurpc = libwingurpc()
     ccnet = Ccnet()
     wingufile = Seafile()
 
-    libsearpc.uncompress()
-    libsearpc.build()
+    libwingurpc.uncompress()
+    libwingurpc.build()
 
     ccnet.uncompress()
     ccnet.build()

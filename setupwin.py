@@ -235,12 +235,12 @@ def copy_shared_libs():
 
 def copy_dll_exe():
     filelist = [
-        'libsearpc-1.dll',
-        'libsearpc-json-glib-0.dll',
+        'libwingurpc-1.dll',
+        'libwingurpc-json-glib-0.dll',
         'libccnet-0.dll',
         'libwingufile-0.dll',
         'ccnet.exe',
-        'seaf-daemon.exe',
+        'winguf-daemon.exe',
     ]
 
     filelist = [ which(f) for f in filelist ]

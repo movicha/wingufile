@@ -70,7 +70,7 @@ send_share_info (CcnetProcessor *processor)
         return FALSE;
         
     SeafShareInfo *info = priv->ptr->data;
-    char *s = seaf_share_info_to_json(info);
+    char *s = winguf_share_info_to_json(info);
 
     ccnet_processor_send_response (processor, "301", "ShareInfo",
                                    s, strlen(s)+1);
@@ -83,8 +83,8 @@ prepare_put_share_db (CcnetProcessor *processor)
 {
     USE_PRIV;
     
-    priv->sinfos = seaf_share_manager_get_group_share_info (
-        seaf->share_mgr, priv->share_id);
+    priv->sinfos = winguf_share_manager_get_group_share_info (
+        winguf->share_mgr, priv->share_id);
     priv->ptr = priv->sinfos;
 }
 

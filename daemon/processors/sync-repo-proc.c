@@ -66,13 +66,13 @@ sync_repo_start (CcnetProcessor *processor, int argc, char **argv)
     SeafileSyncRepoProc *proc = (SeafileSyncRepoProc *) processor;
 
     if (argc != 0) {
-        seaf_warning ("[sync-repo] argc should be 0.\n");
+        winguf_warning ("[sync-repo] argc should be 0.\n");
         ccnet_processor_done (processor, FALSE);
         return 0;
     }
 
     if (!proc->task) {
-        seaf_warning ("[sync-repo] Error: not provide info task.\n");
+        winguf_warning ("[sync-repo] Error: not provide info task.\n");
         ccnet_processor_done (processor, FALSE);
         return 0;
     }
@@ -102,14 +102,14 @@ static void handle_response (CcnetProcessor *processor,
     if (memcmp (code, SC_COMMIT_ID, 3) == 0) {
         
         if (content[clen-1] != '\0') {
-            seaf_warning ("[sync-repo] Response not end with NULL\n");
+            winguf_warning ("[sync-repo] Response not end with NULL\n");
             ccnet_processor_done (processor, FALSE);
             return;
         }
 
         /* g_debug ("[sync-repo] Get repo head commit %s\n", content); */
         if (strlen(content) != 40) {
-            seaf_debug ("[sync-repo] Invalid commit id\n");
+            winguf_debug ("[sync-repo] Invalid commit id\n");
             ccnet_processor_done (processor, FALSE);
             return;
         }

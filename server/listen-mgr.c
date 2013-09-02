@@ -61,7 +61,7 @@ get_listen_port (SeafileSession *session)
 
 
 SeafListenManager *
-seaf_listen_manager_new (SeafileSession *session)
+winguf_listen_manager_new (SeafileSession *session)
 {
     SeafListenManager *mgr;
     mgr = g_new0 (SeafListenManager, 1);
@@ -75,7 +75,7 @@ seaf_listen_manager_new (SeafileSession *session)
 }
 
 int
-seaf_listen_manager_start (SeafListenManager *mgr)
+winguf_listen_manager_start (SeafListenManager *mgr)
 {
     evutil_socket_t listenfd;
     unsigned flags;
@@ -83,7 +83,7 @@ seaf_listen_manager_start (SeafListenManager *mgr)
 
     listenfd = ccnet_net_bind_tcp (mgr->port, 1);
     if (listenfd < 0) {
-        seaf_warning ("[listen mgr] failed to bind port %d\n", mgr->port);
+        winguf_warning ("[listen mgr] failed to bind port %d\n", mgr->port);
         return -1;
     }
 
@@ -97,7 +97,7 @@ seaf_listen_manager_start (SeafListenManager *mgr)
                                 listenfd);              /* socket */
 
     if (!priv->listener) {
-        seaf_warning ("[listen mgr] failed to start evlistener\n");
+        winguf_warning ("[listen mgr] failed to start evlistener\n");
         evutil_closesocket (listenfd);
         return -1;
     }
@@ -105,7 +105,7 @@ seaf_listen_manager_start (SeafListenManager *mgr)
     priv->check_timer = ccnet_timer_new (token_expire_pulse, mgr,
                                          CHECK_EXPIRE_INTERVAL * 1000);
 
-    seaf_message ("listen on port %d for block tranfer\n", mgr->port);
+    winguf_message ("listen on port %d for block tranfer\n", mgr->port);
     return 0;
 }
 
@@ -142,7 +142,7 @@ read_cb (struct bufferevent *bufev, void *user_data)
     /* we set the high & low watermark to TOKEN_LEN, so the received data can
      * only be this length. */
     if (len != TOKEN_LEN) {
-        seaf_warning ("[listen mgr] token with incorrect length received: %d\n",
+        winguf_warning ("[listen mgr] token with incorrect length received: %d\n",
                       (int)len);
         goto error;
     }
@@ -152,11 +152,11 @@ read_cb (struct bufferevent *bufev, void *user_data)
     /* Switch to new block protocol */
     if (strcmp (token, BLOCK_PROTOCOL_SIGNATURE) == 0) {
         if (ccnet_net_make_socket_blocking (connfd) < 0) {
-            seaf_warning ("[listen mgr] Failed to set socket blocking.\n");
+            winguf_warning ("[listen mgr] Failed to set socket blocking.\n");
             goto error;
         }        
         if (block_tx_server_start (connfd) < 0) {
-            seaf_warning ("Failed to start block tx server.\n");
+            winguf_warning ("Failed to start block tx server.\n");
             goto error;
         }
         bufferevent_free (bufev);
@@ -165,7 +165,7 @@ read_cb (struct bufferevent *bufev, void *user_data)
 
     cbstruct = g_hash_table_lookup (mgr->priv->token_hash, token);
     if (!cbstruct) {
-        seaf_warning ("[listen mgr] unknown token received: %s\n", token);
+        winguf_warning ("[listen mgr] unknown token received: %s\n", token);
         goto error;
     }
 
@@ -173,7 +173,7 @@ read_cb (struct bufferevent *bufev, void *user_data)
      * But now we want it to be blocking again.
      */
     if (ccnet_net_make_socket_blocking (connfd) < 0) {
-        seaf_warning ("[listen mgr] Failed to set socket blocking.\n");
+        winguf_warning ("[listen mgr] Failed to set socket blocking.\n");
         goto error;
     }
 
@@ -193,9 +193,9 @@ static void
 error_cb (struct bufferevent *bufev, short what, void *user_data)
 {
     if (what & BEV_EVENT_TIMEOUT)
-        seaf_warning ("[listen mgr] client timeout\n");
+        winguf_warning ("[listen mgr] client timeout\n");
     else
-        seaf_warning ("[listen mgr] error when reading token\n");
+        winguf_warning ("[listen mgr] error when reading token\n");
 
     /* We don't specify BEV_OPT_CLOSE_ON_FREE, so we need to close the socket
      * manually. */
@@ -205,7 +205,7 @@ error_cb (struct bufferevent *bufev, short what, void *user_data)
 
 
 int
-seaf_listen_manager_register_token (SeafListenManager *mgr,
+winguf_listen_manager_register_token (SeafListenManager *mgr,
                                     const char *token,
                                     ConnAcceptedCB cb,
                                     void *cb_arg,
@@ -228,7 +228,7 @@ seaf_listen_manager_register_token (SeafListenManager *mgr,
 }
 
 char *
-seaf_listen_manager_generate_token (SeafListenManager *mgr)
+winguf_listen_manager_generate_token (SeafListenManager *mgr)
 {
     return gen_uuid();
 }
@@ -240,7 +240,7 @@ is_token_expired (gpointer key, gpointer value, gpointer user_data)
 
     if (cbstruct->ttl == 0) {
         /* client doesn't connect before timeout, so token is expired */
-        seaf_warning ("[listen mgr] token timeout\n");
+        winguf_warning ("[listen mgr] token timeout\n");
         cbstruct->func (-1, cbstruct->user_data);
         return TRUE;
     }

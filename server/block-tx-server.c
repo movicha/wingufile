@@ -54,7 +54,7 @@ send_handshake_response (BlockTxServer *server, int status)
     rsp.version = htonl (BLOCK_PROTOCOL_VERSION);
 
     if (sendn (server->data_fd, &rsp, sizeof(rsp)) < 0) {
-        seaf_warning ("Failed to send handshake response: %s.\n",
+        winguf_warning ("Failed to send handshake response: %s.\n",
                       evutil_socket_error_to_string(evutil_socket_geterror(server->data_fd)));
         return -1;
     }
@@ -82,11 +82,11 @@ process_session_key (BlockTxServer *server, unsigned char *enc_session_key)
     SearpcClient *client = NULL;
     int ret = 0;
 
-    client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                              NULL,
                                              "ccnet-rpcserver");
     if (!client) {
-        seaf_warning ("Failed to create rpc client.\n");
+        winguf_warning ("Failed to create rpc client.\n");
         send_handshake_response (server, STATUS_INTERNAL_SERVER_ERROR);
         ret = -1;
         goto out;
@@ -96,7 +96,7 @@ process_session_key (BlockTxServer *server, unsigned char *enc_session_key)
 
     key_b64 = ccnet_privkey_decrypt (client, enc_key_b64);
     if (!key_b64) {
-        seaf_warning ("Failed to decrypt session key.\n");
+        winguf_warning ("Failed to decrypt session key.\n");
         send_handshake_response (server, STATUS_INTERNAL_SERVER_ERROR);
         ret = -1;
         goto out;
@@ -137,7 +137,7 @@ handle_handshake_request (BlockTxServer *server)
 
         server->session_key_len = ntohl (req.key_len);
         if (server->session_key_len > MAX_SESSION_KEY_SIZE) {
-            seaf_warning ("Encrypted session key is too long: %d.\n",
+            winguf_warning ("Encrypted session key is too long: %d.\n",
                           server->session_key_len);
             send_handshake_response (server, STATUS_BAD_REQUEST);
             return -1;
@@ -160,7 +160,7 @@ handle_handshake_request (BlockTxServer *server)
     if (send_handshake_response (server, STATUS_OK) < 0)
         return -1;
 
-    seaf_debug ("recv_state set to AUTH.\n");
+    winguf_debug ("recv_state set to AUTH.\n");
 
     server->parser.content_cb = handle_auth_req_content_cb;
     server->recv_state = RECV_STATE_AUTH;
@@ -182,20 +182,20 @@ send_auth_response (BlockTxServer *server, int status)
     blocktx_encrypt_init (&ctx, server->key, server->iv);
 
     if (send_encrypted_data_frame_begin (server->data_fd, sizeof(rsp)) < 0) {
-        seaf_warning ("Send auth response: failed to begin.\n");
+        winguf_warning ("Send auth response: failed to begin.\n");
         ret = -1;
         goto out;
     }
 
     if (send_encrypted_data (&ctx, server->data_fd, &rsp, sizeof(rsp)) < 0)
     {
-        seaf_warning ("Send auth response: failed to send data.\n");
+        winguf_warning ("Send auth response: failed to send data.\n");
         ret = -1;
         goto out;
     }
 
     if (send_encrypted_data_frame_end (&ctx, server->data_fd) < 0) {
-        seaf_warning ("Send auth response: failed to end.\n");
+        winguf_warning ("Send auth response: failed to end.\n");
         ret = -1;
         goto out;
     }
@@ -216,23 +216,23 @@ handle_auth_req_content_cb (char *content, int clen, void *cbarg)
     SearpcClient *client = NULL;
 
     if (session_token[clen - 1] != '\0') {
-        seaf_warning ("Invalid session token format.\n");
+        winguf_warning ("Invalid session token format.\n");
         send_auth_response (server, STATUS_BAD_REQUEST);
         return -1;
     }
 
-    client = ccnet_create_pooled_rpc_client (seaf->client_pool,
+    client = ccnet_create_pooled_rpc_client (winguf->client_pool,
                                              NULL,
                                              "ccnet-rpcserver");
     if (!client) {
-        seaf_warning ("Failed to create rpc client.\n");
+        winguf_warning ("Failed to create rpc client.\n");
         send_auth_response (server, STATUS_INTERNAL_SERVER_ERROR);
         return -1;
     }
 
-    if (seaf_token_manager_verify_token (seaf->token_mgr, client, NULL,
+    if (winguf_token_manager_verify_token (winguf->token_mgr, client, NULL,
                                          session_token, NULL) < 0) {
-        seaf_warning ("Session token check failed.\n");
+        winguf_warning ("Session token check failed.\n");
         send_auth_response (server, STATUS_ACCESS_DENIED);
         ccnet_rpc_client_free (client);
         return -1;
@@ -243,7 +243,7 @@ handle_auth_req_content_cb (char *content, int clen, void *cbarg)
     if (send_auth_response (server, STATUS_OK) < 0)
         return -1;
 
-    seaf_debug ("recv_state set to HEADER.\n");
+    winguf_debug ("recv_state set to HEADER.\n");
 
     server->parser.content_cb = handle_block_header_content_cb;
     server->recv_state = RECV_STATE_HEADER;
@@ -271,7 +271,7 @@ send_block_response_header (BlockTxServer *server, int status)
     blocktx_encrypt_init (&ctx, server->key, server->iv);
 
     if (send_encrypted_data_frame_begin (server->data_fd, sizeof(header)) < 0) {
-        seaf_warning ("Send block response header %s: failed to begin.\n",
+        winguf_warning ("Send block response header %s: failed to begin.\n",
                       server->curr_block_id);
         ret = -1;
         goto out;
@@ -280,14 +280,14 @@ send_block_response_header (BlockTxServer *server, int status)
     if (send_encrypted_data (&ctx, server->data_fd,
                              &header, sizeof(header)) < 0)
     {
-        seaf_warning ("Send block response header %s: failed to send data.\n",
+        winguf_warning ("Send block response header %s: failed to send data.\n",
                       server->curr_block_id);
         ret = -1;
         goto out;
     }
 
     if (send_encrypted_data_frame_end (&ctx, server->data_fd) < 0) {
-        seaf_warning ("Send block response header %s: failed to end.\n",
+        winguf_warning ("Send block response header %s: failed to end.\n",
                       server->curr_block_id);
         ret = -1;
         goto out;
@@ -311,7 +311,7 @@ handle_block_header_content_cb (char *content, int clen, void *cbarg)
     RequestHeader *hdr;
 
     if (clen != sizeof(RequestHeader)) {
-        seaf_warning ("Invalid block request header length %d.\n", clen);
+        winguf_warning ("Invalid block request header length %d.\n", clen);
         send_block_response_header (server, STATUS_BAD_REQUEST);
         return -1;
     }
@@ -321,7 +321,7 @@ handle_block_header_content_cb (char *content, int clen, void *cbarg)
 
     if (hdr->command != REQUEST_COMMAND_GET &&
         hdr->command != REQUEST_COMMAND_PUT) {
-        seaf_warning ("Unknow command %d.\n", hdr->command);
+        winguf_warning ("Unknow command %d.\n", hdr->command);
         send_block_response_header (server, STATUS_BAD_REQUEST);
         return -1;
     }
@@ -333,11 +333,11 @@ handle_block_header_content_cb (char *content, int clen, void *cbarg)
         BlockMetadata *md;
         int block_size;
 
-        seaf_debug ("Received GET request for block %s.\n", server->curr_block_id);
+        winguf_debug ("Received GET request for block %s.\n", server->curr_block_id);
 
-        md = seaf_block_manager_stat_block (seaf->block_mgr, server->curr_block_id);
+        md = winguf_block_manager_stat_block (winguf->block_mgr, server->curr_block_id);
         if (!md) {
-            seaf_warning ("Failed to stat block %s.\n", server->curr_block_id);
+            winguf_warning ("Failed to stat block %s.\n", server->curr_block_id);
             send_block_response_header (server, STATUS_NOT_FOUND);
             return -1;
         }
@@ -350,23 +350,23 @@ handle_block_header_content_cb (char *content, int clen, void *cbarg)
         if (send_block_content (server, block_size) < 0)
             return -1;
 
-        seaf_debug ("recv_state set to HEADER.\n");
+        winguf_debug ("recv_state set to HEADER.\n");
 
         server->recv_state = RECV_STATE_HEADER;
     } else {
-        seaf_debug ("Received PUT request for block %s.\n", server->curr_block_id);
+        winguf_debug ("Received PUT request for block %s.\n", server->curr_block_id);
 
-        server->block = seaf_block_manager_open_block (seaf->block_mgr,
+        server->block = winguf_block_manager_open_block (winguf->block_mgr,
                                                        server->curr_block_id,
                                                        BLOCK_WRITE);
         if (!server->block) {
-            seaf_warning ("Failed to open block %s for write.\n",
+            winguf_warning ("Failed to open block %s for write.\n",
                           server->curr_block_id);
             send_block_response_header (server, STATUS_INTERNAL_SERVER_ERROR);
             return -1;
         }
 
-        seaf_debug ("recv_state set to CONTENT.\n");
+        winguf_debug ("recv_state set to CONTENT.\n");
 
         server->parser.fragment_cb = save_block_content_cb;
         server->recv_state = RECV_STATE_CONTENT;
@@ -399,24 +399,24 @@ send_encrypted_block (BlockTxServer *server,
     blocktx_encrypt_init (&ctx, server->key, server->iv);
 
     if (send_encrypted_data_frame_begin (server->data_fd, size) < 0) {
-        seaf_warning ("Send block %s: failed to begin.\n", block_id);
+        winguf_warning ("Send block %s: failed to begin.\n", block_id);
         ret = -1;
         goto out;
     }
 
     remain = size;
     while (remain > 0) {
-        n = seaf_block_manager_read_block (seaf->block_mgr,
+        n = winguf_block_manager_read_block (winguf->block_mgr,
                                            handle,
                                            send_buf, SEND_BUFFER_SIZE);
         if (n < 0) {
-            seaf_warning ("Failed to read block %s.\n", block_id);
+            winguf_warning ("Failed to read block %s.\n", block_id);
             ret = -1;
             goto out;
         }
 
         if (send_encrypted_data (&ctx, server->data_fd, send_buf, n) < 0) {
-            seaf_warning ("Send block %s: failed to send data.\n", block_id);
+            winguf_warning ("Send block %s: failed to send data.\n", block_id);
             ret = -1;
             goto out;
         }
@@ -425,12 +425,12 @@ send_encrypted_block (BlockTxServer *server,
     }
 
     if (send_encrypted_data_frame_end (&ctx, server->data_fd) < 0) {
-        seaf_warning ("Send block %s: failed to end.\n", block_id);
+        winguf_warning ("Send block %s: failed to end.\n", block_id);
         ret = -1;
         goto out;
     }
 
-    seaf_debug ("Send block %s done.\n", server->curr_block_id);
+    winguf_debug ("Send block %s done.\n", server->curr_block_id);
 
 out:
     EVP_CIPHER_CTX_cleanup (&ctx);
@@ -443,18 +443,18 @@ send_block_content (BlockTxServer *server, int block_size)
     BlockHandle *handle = NULL;
     int ret = 0;
 
-    handle = seaf_block_manager_open_block (seaf->block_mgr,
+    handle = winguf_block_manager_open_block (winguf->block_mgr,
                                             server->curr_block_id,
                                             BLOCK_READ);
     if (!handle) {
-        seaf_warning ("Failed to open block %s.\n", server->curr_block_id);
+        winguf_warning ("Failed to open block %s.\n", server->curr_block_id);
         return -1;
     }
 
     ret = send_encrypted_block (server, handle, server->curr_block_id, block_size);
 
-    seaf_block_manager_close_block (seaf->block_mgr, handle);
-    seaf_block_manager_block_handle_free (seaf->block_mgr, handle);
+    winguf_block_manager_close_block (winguf->block_mgr, handle);
+    winguf_block_manager_block_handle_free (winguf->block_mgr, handle);
     return ret;
 }
 
@@ -464,31 +464,31 @@ save_block_content_cb (char *content, int clen, int end, void *cbarg)
     BlockTxServer *server = cbarg;
     int n;
 
-    n = seaf_block_manager_write_block (seaf->block_mgr, server->block,
+    n = winguf_block_manager_write_block (winguf->block_mgr, server->block,
                                         content, clen);
     if (n < 0) {
-        seaf_warning ("Failed to write block %s.\n", server->curr_block_id);
+        winguf_warning ("Failed to write block %s.\n", server->curr_block_id);
         send_block_response_header (server, STATUS_INTERNAL_SERVER_ERROR);
         return -1;
     }
 
     if (end) {
-        seaf_block_manager_close_block (seaf->block_mgr, server->block);
+        winguf_block_manager_close_block (winguf->block_mgr, server->block);
 
-        if (seaf_block_manager_commit_block (seaf->block_mgr, server->block) < 0) {
-            seaf_warning ("Failed to commit block %s.\n", server->curr_block_id);
+        if (winguf_block_manager_commit_block (winguf->block_mgr, server->block) < 0) {
+            winguf_warning ("Failed to commit block %s.\n", server->curr_block_id);
             send_block_response_header (server, STATUS_INTERNAL_SERVER_ERROR);
             return -1;
         }
 
-        seaf_block_manager_block_handle_free (seaf->block_mgr, server->block);
+        winguf_block_manager_block_handle_free (winguf->block_mgr, server->block);
         /* Set this handle to invalid. */
         server->block = NULL;
 
         send_block_response_header (server, STATUS_OK);
 
-        seaf_debug ("Receive block %s done.\n", server->curr_block_id);
-        seaf_debug ("recv_state set to HEADER.\n");
+        winguf_debug ("Receive block %s done.\n", server->curr_block_id);
+        winguf_debug ("recv_state set to HEADER.\n");
 
         server->recv_state = RECV_STATE_HEADER;
     }
@@ -510,11 +510,11 @@ recv_data_cb (BlockTxServer *server)
     /* Let evbuffer determine how much data can be read. */
     int n = evbuffer_read (server->recv_buf, server->data_fd, -1);
     if (n == 0) {
-        seaf_debug ("Data connection is closed by the client. Transfer done.\n");
+        winguf_debug ("Data connection is closed by the client. Transfer done.\n");
         server->break_loop = TRUE;
         return;
     } else if (n < 0) {
-        seaf_warning ("Read data connection error: %s.\n",
+        winguf_warning ("Read data connection error: %s.\n",
                       evutil_socket_error_to_string(evutil_socket_geterror(clent->data_fd)));
         server->break_loop = TRUE;
         return;
@@ -565,12 +565,12 @@ server_thread_loop (BlockTxServer *server)
         if (rc < 0 && errno == EINTR) {
             continue;
         } else if (rc < 0) {
-            seaf_warning ("select error: %s.\n", strerror(errno));
+            winguf_warning ("select error: %s.\n", strerror(errno));
             break;
         }
 
         if (rc == 0) {
-            seaf_warning ("Recv block timeout.\n");
+            winguf_warning ("Recv block timeout.\n");
             break;
         }
 
@@ -592,8 +592,8 @@ block_tx_server_thread (void *vdata)
     server_thread_loop (server);
 
     if (server->block) {
-        seaf_block_manager_close_block (seaf->block_mgr, server->block);
-        seaf_block_manager_block_handle_free (seaf->block_mgr, server->block);
+        winguf_block_manager_close_block (winguf->block_mgr, server->block);
+        winguf_block_manager_block_handle_free (winguf->block_mgr, server->block);
     }
 
     if (server->parser.enc_init)
@@ -621,12 +621,12 @@ block_tx_server_start (evutil_socket_t data_fd)
 
     server->data_fd = data_fd;
 
-    ret = ccnet_job_manager_schedule_job (seaf->job_mgr,
+    ret = ccnet_job_manager_schedule_job (winguf->job_mgr,
                                           block_tx_server_thread,
                                           block_tx_server_thread_done,
                                           server);
     if (ret < 0) {
-        seaf_warning ("Failed to start block tx server thread.\n");
+        winguf_warning ("Failed to start block tx server thread.\n");
         return -1;
     }
 

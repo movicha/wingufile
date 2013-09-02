@@ -91,7 +91,7 @@ add_file_to_archive (PackDirData *data,
 
     pathname = g_build_filename (top_dir_name, parent_dir, dent->name, NULL);
 
-    file = seaf_fs_manager_get_wingufile (seaf->fs_mgr, dent->id);
+    file = winguf_fs_manager_get_wingufile (winguf->fs_mgr, dent->id);
     if (!file) {
         ret = -1;
         goto out;
@@ -100,10 +100,10 @@ add_file_to_archive (PackDirData *data,
     entry = archive_entry_new ();
 
     /* File name fixup for WinRAR */
-    if (is_windows && seaf->windows_encoding) {
-        char *win_file_name = do_iconv ("UTF-8", seaf->windows_encoding, pathname);
+    if (is_windows && winguf->windows_encoding) {
+        char *win_file_name = do_iconv ("UTF-8", winguf->windows_encoding, pathname);
         if (!win_file_name) {
-            seaf_warning ("Failed to convert file name to %s\n", seaf->windows_encoding);
+            winguf_warning ("Failed to convert file name to %s\n", winguf->windows_encoding);
             ret = -1;
             goto out;
         }
@@ -121,7 +121,7 @@ add_file_to_archive (PackDirData *data,
 
     n = archive_write_header (a, entry);
     if (n != ARCHIVE_OK) {
-        seaf_warning ("archive_write_header  error: %s\n", archive_error_string(a));
+        winguf_warning ("archive_write_header  error: %s\n", archive_error_string(a));
         ret = -1;
         goto out;
     }
@@ -129,18 +129,18 @@ add_file_to_archive (PackDirData *data,
     /* Read data of this entry block by block */
     while (idx < file->n_blocks) {
         blk_id = file->blk_sha1s[idx];
-        handle = seaf_block_manager_open_block (seaf->block_mgr,
+        handle = winguf_block_manager_open_block (winguf->block_mgr,
                                                 blk_id, BLOCK_READ);
         if (!handle) {
-            seaf_warning ("Failed to open block %s\n", blk_id);
+            winguf_warning ("Failed to open block %s\n", blk_id);
             ret = -1;
             goto out;
         }
 
-        bmd = seaf_block_manager_stat_block_by_handle (seaf->block_mgr,
+        bmd = winguf_block_manager_stat_block_by_handle (winguf->block_mgr,
                                                        handle);
         if (!bmd) {
-            seaf_warning ("Failed to stat block %s\n", blk_id);
+            winguf_warning ("Failed to stat block %s\n", blk_id);
             ret = -1;
             goto out;
         }
@@ -150,7 +150,7 @@ add_file_to_archive (PackDirData *data,
         if (crypt) {
             if (wingufile_decrypt_init (&ctx, crypt->version,
                                       crypt->key, crypt->iv) < 0) {
-                seaf_warning ("Failed to init decrypt.\n");
+                winguf_warning ("Failed to init decrypt.\n");
                 ret = -1;
                 goto out;
             }
@@ -158,10 +158,10 @@ add_file_to_archive (PackDirData *data,
         }
 
         while (remain != 0) {
-            n = seaf_block_manager_read_block (seaf->block_mgr, handle,
+            n = winguf_block_manager_read_block (winguf->block_mgr, handle,
                                                buf, sizeof(buf));
             if (n <= 0) {
-                seaf_warning ("failed to read block %s\n", blk_id);
+                winguf_warning ("failed to read block %s\n", blk_id);
                 ret = -1;
                 goto out;
             }
@@ -172,7 +172,7 @@ add_file_to_archive (PackDirData *data,
                 /* not encrypted */
                 len = archive_write_data (a, buf, n);
                 if (len <= 0) {
-                    seaf_warning ("archive_write_data returned %d\n", len);
+                    winguf_warning ("archive_write_data returned %d\n", len);
                     ret = -1;
                     goto out;
                 }
@@ -181,7 +181,7 @@ add_file_to_archive (PackDirData *data,
                 /* an encrypted block */
                 dec_out = g_new (char, n + 16);
                 if (!dec_out) {
-                    seaf_warning ("Failed to alloc memory.\n");
+                    winguf_warning ("Failed to alloc memory.\n");
                     ret = -1;
                     goto out;
                 }
@@ -194,7 +194,7 @@ add_file_to_archive (PackDirData *data,
 
                 /* EVP_DecryptUpdate returns 1 on success, 0 on failure */
                 if (r != 1) {
-                    seaf_warning ("Decrypt block %s failed.\n", blk_id);
+                    winguf_warning ("Decrypt block %s failed.\n", blk_id);
                     ret = -1;
                     goto out;
                 }
@@ -202,7 +202,7 @@ add_file_to_archive (PackDirData *data,
                 if (dec_out_len > 0) {
                     len = archive_write_data (a, dec_out, dec_out_len);
                     if (len <= 0) {
-                        seaf_warning ("archive_write_data returned %d\n", len);
+                        winguf_warning ("archive_write_data returned %d\n", len);
                         ret = -1;
                         goto out;
                     }
@@ -215,7 +215,7 @@ add_file_to_archive (PackDirData *data,
                                              (unsigned char *)dec_out,
                                              &dec_out_len);
                     if (r != 1) {
-                        seaf_warning ("Decrypt block %s failed.\n", blk_id);
+                        winguf_warning ("Decrypt block %s failed.\n", blk_id);
                         ret = -1;
                         goto out;
                     }
@@ -223,7 +223,7 @@ add_file_to_archive (PackDirData *data,
                     if (dec_out_len != 0) {
                         len = archive_write_data (a, dec_out, dec_out_len);
                         if (len <= 0) {
-                            seaf_warning ("archive_write_data returned %d\n", len);
+                            winguf_warning ("archive_write_data returned %d\n", len);
                             ret = -1;
                             goto out;
                         }
@@ -235,8 +235,8 @@ add_file_to_archive (PackDirData *data,
             }
         }
 
-        seaf_block_manager_close_block (seaf->block_mgr, handle);
-        seaf_block_manager_block_handle_free (seaf->block_mgr, handle);
+        winguf_block_manager_close_block (winguf->block_mgr, handle);
+        winguf_block_manager_block_handle_free (winguf->block_mgr, handle);
         handle = NULL;
 
         /* turn to next block */
@@ -250,8 +250,8 @@ out:
     if (file)
         wingufile_unref (file);
     if (handle) {
-        seaf_block_manager_close_block (seaf->block_mgr, handle);
-        seaf_block_manager_block_handle_free(seaf->block_mgr, handle);
+        winguf_block_manager_close_block (winguf->block_mgr, handle);
+        winguf_block_manager_block_handle_free(winguf->block_mgr, handle);
     }
     if (crypt != NULL && enc_init)
         EVP_CIPHER_CTX_cleanup (&ctx);
@@ -272,9 +272,9 @@ archive_dir (PackDirData *data,
     char *subpath = NULL;
     int ret = 0;
 
-    dir = seaf_fs_manager_get_seafdir (seaf->fs_mgr, root_id);
+    dir = winguf_fs_manager_get_wingufdir (winguf->fs_mgr, root_id);
     if (!dir) {
-        seaf_warning ("failed to get dir %s\n", root_id);
+        winguf_warning ("failed to get dir %s\n", root_id);
         goto out;
     }
 
@@ -303,7 +303,7 @@ archive_dir (PackDirData *data,
 
 out:
     if (dir)
-        seaf_dir_free (dir);
+        winguf_dir_free (dir);
 
     return ret;
 }
